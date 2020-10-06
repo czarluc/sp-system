@@ -12,13 +12,11 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
-
-class Purchase_Order_Admin(admin.ModelAdmin):
-    readonly_fields = ['purchase_date']
-
 admin.site.register(User, UserAdmin)
 admin.site.register(Assembly)
 admin.site.register(AssemblyLine)
+
+"""
 admin.site.register(Assembly_Line_Assignment)
 admin.site.register(Events)
 
@@ -161,3 +159,5 @@ admin.site.register(Transfer_Report)
 admin.site.register(Transfer_Item)
 admin.site.register(Transfer_Subt_Transaction)
 admin.site.register(Transfer_Add_Transaction)
+
+"""
