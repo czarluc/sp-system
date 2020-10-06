@@ -39,7 +39,6 @@ class PlannerSignUpView(CreateView):
 def PlannerHome(request):
     return render(request, 'invsys/planner/planner_home.html')
 
-"""
 #Work Order Creation
 @login_required
 @planner_required
@@ -507,5 +506,3 @@ def Dashboard_update_issuance_acc(request):
         "default" : count,
     }
     return JsonResponse(data) # http response
-
-"""

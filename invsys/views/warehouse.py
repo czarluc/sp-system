@@ -44,7 +44,6 @@ def WarehouseHome(request):
 def WarehouseTest(request):
     return render(request, 'invsys/warehouse/whsetest.html')
 
-"""
 #Check Inventory
 #--Create Item--
 @login_required
@@ -3899,4 +3898,3 @@ def ViewProductTransactions(request):
         'dism_prod_trans':dism_prod_trans
         })
 
-"""

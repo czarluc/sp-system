@@ -31,8 +31,6 @@ class AssemblySignUpView(CreateView):
 def AssemblyHome(request):
     return render(request, 'invsys/assembly/assembly_home.html')
 
-"""
-
 #--Assembly Updates
 @login_required
 @assembly_required
@@ -543,5 +541,3 @@ def Dashboard_update_issuance_acc(request):
         "default" : count,
     }
     return JsonResponse(data) # http response
-
-"""
