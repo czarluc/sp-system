@@ -38,10 +38,11 @@ class PlannerSignUpForm(UserCreationForm):
         return user
 class AssemblySignUpForm(UserCreationForm):
     
-    assemblyline = forms.ModelChoiceField(
+
+    #assemblyline = forms.ModelChoiceField(
         #queryset=AssemblyLine.objects.all(),
         #widget=forms.Select(choices=AssemblyLine.objects.all())
-    )
+    #)
 
     class Meta(UserCreationForm.Meta):
         model = User
@@ -52,7 +53,7 @@ class AssemblySignUpForm(UserCreationForm):
         user.is_assembly = True
         user.save()
         assembly = Assembly.objects.create(user=user)
-        assembly.assemblyline = self.cleaned_data.get('assemblyline')
+        #assembly.assemblyline = self.cleaned_data.get('assemblyline')
         assembly.save()
         return user
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
