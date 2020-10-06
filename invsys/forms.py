@@ -39,8 +39,8 @@ class PlannerSignUpForm(UserCreationForm):
 class AssemblySignUpForm(UserCreationForm):
     
     assemblyline = forms.ModelChoiceField(
-        queryset=AssemblyLine.objects.all(),
-        widget=forms.Select(choices=AssemblyLine.objects.all())
+        #queryset=AssemblyLine.objects.all(),
+        #widget=forms.Select(choices=AssemblyLine.objects.all())
     )
 
     class Meta(UserCreationForm.Meta):
