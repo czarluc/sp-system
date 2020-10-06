@@ -9,7 +9,33 @@ urlpatterns = [
 
     path('warehouse/', include(([
         path('', warehouse.WarehouseHome, name='warehouse_home'),
+
+    ], 'invsys'), namespace='warehouse')),
+
+    path('planner/', include(([
+        path('', planner.PlannerHome, name='planner_home'),
+        
+    ], 'invsys'), namespace='planner')),
+
+    path('assembly/', include(([
+        path('', assembly.AssemblyHome, name='assembly_home'),
+        
+    ], 'invsys'), namespace='assembly')),
+]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+"""
+
+urlpatterns = [
+    path('', invsys.home, name='home'),
+
+    path('warehouse/', include(([
+        path('', warehouse.WarehouseHome, name='warehouse_home'),
         path('test/', warehouse.WarehouseTest, name='warehouse_test'),
+
         #--Check Inventory
         path('CreateItem/', warehouse.CreateItem, name='whse_add_item'),
         path('CreateProd/', warehouse.CreateProdwithItems, name='whse_add_prod'),
@@ -183,3 +209,5 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+"""

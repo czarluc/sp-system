@@ -68,6 +68,7 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
         if not has_one_correct_answer:
             raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
+"""
 
 #MASTER TABLES
 class ItemForm(forms.Form):
@@ -514,3 +515,5 @@ Purchase_Order_Item_Formset = modelformset_factory(
         fields=('po_number','item_number', 'item_quantity'),
         extra=1,
     )
+
+"""
