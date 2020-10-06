@@ -73,7 +73,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'inventory.wsgi.application'
+WSGI_APPLICATION = 'inventory-project.wsgi.application'
 
 
 # Database
