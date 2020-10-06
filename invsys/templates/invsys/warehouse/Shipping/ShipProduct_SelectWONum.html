@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    input{ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h1>Select a Work Order to Ship</h1>
+
+<div class="card" id="select_card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Work Order Selected Details:</h4>
+    </div>
+    <div class="card-body">
+        <div class="form-row align-items-center">
+
+            <div class="col-4">
+                <div class="form-group">
+                    <label>Work Order Number:</label>
+                    <input type ="text" class="form-control" id="wo_num" readonly/>
+               </div>
+           </div>
+
+            <div class="col-4">
+                <div class="form-group">
+                    <label>Product Number:</label>
+                    <input type ="text" class="form-control" id="prod_num" readonly/>
+               </div>
+            </div>
+
+            <div class="col-4">
+                <div class="form-group">
+                    <label>Product Quantity:</label>
+                    <input type ="text" class="form-control" id="prod_quan" readonly/>
+               </div>
+           </div>
+
+        </div>
+
+        <div class="form-row align-items-center">
+            <div class="col-lg-1">
+                <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg">Select</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="card" id="wo_card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Work Order available for Shipping:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Work Order List-->
+            <table class="table table-hover table-striped w-auto" id="wo_table" >
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Work Order Number</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Order Type</th>
+                        <th scope="col">Work Order Class</th>
+                        <th scope="col">FO#</th>
+                        <th scope="col">Barcode</th>
+                        <th scope="col">TID#</th>
+                        <th scope="col">Customer Order Date</th>
+                        <th scope="col">OTD Customer Required Date</th>
+                        <th scope="col">OTP Commitment Date</th>
+                        <th scope="col">Required Completion Date</th>
+                        <th scope="col">Finished Completion Date</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in wo_num_set %}
+                    <tr class="tablerow" id="wo-{{forloop.counter}}">
+                        <td><button type="button" class="btn btn-primary item_number" data-wo_num="{{instance.work_order_number}}" data-prod_num="{{instance.prod_number__prod_number}}" data-prod_quan="{{instance.prod_quantity}}" >{{ instance.work_order_number }}</button></td>
+                        <td>{{ instance.customer }}</td>
+                        <td>{{ instance.order_type }}</td>
+                        <td>{{ instance.work_order_class }}</td>
+                        <td>{{ instance.fo_number }}</td>
+                        <td>{{ instance.barcode }}</td>
+                        <td>{{ instance.tid_number }}</td>
+                        <td>{{ instance.customer_order_date }}</td>
+                        <td>{{ instance.otd_customer_req_date }}</td>
+                        <td>{{ instance.otp_commitment_date }}</td>
+                        <td>{{ instance.required_completion_date }}</td>
+                        <td>{{ instance.finished_completion_date }}</td>
+                        <td>{{ instance.notes }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Production Schedules:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Bill of Materials-->
+            <table class="table table-hover table-striped w-auto" id="prodsched_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Production Schedule</th>
+                        <th scope="col">Product Quantity</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in prod_sched_set %}
+                    <tr class="tablerow" data-wo_num="{{ instance.work_order_number__work_order_number }}" data-prod_sched="{{ instance.id }}" data-prod_quan="{{ instance.quantity }}" data-status="{{ instance.status }}">
+                        <td>{{ instance.id }}</td>
+                        <td>{{ instance.quantity }}</td>
+                        <td>{{ instance.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+    $(window).on('load', function() {
+        document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        var table = $('#wo_table').DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+        var table2 = $('#prodsched_table').DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+        $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $( "#wo_table" ).on("click", ".btn.btn-primary.item_number", function () {
+            var btn = this;
+            
+            var wo_num = btn.dataset.wo_num;
+            var prod_num = btn.dataset.prod_num;
+            var prod_quan = btn.dataset.prod_quan;
+
+            $('#wo_num').val(wo_num);
+            $('#prod_num').val(prod_num);
+            $('#prod_quan').val(prod_quan);
+
+            $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
+                var prodsched = this;
+                var prodsched_wo_num = prodsched.dataset.wo_num;
+                
+                if (prodsched_wo_num === wo_num){
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });
+
+            toastr.info("Work Order Number " + wo_num + "is selected.");
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        });
+        
+        $(".btn.btn-warehouse.btn-lg").on("click", function () {
+
+            var wo_num = $('#wo_num').val();
+            var prod_num = $('#prod_num').val();
+            var prod_quan = $('#prod_quan').val();
+
+            $(window.opener.document).find('#id_wo_num').val(wo_num);
+
+            $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
+                var prod_sched_row = this;
+
+                var prod_sched = prod_sched_row.dataset.prod_sched;
+                var prod_quan = prod_sched_row.dataset.prod_quan;
+                var status = prod_sched_row.dataset.status;
+
+                if ($(this).is(":visible")){
+                    window.opener.showprod_sched(prod_sched,prod_quan,status);
+                }
+            });
+            
+            window.opener.showreqitem(prodsched);
+
+            toastr.success("Work Order Number " + wo_num + "is selected for Shipping.");
+
+            var goBack = window.open('', 'Ship_Prod');
+            goBack.focus();
+            window.close();
+        });
+
+        
+
+    });
+</script>
+{% endblock javascripts %}

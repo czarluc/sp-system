@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %} Welcome {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}a
+	<head>
+		<script src="https://code.jquery.com/jquery-3.5.1.min.js">
+		</script>
+		<body>
+
+			<form name="form1" action="next.html" method="get">
+				name:<input type ="text" id="name2" name="name2">
+				<button type="button" id="passbtn" class="btn btn-warehouse btn-lg">Pass</button>
+				<br>
+				new input:<input type ="text" id="name3" name="name3">
+			</form>
+
+		</body>
+
+		<script>
+			$(window).on("load",function() {
+		        var lclstore = localStorage.getItem("storedname1");
+				$('#name2').val(lclstore);
+				localStorage.clear();
+		    });
+
+			$(document).ready(function(){
+				$('#passbtn').click(function(){
+					var newinput = $('#name3').val();
+					$(window.opener.document).find('#name2').val(newinput);
+					console.log(newinput);
+				});
+			});
+		</script>
+
+	</head>
+{% endblock %}

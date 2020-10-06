@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>View Inbound Lobby</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Inbound Lobby Shipments:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="inbound_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Shipment Number</th>
+                        <th scope="col">Date In</th>
+                        <th scope="col">DR#</th>
+                        <th scope="col">RR#</th>
+                        <th scope="col">Invoice#</th>
+                        <th scope="col">Shipment Trucking</th>
+                        <th scope="col">Shipment Category</th>
+                        <th scope="col">Container Number</th>
+                        <th scope="col">Container Type</th>
+                        <th scope="col">AWL/BL</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Date DR</th>
+                        <th scope="col">Date Whse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in inbound_lobby_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}">
+
+                        <td>{{ instance.shipment_num__shipment_num }}</td>
+                        <td>{{ instance.date_in }}</td>
+                        <td>{{ instance.shipment_num__dr_num }}</td>
+                        <td>{{ instance.shipment_num__rr_num }}</td>
+                        <td>{{ instance.shipment_num__invoice_num }}</td>
+                        <td>{{ instance.shipment_num__ship_trucking }}</td>
+                        <td>{{ instance.shipment_num__ship_category }}</td>
+                        <td>{{ instance.shipment_num__container_num }}</td>
+                        <td>{{ instance.shipment_num__container_type }}</td>
+                        <td>{{ instance.shipment_num__awl_bl }}</td>
+                        <td>{{ instance.shipment_num__notes }}</td>
+                        <td>{{ instance.shipment_num__date_dr }}</td>
+                        <td>{{ instance.shipment_num__date_warehouse }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Purchase Orders:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="ponum_table">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Purchase Order Number</th>
+                        <th scope="col">Purchase Date</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Supplier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in po_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}" data-ship_num="{{ instance.shipment_num__shipment_num }}">
+                        <td>{{ instance.po_num__po_number }}</td>
+                        <td>{{ instance.po_num__purchase_date }}</td>
+                        <td>{{ instance.po_num__notes }}</td>
+                        <td>{{ instance.po_num__supplier }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    var table = $('#inbound_table').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>Shipment Number</option><option>Date In</option><option>DR#</option><option>RR#</option><option>Invoice#</option><>Shipment Trucking</option><option>Shipment Category</option><option>Container Number</option><option>Container Type</option><option>AWL/BL</option><option>Notes</option><option>Date DR</option><option>Date Whse</option><option></option></select>");
+
+    $('#inbound_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+    $('#ponum_table').DataTable({searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+
+});
+ </script>
+{% endblock javascripts %}

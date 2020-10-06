@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    input:not([name="reason"]){ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2>Select a Product to be Dismantled</h2>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Production Schedule:</label>
+                        <input type="text" class="form-control" required="" readonly id="name1">
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Work Order Number:</label>
+                        <input type="text" class="form-control" required="" readonly id="name2">
+                   </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Product Number:</label>
+                        <input type="text" class="form-control" required="" readonly id="name3">
+                   </div>
+               </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Product Class:</label>
+                        <input type="text" class="form-control" required="" readonly id="name4">
+                   </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Bin Location:</label>
+                        <input type="hidden" class="form-control" required="" readonly id="name5"><!--BIN ID-->
+                        <input type="text" class="form-control" required="" readonly id="name6">
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Product Price:</label>
+                        <input type="text" class="form-control" required="" readonly id="name7">
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="name8">Stock Quantity:</label>
+                        <input type="text" class="form-control" required="" id="name8" readonly>
+                   </div>
+               </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Dismantle Quantity:</label>
+                        <input type="text" class="form-control" required="" id="name9">
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_date_reported">Reason for Dismantling:</label>
+                        <input type="text" class="form-control" required="" name="reason" id="name10">
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Warehouse Products:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped w-auto" id="wo_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Bin Location ID</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Product Description</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">UOM</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Stock Quantity</th>
+                            <th scope="col">Production Sched ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in whse_prods %}
+                        <tr class="tablerow" id="whse-{{forloop.counter}}">
+
+                            <td>{{ instance.bin_location__id }}</td>
+                            <td>{{ instance.bin_location__bin_location }}</td>
+                            
+                            <td><button type="button" class="btn btn-primary wo" data-bin_id="{{instance.bin_location__id}}" data-bin_loc="{{instance.bin_location__bin_location}}" data-prod_num="{{instance.prod_number__prod_number}}" data-prod_desc="{{instance.prod_number__prod_desc}}" data-prod_class="{{instance.prod_number__prod_class__prod_class}}" data-uom="{{instance.prod_number__uom__uom}}" data-prod_price="{{instance.prod_number__price}}" data-stock_quan="{{instance.quantity}}" data-prod_sched="{{instance.reference_number}}">{{ instance.prod_number__prod_number }}</button></td>
+
+                            <td>{{ instance.prod_number__prod_desc }}</td>
+                            <td>{{ instance.prod_number__prod_class__prod_class }}</td>
+                            <td>{{ instance.prod_number__uom__uom }}</td>
+                            <td>{{ instance.prod_number__price }}</td>
+                            <td>{{ instance.quantity }}</td>
+                            <td>{{ instance.reference_number }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+    
+    <div id="prodsched_list">
+        <div class="row spacer">
+            &nbsp;&nbsp;
+            <div class="display_table"> <!--Shrnk Items-->
+                <h4> Production Sched List </h4>
+                <table class="table table-hover table-striped w-auto small table-responsive" id="prodsched_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Prod Sched ID</th>
+                            <th scope="col">Work Order Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in prodsched_set %}
+                        <tr class="tablerow prodsched_table" id="prodsched-{{forloop.counter}}" data-prod_sched="{{ instance.id }}" data-prod_wo_num="{{ instance.work_order_number__work_order_number }}">
+
+                            <td><input type="text" class="form-control" id="prodsched-{{forloop.counter}}-prod_sched" value="{{ instance.id }}" readonly></td>
+
+                            <td><input type="text" class="form-control" id="prodsched-{{forloop.counter}}-prod_wo_num" value="{{ instance.work_order_number__work_order_number }}" readonly></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Bill of Materials:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped w-auto" id="bom_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Number Category</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Item Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in wo_itemlist_set %}
+                        <tr class="tablerow bom_table" id="bom-{{forloop.counter}}" data-item_wo_num="{{ instance.work_order_number__work_order_number }}" data-item_num="{{ instance.item_number__item_number }}" data-price="{{ instance.item_number__price }}" data-item_quan="{{ instance.item_quantity }}">
+
+                            <td>{{ instance.work_order_number__work_order_number }}</td>
+                            <td>{{ instance.item_number__item_number }}</td>
+                            <td>{{ instance.item_number__item_cat__item_cat }}</td>
+                            <td>{{ instance.item_number__prod_class__prod_class }}</td>
+                            <td>{{ instance.item_number__price }}</td>
+                            <td>{{ instance.item_quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>     
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+<script>          
+    $(document).ready(function(){
+
+        $('#cmbAssLine').change(function() {
+            if ($(this).val() === '2') {
+                alert("GISO Assembly");
+            }
+        });
+
+
+        /*
+        $( "#datepicker" ).datepicker({
+            onSelect: function(dateText, inst) { 
+                document.getElementById('label_reqdate').innerHTML = dateText;
+                getWO()
+            }
+        });
+
+        function getWO(){
+            $('#wo_table').find('tr.tablerow').each(function (i, el) {
+                var rowelm = this;
+                var date_req = rowelm.dataset.date_req;
+                var date_sel = document.getElementById('label_reqdate').innerHTML
+
+                if(date_sel === date_req){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+
+                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+                    $(this).hide();
+                });
+
+            });
+        }
+        */ 
+
+        $('#prodsched_list').hide();
+
+        $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+            $(this).hide();
+        });
+
+
+        $( ".btn.btn-primary.wo" ).on("click", function () {
+            var btn = this;
+            var prod_sched = btn.dataset.prod_sched;
+            var prod_num = btn.dataset.prod_num;
+            var prod_class = btn.dataset.prod_class;
+            var prod_price = btn.dataset.prod_price;
+            var bin_id = btn.dataset.bin_id;
+            var bin_loc = btn.dataset.bin_loc; 
+            var stock_quan = btn.dataset.stock_quan; 
+
+            $('#name1').val(prod_sched); 
+            $('#name3').val(prod_num); 
+            $('#name4').val(prod_class); 
+            $('#name5').val(bin_id); 
+            $('#name6').val(bin_loc);
+            $('#name7').val(prod_price);
+            $('#name8').val(stock_quan);
+            
+            $('#prodsched_table').find('tr.tablerow.prodsched_table').each(function (i, el) {
+                var prodsched_row = this;
+                var prodsched_id = prodsched_row.dataset.prod_sched;
+                var prodsched_wonum = prodsched_row.dataset.prod_wo_num;
+
+                $('#name2').val(prodsched_wonum); 
+
+                if (prodsched_id === prod_sched){
+                    $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+                        var bom_row = this;
+                        var item_wonum = bom_row.dataset.item_wo_num;
+
+                        if (item_wonum === prodsched_wonum){
+                            $(this).show();
+                        }else {
+                            $(this).hide();
+                        }
+                    });
+                }else {
+                    $(this).hide();
+                }
+            });
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var btn = this;
+            var prod_sched = $('#name1').val();
+            var wo_num = $('#name2').val();
+            var prod_num = $('#name3').val(); 
+            var prod_class = $('#name4').val(); 
+            var prod_price =  $('#name7').val();
+            var bin_id = $('#name5').val();
+            var bin_loc = $('#name6').val();
+            var dis_quan = $('#name9').val();
+            var tot_prodprice = parseInt(prod_price) * parseInt(dis_quan);
+            var reason = $('#name10').val();
+
+            $(window.opener.document).find('#id_prod-prod_sched').val(prod_sched);
+            $(window.opener.document).find('#wo_num').val(wo_num);
+            $(window.opener.document).find('#prod_num').val(prod_num);
+            $(window.opener.document).find('#prod_class').val(prod_class);
+            $(window.opener.document).find('#id_prod-bin_location').val(bin_id);
+            $(window.opener.document).find('#id_prod-bin_locationTEXT').val(bin_loc);
+            $(window.opener.document).find('#id_prod-prod_quantity').val(dis_quan);
+            $(window.opener.document).find('#id_prod-total_cost').val(tot_prodprice);
+            $(window.opener.document).find('#id_prod-reason').val(reason);
+
+            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+                if ($(this).is(":visible")){
+                    var bom_row = this;
+                    var item_num = bom_row.dataset.item_num;
+                    var item_quan = bom_row.dataset.item_quan;
+                    var item_price = bom_row.dataset.price;
+
+                    var tot_item_quan = parseInt(item_quan) * parseInt(dis_quan);
+                    var tot_item_price = (parseInt(item_quan) * parseInt(dis_quan)) * parseInt(item_price) 
+                    var tot_cost = tot_item_price;
+
+                    window.opener.cloneMore('form', item_num, tot_item_quan, tot_cost);
+                }
+            });
+
+            alert(prod_num+" from work order " + wo_num + " has been reported for dismantling with a quantity of "+dis_quan);
+        });
+
+        $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+ 
+        $("#bom_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

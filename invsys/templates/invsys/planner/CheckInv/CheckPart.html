@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> View Available Parts </h2>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Part Master:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="item_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Description</th>
+                            <th scope="col">UOM</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in item_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="sched-{{forloop.counter}}-sched">{{ instance.item_number }}</button></td>
+                            <td>{{ instance.item_desc }}</td>
+                            <td>{{ instance.uom }}</td>
+                            <td>{{ instance.item_cat__item_cat }}</td>
+                            <td>{{ instance.prod_class__prod_class }}</td>
+                            <td>{{ instance.price }}</td>
+                            <td>{{ instance.notes }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Item Availability:</h4>
+        </div>
+        <div class="card-body">
+            <p >Available Quantity: </p>
+            <div class="form-row align-top">
+                <div class="col-lg-5">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Warehouse Bins:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive"> <!--Shrnk Items-->
+                                <table class="table table-hover table-striped table-bordered nowrap" id="whse_bin_table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Bin Location</th>
+                                            <th scope="col">Item Category</th>
+                                            <th scope="col">Product Class</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for instance in whse_bin_set %}
+                                        <tr class="tablerow" id="req-{{forloop.counter}}">
+
+                                            <td>{{ instance.bin_location }}</td>
+                                            <td>{{ instance.item_cat__item_cat }}</td>
+                                            <td>{{ instance.prod_class__prod_class }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-7">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Warehouse Bin Items:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive"> <!--Shrnk Items-->
+                                <table class="table table-hover table-striped table-bordered nowrap" id="whse_item_table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Bin Location</th>
+                                            <th scope="col">Item Number</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for instance in whse_item_set %}
+                                        <tr class="tablerow" id="rec-{{forloop.counter}}">
+                                            <td>{{ instance.bin_location__bin_location }}</td>
+                                            <td>{{ instance.item_number__item_number }}</td>
+                                            <td>{{ instance.quantity }}</td>
+                                            <td>{{ instance.status }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script>
+$(document).ready(function() {
+    var table = $('#item_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table.buttons().container()
+        .appendTo( '#item_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#whse_bin_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table2.buttons().container()
+        .appendTo( '#whse_bin_table_wrapper .col-md-6:eq(0)' );
+
+    var table3 = $('#whse_item_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table3.buttons().container()
+        .appendTo( '#whse_item_table_wrapper .col-md-6:eq(0)' );
+
+} );
+ </script>
+{% endblock javascripts %}

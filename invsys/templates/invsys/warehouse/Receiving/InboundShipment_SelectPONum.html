@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style type="text/css">
+    div.settings {
+        display:grid;
+        grid-template-columns: max-content max-content;
+        grid-gap:5px;
+    }
+    div.settings label       { text-align:right; }
+    div.settings label:after { content: ":"; }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2>Select a PO Number</h1>
+    <br>
+    <div class="card" id="select_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Purchase Order to Inbound:</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <label>Purchase Order Number</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+                <div class="col-1.5">
+                    <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row align-top">
+        <div class="col-lg-4">
+            <div class="card" id="po_card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Purchase Order to Receive:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--PO Num Table-->
+                        <table class="table table-hover table-striped w-auto" id="po_table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">PO Number</th>
+                                    <th scope="col">Purchase Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for instance in ponumset %}
+                                <tr class="tablerow">
+                                    <td><button type="button" class="btn btn-primary" data-ponum="{{ instance.po_number }}">{{ instance.po_number }}</button></td>
+                                    <td>{{ instance.purchase_date }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Purchase Order to Receive:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--PO Num Table-->
+                    <table class="table table-hover table-striped w-auto" id="item_table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">PO Number</th>
+                                <th scope="col">Item Number</th>
+                                <th scope="col">Purchased Quantity</th>
+                                <th scope="col">Item Description</th>
+                                <th scope="col">Unit of Measure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for instance in poitemset %}
+                            <tr class="tablerow" data-ponum="{{ instance.po_number__po_number }}" data-item_num="{{ instance.item_number__item_number }}" data-purch_quan="{{ instance.item_quantity }}">
+                                <td>{{ instance.po_number__po_number }}</td>
+                                <td>{{ instance.item_number__item_number }}</td>
+                                <td>{{ instance.item_quantity }}</td>
+                                <td>{{ instance.item_number__item_desc }}</td>
+                                <td>{{ instance.item_number__uom__uom }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+
+    $(window).on('load', function() {
+        document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    $(document).ready(function(){
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+        
+        $('#item_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+
+        $( ".btn.btn-success.btn-lg" ).on("click", function () {
+            window.opener.insert_po('formpo', $('#name1').val());
+
+            toastr.success('Purchase Order ' + po_num + " is selected to the Shipment.");
+        });
+
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'inbound_shipment');
+            goBack.focus();
+            window.close();
+        });
+
+        $( "#po_table" ).on("click", ".btn.btn-primary",function () {
+            var btn = this;
+            var po_num = btn.dataset.ponum;
+            $('#name1').val(po_num);
+            $('#item_table').find('tr.tablerow').each(function (i, el) {
+                var name = this;
+                var item_po_num = name.dataset.ponum;
+                console.log(po_num);
+                console.log(item_po_num);
+                if (po_num === item_po_num){
+                    console.log("TRUE");
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });
+
+            toastr.info('Purchase Order ' + po_num + " is selected.");
+
+        });
+
+    });
+
+    $("#po_table").DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+    $("#item_table").DataTable({paging: false, 
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+</script>
+{% endblock javascripts %}

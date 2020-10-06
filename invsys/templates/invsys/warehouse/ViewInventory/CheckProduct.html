@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>View Product</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Product Master:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="prod_master">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Product Number</th>
+                        <th scope="col">Product Description</th>
+                        <th scope="col">UOM</th>
+                        <th scope="col">Product Type</th>
+                        <th scope="col">Product Class</th>
+                        <th scope="col">Barcode</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in prod_master_set %}
+                    <tr class="tablerow" id="sched-{{forloop.counter}}">
+                        <td>{{ instance.prod_number }}</td>
+                        <td>{{ instance.prod_desc }}</td>
+                        <td>{{ instance.uom__uom }}</td>
+                        <td>{{ instance.prod_type }}</td>
+                        <td>{{ instance.prod_class__prod_class }}</td>
+                        <td>{{ instance.barcode }}</td>
+                        <td>{{ instance.price }}</td>
+                        <td>{{ instance.notes }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Product Locations:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="prod_loc">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Location</th>
+                        <th scope="col">Product Number</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Reference Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in prod_loc_set %}
+                    <tr class="tablerow" id="sched-{{forloop.counter}}">
+                        <td>{{ instance.location }}</td>
+                        <td>{{ instance.prod_number }}</td>
+                        <td>{{ instance.quantity }}</td>
+                        <td>{{ instance.status }}</td>
+                        <td>{{ instance.reference_number }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    var table = $('#prod_master').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect prod_master'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect.prod_master").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option value='0'>Product Number</option><option value='1'>Product Description</option><option value='2'>UOM</option><option value='3'>Product Type</option><option value='4'>Product Class</option><option value='5'>Barcode</option><option value='6'>Price</option><option value='7'>Notes</option></select>");
+
+    $('#prod_master_filter label input').unbind().bind('keyup', function() {
+      var colIndex = $('#select').val();
+      var srch_item = $('#prod_master_filter label input').val();
+      table.column(colIndex).search(srch_item).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+    var table2 = $('#prod_loc').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect prod_loc'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect.prod_loc").html("<select id="+ "'select2'" + "class='browser-default custom-select'"+"><option value='0'>Location</option><option value='1'>Product Number</option><option value='2'>Quantity</option><option value='3'>Status</option><option value='4'>Reference Number</option></select>");
+
+    $('#prod_loc_filter  label input').unbind().bind('keyup', function() {
+		var colIndex2 = $('#select2').val();
+		var srch_item2 = $('#prod_loc_filter  label input').val();
+		table2.column(colIndex2).search(srch_item2).draw();
+    });
+
+    $('#select2').change(function() {
+		table2.columns().search('').draw();
+    });
+
+});
+ </script>
+{% endblock javascripts %}

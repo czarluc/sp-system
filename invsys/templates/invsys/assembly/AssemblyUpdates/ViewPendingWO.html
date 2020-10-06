@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> View Work Order Summary </h2>
+
+	<div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="wo_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Product Description</th>
+                            <th scope="col">UOM</th>
+                            <th scope="col">Product Type</th>
+                            <th scope="col">Product Class</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in wo_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}">
+                            <td><button type="button" class="btn btn-primary wo" data-wo_num="{{instance.work_order_number}}" id="wo-{{forloop.counter}}-sched">{{ instance.work_order_number }}</button></td>
+                            <td>{{ instance.prod_number__prod_number }}</td>
+                            <td>{{ instance.prod_number__prod_desc }}</td>
+                            <td>{{ instance.prod_number__uom }}</td>
+                            <td>{{ instance.prod_number__prod_type }}</td>
+                        	<td>{{ instance.prod_number__prod_class }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+	<div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Production Schedule:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="prodsched_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Product Quantity</th>
+                            <th scope="col">Date Required</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in prod_sched_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}" data-wo_num="{{instance.work_order_number__work_order_number}}" data-prodsched="{{instance.id}}">
+                            <td>{{ instance.id }}</td>
+                            <td>{{ instance.quantity }}</td>
+                            <td>{{ instance.date_required }}</td>
+                            <td>{{ instance.status }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Issuance Phase:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="issuance_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Issued By</th>
+                            <th scope="col">Date Received</th>
+                            <th scope="col">Verified By</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Cleared</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in issuance_set %}
+                        <tr class="tablerow" id="req-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}" id="issuance-{{forloop.counter}}-sched">
+                            <td>{{ instance.prod_sched__id }}</td>
+                            <td>{{ instance.issued_by }}</td>
+                            <td>{{ instance.date_issued }}</td>
+                            <td>{{ instance.verified_by }}</td>
+                            <td>{{ instance.notes }}</td>
+                            <td>{{ instance.cleared }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Assembly Phase:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="assembly_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Date Received</th>
+                            <th scope="col">Assembled By</th>
+                            <th scope="col">Date Assembled</th>
+                            <th scope="col">Verified By</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Cleared</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in assembly_set %}
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}">
+                            <td>{{ instance.prod_sched__id }}</td>
+                            <td>{{ instance.date_received }}</td>
+                            <td>{{ instance.assembled_by }}</td>
+                            <td>{{ instance.date_assembled }}</td>
+                            <td>{{ instance.verified_by }}</td>
+                            <td>{{ instance.notes }}</td>
+                            <td>{{ instance.cleared }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Coupling Phase:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="coupling_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Date Received</th>
+                            <th scope="col">Coupled By</th>
+                            <th scope="col">Date Coupled</th>
+                            <th scope="col">Verified By</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Cleared</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in coupling_set %}
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}">
+                            <td>{{ instance.prod_sched__id }}</td>
+                            <td>{{ instance.date_received }}</td>
+                            <td>{{ instance.coupled_by }}</td>
+                            <td>{{ instance.date_coupled }}</td>
+                            <td>{{ instance.verified_by }}</td>
+                            <td>{{ instance.notes }}</td>
+                            <td>{{ instance.cleared }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Testing Phase:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="testing_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Date Received</th>
+                            <th scope="col">Tested By</th>
+                            <th scope="col">Date Tested</th>
+                            <th scope="col">Verified By</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Cleared</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in testing_set %}
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}">
+                            <td>{{ instance.prod_sched__id }}</td>
+                            <td>{{ instance.date_received }}</td>
+                            <td>{{ instance.tested_by }}</td>
+                            <td>{{ instance.date_tested }}</td>
+                            <td>{{ instance.verified_by }}</td>
+                            <td>{{ instance.notes }}</td>
+                            <td>{{ instance.cleared }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script>
+$(document).ready(function() {
+	var table = $('#wo_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table.buttons().container()
+        .appendTo( '#wo_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#prodsched_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table2.buttons().container()
+        .appendTo( '#prodsched_tablee_wrapper .col-md-6:eq(0)' );
+
+    var table3 = $('#issuance_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table3.buttons().container()
+        .appendTo( '#issuance_table_wrapper .col-md-6:eq(0)' );
+
+    var table4 = $('#assembly_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table4.buttons().container()
+        .appendTo( '#assembly_table_wrapper .col-md-6:eq(0)' );
+
+    var table5 = $('#coupling_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table5.buttons().container()
+        .appendTo( '#coupling_table_wrapper .col-md-6:eq(0)' );
+
+    var table6 = $('#testing_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table6.buttons().container()
+        .appendTo( '#testing_table_wrapper .col-md-6:eq(0)' );
+
+} );
+ </script>
+{% endblock javascripts %}

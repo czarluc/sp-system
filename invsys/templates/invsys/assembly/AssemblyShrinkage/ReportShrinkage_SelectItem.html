@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Select an Item to Report for Shrinkage:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Number</label>
+                        <input type ="text" class="form-control" id="name2" readonly/>
+                   </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Category</label>
+                        <input type ="text" class="form-control" id="name3" readonly/>
+                   </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Assembly Line</label>
+                        <input type ="text" class="form-control" id="name4" readonly/>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Quantity Lost due to Shrinkage</label>
+                        <input type ="text" class="form-control" id="name5"/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Available Quantity</label>
+                        <input type ="text" class="form-control" id="name6"/>
+                        <input type ="hidden" class="form-control" id="name7" readonly/> <!--ASS LINE ID-->
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Select a from the Bill of Materials</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Bill of Materials-->
+                <table class="table table-hover table-striped w-auto" id="bom_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Current Quantity</th>
+                            <th scope="col">Assembly Line ID</th>
+                            <th scope="col">Assembly Line</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in ass_item %}
+                        <tr class="tablerow bom_table">
+                            <td><button type="button" class="btn btn-primary item_number" data-item_num="{{instance.item_number__item_number}}" data-item_cat="{{instance.item_number__item_cat__item_cat}}" data-curr_quan="{{instance.quantity}}" data-assline_id="{{ instance.assemblyline__id }}" data-assline="{{ instance.assemblyline__name }}">{{ instance.item_number__item_number }}</button></td>
+                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-item_cat" value="{{ instance.item_number__item_cat__item_cat }}" readonly></td>
+                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-curr_quan" value="{{ instance.quantity }}" readonly></td>
+                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-assline_id" value="{{ instance.assemblyline__id }}" readonly></td>
+                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-assline" value="{{ instance.assemblyline__name }}" readonly></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>          
+    $(document).ready(function(){
+
+        $( "#bom_table" ).on("click", ".btn.btn-primary.item_number", function () {
+            var btn = this;
+            var item_num = btn.dataset.item_num;
+            var item_cat = btn.dataset.item_cat;
+            var assline = btn.dataset.assline;
+            var assline_id = btn.dataset.assline_id;
+
+            $('#name2').val(item_num);
+            $('#name3').val(item_cat);
+            $('#name4').val(assline);
+            $('#name7').val(assline_id);
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            
+            var item_num = $('#name2').val();
+            var item_cat = $('#name3').val();
+            var assline = $('#name4').val();
+            var req_quan = $('#name5').val();
+            var avail_quan = $('#name6').val();
+            var assline_id = $('#name7').val();
+
+            $(window.opener.document).find('#id_report-item_number').val(item_num);
+            $(window.opener.document).find('#shrnk_itemcat').val(item_cat);
+            $(window.opener.document).find('#id_report-quantity').val(req_quan);
+
+            $(window.opener.document).find('#id_item-item_number').val(item_num);
+            $(window.opener.document).find('#rpl_itemcat').val(item_cat);
+            $(window.opener.document).find('#id_item-quantity').val(req_quan);
+            $(window.opener.document).find('#id_item-ass_location').val(assline_id);
+            $(window.opener.document).find('#id_item-ass_locationTEXT').val(assline);
+            $(window.opener.document).find('#avail_quan').val(avail_quan);
+
+            alert(itemnum+" has been received with a quantity of "+quan);                 
+        });
+
+        $("#bom_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

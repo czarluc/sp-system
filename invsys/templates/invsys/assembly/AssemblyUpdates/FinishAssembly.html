@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style type="text/css">
+    #bom_table tr td:nth-child(1), #bom_table th:nth-child(1){
+        display: none;
+    }
+    #prod_table tr td:nth-child(1), #prod_table th:nth-child(1){
+    display: none;
+    }
+    #sched_table tr td:nth-child(2), #sched_table th:nth-child(2){
+    display: none;
+    }
+    input:not([name="notes"]){ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+<h2> Finish Work Order Assembly </h2>
+    <br>
+    <form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+    					<label for="id_work_order_number">Production Schedule ID:</label>
+    					<input type="text" name="prod_sched" class="form-control" maxlength="200" required="" id="id_prod_sched" readonly>
+                    </div>
+                </div>
+
+                <div class="col-1">
+		            <button class="btn btn-success add-wo_assembly">+</button>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+					<label for="id_customer">Work Order Number:</label>
+					<input type="text" name="wonum" maxlength="200" class="form-control" required="" id="wonum" readonly>
+                   </div>
+               </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+					<label for="id_customer">Date Received:</label>
+					<input type="text" name="date_received" maxlength="200" class="form-control" required="" id="id_date_received" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+					<label for="id_work_order_number">Product Number:</label>
+					<input type="text" name="prod_num" maxlength="200" class="form-control" required="" id="prod_num" readonly>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+					<label for="id_customer">Product Class:</label>
+					<input type="text" name="prod_class" maxlength="200" class="form-control" required="" id="prod_class" readonly>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+					<label for="id_customer">Scheduled Quantity:</label>
+					<input type="text" name="sched_quan" maxlength="200" class="form-control" required="" id="sched_quan" readonly>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Assembly Update Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+    	               <label for="id_work_order_number">Assembled By:</label>
+    	               <input type="text" name="assembled_by" maxlength="200" class="form-control" required="" id="id_assembled_by" value="{{user}}" readonly>
+                   </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Date Assembled:</label>
+                        <input type="text" name="date_assembled" maxlength="200" class="form-control" required="" id="id_date_assembled" readonly>
+                   </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_work_order_number">Verified By:</label>
+                        <input type="text" name="verified_by" maxlength="200" class="form-control" required="" id="id_verified_by" value="Manager1" readonly>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+    	               <label for="id_customer">Notes:</label>
+    	               <input type="text" name="notes" maxlength="200" class="form-control" required="" id="id_notes">
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-block btn-success">Finish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.name = "Fin_Ass";
+    	var d = new Date($.now());
+		var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+		$('#id_date_assembled').val(currentdate);
+
+        });
+
+    $(document).on('click', '.add-wo_assembly', function(e){
+        var newwin = window.open("{% url 'assembly:FinishAssembly_SelectProdSched' %}");
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

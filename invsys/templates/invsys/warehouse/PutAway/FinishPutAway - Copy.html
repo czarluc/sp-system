@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+    <style>
+    input[readonly="readonly"] {
+      border:0px;}
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> Finish an Item Put Away </h2>
+    <form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+        
+    <div class="row">
+        <div class="col-lg-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Put Away Schedule:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row align-items-center">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="id_schedule_num">Scheduled Number:</label>
+                                <input type="text" name="schedule_num" class="form-control" readonly id="id_schedule_num">
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-success add-schednum">+</button>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="id_date_scheduled">Scheduled Date:</label>
+                                <input type="text" name="date_scheduled" class="form-control" readonly id="id_date_scheduled">
+                           </div>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="id_notes">Notes:</label>
+                                <input type="text" name="notes" class="form-control" maxlength="200" id="id_notes" readonly>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Select an Item for Put Away:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row align-items-center">
+                        <div class="col-5">
+                            <div class="form-group">
+                                <label for="id_item_num">Item Number:</label>
+                                <input type="text" name="item_num" class="form-control" readonly id="id_item_num">
+                            </div>
+                        </div>
+                        <div class="col-1">
+                            <button class="btn btn-success add-paitem " >+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Put Away Summary:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-top">
+                <div class="col-6">
+                    <div class="form-group">
+	                    <label for="id_required_quantity">Required Quantity:</label>
+                        <input type="text" name="required_quantity"" class="form-control" readonly id="id_required_quantity">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_stored_quantity">Stored Quantity:</label>
+                        <input type="text" name="stored_quantity" class="form-control" readonly id="id_stored_quantity" >
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-top">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_bin_location">Bin Location:</label>
+                        <input type="text" name="bin_location" class="form-control" maxlength="200" id="id_bin_locationTEXT" readonly><input type="hidden" name="bin_location" class="form-control" readonly id="id_bin_location">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_discrepancy">Discrepancy:</label>
+                        <input type="text" name="discrepancy" class="form-control" readonly id="id_discrepancy" readonly >
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-top">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_discrepancy_quantity">Discrepancy Quantity:</label>
+                        <input type="text" name="discrepancy_quantity" class="form-control" maxlength="200" id="id_discrepancy_quantity" readonly >
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_status">Status:</label>
+                        <input type="text" name="status" class="form-control" readonly id="id_status" readonly >
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-top">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_reference_number">Date Stored:</label>
+                        <input type="text" name="date_stored" class="form-control" maxlength="200" id="id_date_stored" readonly >
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_reference_number">Reference Number:</label>
+                        <input type="text" name="reference_number" class="form-control" maxlength="200" id="id_reference_number" readonly >
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-top">
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-block btn-success">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        });
+    
+    $(document).on('click', '.add-schednum', function(e){
+        var newwin = window.open("{% url 'warehouse:FinishPutAway_SelectPASched' %}");
+        return false;
+    });
+
+    $(document).on('click', '.add-paitem', function(e){
+        var schednum = $("#id_schedule_num").val();
+        var itemurl = "SelectItem/";
+        itemurl += schednum;
+        var wewewe = window.open(itemurl);
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

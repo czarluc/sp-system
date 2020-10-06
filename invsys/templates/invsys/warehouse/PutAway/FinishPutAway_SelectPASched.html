@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2>Select a Put Away Schedule</h2>
+
+    <div class="card" id="select_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Select a Put Away Schedule:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Put Away Schedule Number</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Date Scheduled</label>
+                        <input type ="text" class="form-control" id="name2" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <input type ="text" class="form-control" id="name3" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row align-top">
+        <div class="col-lg-4">
+
+            <div class="card" id="pa_card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Put Away Schedules:</h4>
+                </div>
+                <div class="card-body">
+
+                    <div class="table-responsive"> <!--Put Away Schedule Table-->
+                        <table class="table table-hover table-striped w-auto" id="sched_table" >
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Put Away Schedule Number</th>
+                                    <th scope="col">Date Scheduled</th>
+                                    <th scope="col">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for instance in pascheduleset %}
+                                <tr class="tablerow" id="reclobby-{{forloop.counter}}">
+                                    <td><button type="button" class="btn btn-primary pasched" data-schednum="{{instance.schedule_num}}" data-datesched="{{instance.date_scheduled}}" data-notes="{{instance.notes}}">{{ instance.schedule_num }}</button></td>
+                                    <td>{{ instance.date_scheduled|date:'Y-n-d' }}</td>
+                                    <td>{{ instance.notes }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                    
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-8">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Put Away Items:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--Put Away Items-->
+                    <table class="table table-hover table-striped w-auto" id="item_table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Schedule Number</th>
+                                <th scope="col">Item Number</th>
+                                <th scope="col">Required Quantity</th>
+                                <th scope="col">Bin Location ID</th>
+                                <th scope="col">Bin Location</th>
+                                <th scope="col">Reference Number</th>
+                                <th scope="col">Stored</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for instance in paitems %}
+                            <tr class="tablerow paitem" data-schednum="{{ instance.schedule_num }}" data-item_num="{{ instance.item_num__item_number }}" data-req_quan="{{ instance.required_quantity }}" data-bin_id="{{ instance.bin_location__id }}" data-bin_loc="{{ instance.bin_location__bin_location }}" data-ref_num="{{ instance.reference_number }}">
+                                <td>{{ instance.schedule_num }}</td>
+                                <td>{{ instance.item_num__item_number }}</td>
+                                <td>{{ instance.required_quantity }}</td>
+                                <td>{{ instance.bin_location__id }}</td>
+                                <td>{{ instance.bin_location__bin_location }}</td>
+                                <td>{{ instance.reference_number }}</td>
+                                <td>{{ instance.stored }}</td> 
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+
+            
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
+<script>
+    $(window).on('load', function() {
+        document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+        
+        $('#item_table').find('tr.tablerow.paitem').each(function (i, el) {
+            $(this).hide();
+        });
+        
+
+        $( "#sched_table" ).on("click", ".btn.btn-primary.pasched", function () {
+            var btn = this;
+            var schednum = btn.dataset.schednum;
+            $('#name1').val(schednum);
+            var datesched = btn.dataset.datesched;
+            $('#name2').val(datesched);
+            var notes = btn.dataset.notes;
+            $('#name3').val(notes);
+
+            $('#item_table').find('tr.tablerow.paitem').each(function (i, el) {
+                var name = this;
+                var item_schednum = name.dataset.schednum;
+                if (schednum === item_schednum){
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });
+
+            toastr.info('Put Away Schedule ' + schednum + " is selected.");
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var sched_num = $('#name1').val();
+            var date_sched = $('#name2').val();
+            var notes = $('#name3').val();
+
+            $(window.opener.document).find('#id_sched_num').val(sched_num);
+            $(window.opener.document).find('#id_date_scheduled').val(date_sched);
+            $(window.opener.document).find('#id_notes').val(notes);
+            alert("Put Away Schedule " + sched_num + " has been selected");
+
+            $('#item_table').find('tr.tablerow.paitem').each(function (i, el) {
+                if ($(this).is(":visible")){
+                    
+                    var itemrow = this;
+                    var item_num = itemrow.dataset.item_num;
+                    var req_quan = itemrow.dataset.req_quan;
+                    var bin_id = itemrow.dataset.bin_id;
+                    var bin_loc = itemrow.dataset.bin_loc;
+                    var ref_num = itemrow.dataset.ref_num;
+
+                    window.opener.cloneMore('formsetsum', item_num, req_quan, bin_id, bin_loc, ref_num);
+                }
+            });
+
+            toastr.success('Put Away Schedule ' + schednum + " is verification.");
+
+            var goBack = window.open('', 'Fin_PA');
+            goBack.focus();
+            window.close();
+        });
+
+        $("#sched_table").DataTable(
+            {"columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#item_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

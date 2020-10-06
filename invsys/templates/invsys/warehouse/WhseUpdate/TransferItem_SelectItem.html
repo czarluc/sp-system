@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block title %} Report System Adjustment {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    input:([name="reason"]){ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>Select an Item to Report for Defective</h2>
+
+    <div class="card" id="report_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Item Transfer Details:</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Number</label>
+                        <input type ="text" class="form-control" id="item_num" readonly/>
+                   </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Description</label>
+                            <input type ="text" class="form-control" id="item_desc" readonly/>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Category</label>
+                        <input type ="text" class="form-control" id="item_cat" readonly/>
+                   </div>
+               </div>
+            </div>
+            <div class="form-row align-items-center">
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Class</label>
+                        <input type ="text" class="form-control" id="prod_class" readonly/>
+                   </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>UOM</label>
+                        <input type ="text" class="form-control" id="uom" readonly/>
+                   </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type ="text" class="form-control" id="item_price" readonly/>
+                   </div>
+                </div>
+            </div>
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Current Location Details:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Bin Location</label>
+                                        <input type ="hidden" class="form-control" id="from_bin_id" readonly/> <!--Item Number ID-->
+                                        <input type ="text" class="form-control" id="from_bin_loc" readonly/>
+                                   </div>
+                               </div>
+                               <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Stock Quantity</label>
+                                        <input type ="text" class="form-control" id="from_stock" readonly/>
+                                   </div>
+                               </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Transfer Location Details:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Bin Location</label>
+                                        <input type ="hidden" class="form-control" id="to_bin_id" readonly/> <!--Item Number ID-->
+                                        <input type ="text" class="form-control" id="to_bin_loc" readonly/>
+                                   </div>
+                               </div>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>           
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Transfer Quantity</label>
+                        <input type ="text" class="form-control" id="item_quan"/>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <input type ="text" class="form-control" name="reason" id="reason"/>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="from_loc">
+
+    <div class="card" id="item_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Item Master:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered" id="item_table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Description</th>
+                            <th scope="col">UOM</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Barcode</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Orderpoint</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in item_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}">
+                            <td><button type="button" class="btn btn-primary item" data-item_num="{{instance.item_number}}" data-item_desc="{{ instance.item_desc }}" data-uom="{{ instance.uom__uom }}" data-item_cat="{{ instance.item_cat__item_cat }}" data-prod_class="{{ instance.prod_class__prod_class }}"  data-item_price="{{ instance.price }}">{{ instance.item_number }}</button></td>
+                            <td>{{ instance.item_desc }}</td>
+                            <td>{{ instance.uom__uom }}</td>
+                            <td>{{ instance.item_cat__item_cat }}</td>
+                            <td>{{ instance.prod_class__prod_class }}</td>
+                            <td>{{ instance.barcode }}</td>
+                            <td>{{ instance.price }}</td>
+                            <td>{{ instance.notes }}</td>
+                            <td>{{ instance.orderpoint }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="curr_whse_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Warehouse Bins:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto" id="curr_whse_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Barcode</th>
+                            <th scope="col">Quantity in Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in whse_bin_set %}
+                        <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-item_num="{{instance.item_number__item_number}}">                           
+                            <td><button type="button" class="btn btn-primary currwhse" data-bin_id="{{instance.bin_location__id}}" data-bin_loc="{{instance.bin_location__bin_location}}" data-stock="{{ instance.quantity }}">{{ instance.bin_location__bin_location }}</button></td>
+                            <td>{{ instance.bin_location__item_cat__item_cat }}</td>
+                            <td>{{ instance.bin_location__prod_class__prod_class }}</td>
+                            <td>{{ instance.bin_location__barcode }}</td>
+                            <td>{{ instance.quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="to_loc">
+
+    <div class="form-row align-top">
+        <div class="col-lg-7">
+
+            <div class="card" id="whse_bin_card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">New Warehouse Bin:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped w-auto" id="new_whse_bin_table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Bin Location</th>
+                                    <th scope="col">Item Category</th>
+                                    <th scope="col">Product Class</th>
+                                    <th scope="col">Barcode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for instance in new_whse_bin_set %}
+                                <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-item_cat="{{instance.item_cat__item_cat}}" data-prod_class="{{instance.prod_class__prod_class}}">                           
+                                    <td><button type="button" class="btn btn-primary new_whse" data-bin_id="{{instance.id}}" data-bin_loc="{{instance.bin_location}}">{{ instance.bin_location }}</button></td>
+                                    <td>{{ instance.item_cat__item_cat }}</td>
+                                    <td>{{ instance.prod_class__prod_class }}</td>
+                                    <td>{{ instance.barcode }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-5">
+
+            <div class="card" id="whse_item_card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">New Warehouse Bin Items:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped w-auto" id="new_whse_item_table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Bin Location</th>
+                                    <th scope="col">Item Number</th>
+                                    <th scope="col">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for instance in new_whse_item_set %}
+                                <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-bin_id="{{instance.bin_location__id}}" data-bin_loc="{{instance.bin_location__bin_location}}" data-stock="{{ instance.quantity }}">                     
+                                    <td>{{ instance.bin_location__bin_location }}</td>
+                                    <td>{{ instance.item_number__item_number }}</td>
+                                    <td>{{ instance.quantity }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+<script>          
+    $(document).ready(function(){
+
+        $(window).on('load', function() {
+            document.getElementById("item_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+        });
+
+        $("#to_loc").hide();
+
+        var table = $('#item_table').DataTable({
+            pageLength : 5,
+            lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
+            dom:"<'row'<'col-md-4'l><'col-md-4'<'customselect item_table'>><'col-md-4'f>>" +
+            "<'row'<'col-md-12'rtip>>",
+            "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+        });
+
+        $("div.customselect.item_table").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option value='0'>Item Number</option><option value='1'>Item Description</option><option value='2'>UOM</option><option value='3'>Item Category</option><option value='4'>Product Class</option><option value='5'>Barcode</option><option value='6'>Price</option><option value='7'>Notes</option><option value='8'>Orderpoint</option></select>");
+
+        $('#item_table_filter label input').unbind().bind('keyup', function() {
+          var colIndex = $('#select').val();
+          var srch_item = $('#item_master_filter label input').val();
+          table.column(colIndex).search(srch_item).draw();
+        });
+
+        $('#select').change(function() {
+          table.columns().search('').draw();
+        });
+
+        var table2 = $('#curr_whse_table').DataTable({
+            info: false,
+            paging: false,
+            dom: "<'row'<'col-md-4'l><'col-md-4'<'customselect curr_whse_table'>><'col-md-4'f>>" +
+            "<'row'<'col-md-12'rtip>>",
+            buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+            "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+        });
+
+        $("div.customselect.curr_whse_table").html("<select id="+ "'select2'" + "class='browser-default custom-select'"+"><option>Bin Location</option><option>Item Category</option><option>Product Class</option><option>Barcode</option></select>");
+
+        $('#curr_whse_table_filter label input').unbind().bind('keyup', function() {
+            var colIndex = document.querySelector('#select2').selectedIndex;
+            table2.column( colIndex).search( this.value ).draw();
+        });
+
+        $('#select3').change(function() {
+          table2.columns().search('').draw();
+        });
+
+        var table3 = $('#new_whse_bin_table').DataTable( {
+            info: false,
+            paging: false,
+            dom: "<'row'<'col-md-4'l><'col-md-4'<'customselect new_whse_bin_table'>><'col-md-4'f>>" +
+            "<'row'<'col-md-12'rtip>>",
+            buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+            "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+        });
+
+        $("div.customselect.new_whse_bin_table").html("<select id="+ "'select3'" + "class='browser-default custom-select'"+"><option>Bin Location</option><option>Item Category</option><option>Product Class</option><option>Barcode</option></select>");
+
+        $('#new_whse_bin_table_filter label input').unbind().bind('keyup', function() {
+            var colIndex = document.querySelector('#select3').selectedIndex;
+            table3.column( colIndex).search( this.value ).draw();
+        });
+
+        $('#select3').change(function() {
+          table.columns().search('').draw();
+        });
+
+        $('#new_whse_item_table').DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
+            fixedColumns: true
+        });
+
+
+        //Hide first the rows
+        $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $('#new_whse_item_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        //1ST STEP - SELECT THE BUTTON FOR THE ITEM
+        $( "#item_table" ).on("click", ".btn.btn-primary.item", function () {
+            var btn = this;
+
+            var item_num = btn.dataset.item_num;
+            var item_desc = btn.dataset.item_desc;
+            var uom = btn.dataset.uom;
+            var item_cat = btn.dataset.item_cat;
+            var prod_class = btn.dataset.prod_class;
+            var item_price = btn.dataset.item_price;
+
+            $('#item_num').val(item_num);
+            $('#item_desc').val(item_desc);  
+            $('#uom').val(uom); 
+            $('#item_cat').val(item_cat); 
+            $('#prod_class').val(prod_class);
+            $('#item_price').val(item_price);
+
+
+            $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
+                var whse_bin_row = this;
+
+                var whse_item = whse_bin_row.dataset.item_num;
+
+                if(whse_item === item_num){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+                
+            });
+
+            document.getElementById("curr_whse_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        });
+
+
+        $( "#curr_whse_table" ).on("click", ".btn.btn-primary.currwhse",function () {
+            var btn = this;          
+
+            var bin_id = btn.dataset.bin_id;
+            var bin_loc = btn.dataset.bin_loc;
+            var stock = btn.dataset.stock;
+
+            $('#from_bin_id').val(bin_id);
+            $('#from_bin_loc').val(bin_loc);
+            $('#from_stock').val(stock);
+
+
+            $("#from_loc").hide();
+            $("#to_loc").show();
+
+            $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
+                var whse_bin_row = this;
+
+                var whse_itemcat = whse_bin_row.dataset.item_cat;
+                var whse_prodclass = whse_bin_row.dataset.prod_class;
+                
+                if ($('#item_cat').val() === whse_itemcat){
+                    if ($('#prod_class').val() === whse_prodclass){
+                        $(this).show();                    
+                    }
+                }else{
+                    $(this).hide();
+                }
+            });
+
+            document.getElementById("whse_bin_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        });
+
+        $( "#new_whse_bin_table" ).on("click", ".btn.btn-primary.new_whse",function () {
+            var btn = this;          
+
+            var bin_id = btn.dataset.bin_id;
+            var bin_loc = btn.dataset.bin_loc;
+
+            $('#to_bin_id').val(bin_id);
+            $('#to_bin_loc').val(bin_loc);
+
+            $('#new_whse_item_table').find('tr.tablerow').each(function (i, el) {
+                var whse_item_row = this;
+
+                var whse_item = whse_item_row.dataset.bin_id;
+
+                if(whse_item === bin_id){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+                
+            });
+
+            document.getElementById("report_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var btn = this;
+
+            var item_num = $('#item_num').val();
+            var item_desc = $('#item_desc').val();  
+            var uom = $('#uom').val(); 
+            var item_cat = $('#item_cat').val(); 
+            var prod_class = $('#prod_class').val();
+            var item_price = $('#item_price').val();
+
+            var from_bin_id = $('#from_bin_id').val();
+            var from_bin_loc = $('#from_bin_loc').val();
+
+            var to_bin_id = $('#to_bin_id').val();
+            var to_bin_loc = $('#to_bin_loc').val();
+
+            var item_quan = $("#item_quan").val();
+            var reason = $("#reason").val();
+
+            var tot_cost = parseInt(item_quan) * parseInt(item_price);
+
+            //Add from_bin
+            window.opener.cloneMore('form', from_bin_id, from_bin_loc, item_num, item_quan, tot_cost, reason, 2, "Subtract");
+
+            //Add to_bin
+            window.opener.cloneMore('form', to_bin_id, to_bin_loc, item_num, item_quan, tot_cost, reason, 1, "Add");
+
+            alert(item_num+" has been reported for transfer with a quantity of "+item_quan);
+        });
+    });
+</script>
+{% endblock javascripts %}

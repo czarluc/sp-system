@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %} 
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Select a Component Return Schedule:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <label>Component Issuance Schedule Number</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label>Date Scheduled</label>
+                        <input type ="text" class="form-control" id="name2" readonly/>
+                   </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <input type ="text" class="form-control" id="name3" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row align-top">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Component Return Schedules:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--Component Issuance Schedules-->
+                        <table class="table table-hover table-striped w-auto" id="sched_table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Schedule Number</th>
+                                    <th scope="col">Date Schedule</th>
+                                    <th scope="col">Notes</th>
+                                    <th scope="col">Issues</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for instance in compreturn_sched %}
+                                <tr class="tablerow" id="compsched-{{forloop.counter}}">
+                                    <td><button type="button" class="btn btn-primary schednum" data-schednum="{{instance.schedule_num}}" data-datesched="{{ instance.date_scheduled }}" data-notes="{{ instance.notes }}">{{ instance.schedule_num }}</button></td>
+                                    <td>{{ instance.date_scheduled }}</td>
+                                    <td>{{ instance.notes }}</td>
+                                    <td>{{ instance.issues }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Items for Return:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--Work Order List-->
+                        <table class="table table-hover table-striped w-auto" id="item_table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Prod Sched ID</th>
+                                    <th scope="col">Item Number</th>
+                                    <th scope="col">Item Quantity</th>
+                                    <th scope="col">Assembly Line ID</th>
+                                    <th scope="col">Assembly Line</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for reqpart in compreturn_item_list %}
+                            <div class="row form-row">
+                                <tr class="tablerow item_table" data-schednum="{{ reqpart.schedule_num__schedule_num }}">
+                                    <td>{{reqpart.prod_sched__id}}></td>
+                                    <td>{{reqpart.item_number__item_number}}</td>
+                                    <td>{{reqpart.quantity}}</td>
+                                    <td>{{reqpart.location_from__id}}</td>
+                                    <td>{{reqpart.location_from__name}}</td>
+                                </tr>
+                            </div>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>          
+    $(document).ready(function(){
+
+        $('#item_table').find('tr.tablerow.item_table').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $( "#sched_table" ).on("click", ".btn.btn-primary.schednum", function () {
+            var btn = this;
+            var schednum = btn.dataset.schednum;
+            $('#name1').val(schednum);
+            var datesched = btn.dataset.datesched;
+            $('#name2').val(datesched);                
+            var notes = btn.dataset.notes;
+            $('#name3').val(notes);
+
+            $('#item_table').find('tr.tablerow.item_table').each(function (i, el) {
+                var wo_row = this;
+                var wo_schednum = wo_row.dataset.schednum
+                if (wo_schednum === schednum){
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });
+        });
+                    
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var schednum = $('#name1').val();
+            var datesched = $('#name2').val();
+
+            $(window.opener.document).find('#compreturnissuesched').val(schednum);
+            $(window.opener.document).find('#date_sched').val(datesched);
+            window.opener.showreqitem(schednum);
+            
+            alert("Component Issuance Schedule "+ schednum + " is selected.");
+        });
+
+
+        $("#sched_table").DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#item_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

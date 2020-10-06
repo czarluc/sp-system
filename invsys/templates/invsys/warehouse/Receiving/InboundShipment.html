@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %} Receive Shipment
+ {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}    
+<style>
+    input[readonly] {
+      border:0px;
+      background-color: transparent;
+    }
+    #part_table tr td:nth-child(1), #part_table th:nth-child(1) {
+        display: none;
+    }
+    #part_table tr td:nth-child(2), #part_table th:nth-child(2) {
+        display: none;
+    }
+    #part_table tr td:nth-child(3), #part_table th:nth-child(3) {
+        display: none;
+    }
+    #part_table tr td:nth-child(4), #part_table th:nth-child(4) {
+        display: none;
+    }
+    #part_table tr td:nth-child(7), #part_table th:nth-child(7) {
+        display: none;
+    }
+    #part_table tr td:nth-child(8), #part_table th:nth-child(8) {
+        display: none;
+    }
+    #part_table tr td:nth-child(9), #part_table th:nth-child(9) {
+        display: none;
+    }
+    #part_table tr td:nth-child(10), #part_table th:nth-child(10) {
+        display: none;
+    }
+    #part_table tr td:nth-child(11), #part_table th:nth-child(11) {
+        display: none;
+    }
+    #part_table tr td:nth-child(12), #part_table th:nth-child(12) {
+        display: none;
+    }
+    #part_table tr td:nth-child(13), #part_table th:nth-child(13) {
+        display: none;
+    }
+    #part_table tr td:nth-child(14), #part_table th:nth-child(14) {
+        display: none;
+    }
+    .btn-item {
+      color: #fff;
+      background-color: #11D43F;
+      border-color: #11D43F;
+    }
+
+    .btn-delete {
+      color: #f444;
+      background-color: #11D43F;
+      border-color: #11D43F;
+    }
+    .table-striped tbody tr.highlight td { 
+    background-color: #f3fafe;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %} 
+
+    <h2> Inbound a Shipment </h2>
+
+    <form class="form-horizontal" method="POST" action="" id="ship_form">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">New Shipment {{ next_shipmentid }} Details:</h4>
+        </div>
+        <div class="card-body">
+
+            <input type ="hidden" class="form-control" id="val_start" readonly>
+            
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>DR#:</label>
+                        <input type ="text" class="form-control" id="id_dr_num">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>RR#:</label>
+                        <input type ="text" class="form-control" id="id_rr_num">
+                    </div>
+                </div>                
+            </div>
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Invoice#:</label>
+                        <input type ="text" class="form-control" id="id_invoice_num">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Trucking: </label>
+                        <input type="text" name="ship_trucking" class="form-control" id="id_ship_trucking">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Container Type: </label>
+                        <input type="text" name="container_type" class="form-control" id="id_container_type">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Container#:</label>
+                        <input type ="text" class="form-control" id="id_container_num">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>AWL/BL:</label>
+                        <input type ="text" class="form-control" id="id_awl_bl">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Shipment Category: </label>
+                        <input type="text" name="ship_category" class="form-control" id="id_ship_category">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Date DR:</label>
+                        <input type ="date" class="form-control" id="id_date_dr">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Date Warehouse: </label>
+                        <input type="date" name="ship_category" class="form-control" id="id_date_warehouse">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Purchase Orders in Shipment {{next_shipmentid}}:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table items table-hover table-striped w-auto mx-auto" id="po_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Purchase Order Number</th>
+                            <th scope="col">Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ shipmentpoformset.management_form }}
+                        {% for formpo in shipmentpoformset %}
+                        <div class="row form-row">
+                            <tr class="tablerow" id="formpo-{{forloop.counter0}}">
+                                <td><input type="text" name="formpo-0-po_num" class="form-control" id="id_formpo-0-po_num" readonly form_tag = False></td>
+                                <td><button class="btn btn-success btn-sm add-form-row ponum" title="Add"><i class="fas fa-file-medical"></i></button></td>
+                            </tr>
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-12">
+                    <label for="id_notes">Notes:</label>
+                    <input type="text" name="notes" maxlength="200" required="" class="form-control" id="id_notes">
+                </div>
+            </div>
+            <div class="row spacer">
+                <div class="col-2">
+                    <button type="submit" class="btn btn-block btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    </form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+        $(document).ready(function(){
+
+            window.name = "inbound_shipment";
+
+            $(document).on('click', '.add-form-row.ponum', function(e){
+                var wewewe = window.open("{% url 'warehouse:InboundShipment_SelectPONum' %}");
+                return false;
+            });
+
+        });
+
+        function updateElementIndex(el, prefix, ndx) {
+            var id_regex = new RegExp('(' + prefix + '-\\d+)');
+            var replacement = prefix + '-' + ndx;
+            if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+            if (el.id) el.id = el.id.replace(id_regex, replacement);
+            if (el.name) el.name = el.name.replace(id_regex, replacement);
+        }
+
+        function insert_po(prefix, po_num) { //selector - .form-row:last | prefix - form
+            var lastrowtbl = $('#po_table tr.tablerow:last').clone(true);
+            var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+            var currentnum = total - 1
+            var counter = 0
+
+            $('#po_table tr.tablerow:last').attr('id', "formpo-"+currentnum);
+
+            $('#po_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        $(this).val(po_num);
+                        counter++;
+                    } else {
+                        counter++;
+                    }
+                }
+            });
+
+            lastrowtbl.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                    var id = 'id_' + name;
+                    $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+                }
+            });
+
+            total++;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+            $('#po_table tr.tablerow:last').after(lastrowtbl);
+            lastrow = total-1;
+            $('#po_table tr.tablerow:last').attr('id', "formpo-"+lastrow);
+
+
+            var conditionRow = $('#po_table tr.tablerow:not(:last)');
+            conditionRow.find('.btn.add-form-row')
+            .removeClass('btn-success').addClass('btn-danger')
+            .removeClass('add-form-row').addClass('remove-form-row')
+            .html('<i class="fa fa-trash"></i>');
+
+            return false;
+        }
+
+
+        function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            btn.closest('#po_table tr.tablerow').remove();
+            var forms = $('#po_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+                    
+        $(document).on('click', '.remove-form-row', function(e){
+            e.preventDefault();
+            deleteForm('formpo', $(this));
+            return false;
+        });
+
+    </script>
+{% endblock javascripts %}
+

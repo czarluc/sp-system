@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">IAF Reports:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="report_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Report Number</th>
+                            <th scope="col">IAF WHSE</th>
+                            <th scope="col">Adjustment</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Date Requested</th>
+                            <th scope="col">Date Approved</th>
+                            <th scope="col">Date Adjusted</th>
+                            <th scope="col">Prepared By</th>
+                            <th scope="col">Noted By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in iaf_report_set %}
+                        <tr class="tablerow" id="whse-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-report_num="{{instance.report_num}}" data-iaf_whse="{{instance.iaf_whse__whse}}" data-adjustment_type="{{instance.adjustment_type__iaf_code}}" data-iaf_action="{{instance.iaf_action}}" data-date_requested="{{instance.date_requested}}" data-date_approved="{{instance.date_approved}}" data-date_adjusted="{{instance.date_adjusted}}" data-prepared_by="{{instance.prepared_by}}" data-noted_by="{{instance.noted_by}}">{{ instance.report_num }}</button></td>
+                            <td>{{ instance.iaf_whse__whse }}</td>
+                            <td>{{ instance.adjustment_type__iaf_code }}</td>
+                            <td>{{ instance.iaf_action }}</td>
+                            <td>{{ instance.date_requested }}</td>
+                            <td>{{ instance.date_approved }}</td>
+                            <td>{{ instance.date_adjusted }}</td>
+                            <td>{{ instance.prepared_by }}</td>
+                            <td>{{ instance.noted_by }}</td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">IAF Item:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="item_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Report Number</th>
+                            <th scope="col">IAF WHSE</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Item Quantity</th>
+                            <th scope="col">IAF Operator</th>
+                            <th scope="col">Total Cost</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Adjustment</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Date Requested</th>
+                            <th scope="col">Date Approved</th>
+                            <th scope="col">Date Adjusted</th>
+                            <th scope="col">Prepared By</th>
+                            <th scope="col">Noted By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in iaf_item_set %}
+                        <tr class="tablerow" id="whse-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-report_num="{{instance.report_num__report_num}}" data-iaf_whse="{{instance.report_num__iaf_whse}}" data-adjustment_type="{{instance.item_number}}" data-iaf_action="{{instance.bin_location}}" data-date_requested="{{instance.item_quantity}}" data-date_approved="{{instance.iaf_operator}}" data-date_adjusted="{{instance.total_cost}}" data-prepared_by="{{instance.reason}}" data-noted_by="{{instance.report_num__adjustment_type}}" data-iaf_action="{{instance.report_num__iaf_action}}" data-date_requested="{{instance.report_num__date_requested}}" data-date_approved="{{instance.report_num__date_approved}}" data-date_adjusted="{{instance.report_num__date_adjusted}}" data-prepared_by="{{instance.report_num__prepared_by}}" data-noted_by="{{instance.report_num__noted_by}}">{{ instance.report_num__report_num }}</button></td>
+                            <td>{{ instance.report_num__iaf_whse__whse }}</td>
+                            <td>{{ instance.item_number__item_number }}</td>
+                            <td>{{ instance.bin_location__bin_location }}</td>
+                            <td>{{ instance.item_quantity }}</td>
+                            <td>{{ instance.iaf_operator__operator }}</td>
+                            <td>{{ instance.total_cost }}</td>
+                            <td>{{ instance.reason }}</td>
+                            <td>{{ instance.report_num__adjustment_type__iaf_code }}</td>
+                            <td>{{ instance.report_num__iaf_action }}</td>
+                            <td>{{ instance.report_num__date_requested }}</td>
+                            <td>{{ instance.report_num__date_approved }}</td>
+                            <td>{{ instance.report_num__date_adjusted }}</td>
+                            <td>{{ instance.report_num__prepared_by }}</td>
+                            <td>{{ instance.report_num__noted_by }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">IAF Product:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="prod_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Report Number</th>
+                            <th scope="col">IAF WHSE</th>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Product Quantity</th>
+                            <th scope="col">IAF Operator</th>
+                            <th scope="col">Total Cost</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Adjustment</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Date Requested</th>
+                            <th scope="col">Date Approved</th>
+                            <th scope="col">Date Adjusted</th>
+                            <th scope="col">Prepared By</th>
+                            <th scope="col">Noted By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in iaf_prod_set %}
+                        <tr class="tablerow" id="whse-{{forloop.counter}}">
+                            <td><button type="button" class="btn btn-primary wo" data-report_num__report_num="{{instance.report_num__report_num}}" data-report_num__iaf_whse="{{instance.report_num__iaf_whse}}" data-prod_number="{{instance.prod_number}}" data-bin_location="{{instance.bin_location}}" data-prod_quantity="{{instance.prod_quantity}}" data-iaf_operator="{{instance.iaf_operator}}" data-total_cost="{{instance.total_cost}}" data-reason="{{instance.reason}}" data-report_num__adjustment_type="{{instance.report_num__adjustment_type}}" data-report_num__iaf_action="{{instance.report_num__iaf_action}}" data-report_num__date_requested="{{instance.report_num__date_requested}}" data-report_num__date_approved="{{instance.report_num__date_approved}}" data-report_num__date_adjusted="{{instance.report_num__date_adjusted}}" data-report_num__prepared_by="{{instance.report_num__prepared_by}}" data-report_num__noted_by="{{instance.report_num__noted_by}}">{{ instance.report_num__report_num }}</button></td>
+                            <td>{{ instance.report_num__iaf_whse__whse }}</td>
+                            <td>{{ instance.prod_number__prod_number }}</td>
+                            <td>{{ instance.bin_location__bin_location }}</td>
+                            <td>{{ instance.prod_quantity }}</td>
+                            <td>{{ instance.iaf_operator__operator }}</td>
+                            <td>{{ instance.total_cost }}</td>
+                            <td>{{ instance.reason }}</td>
+                            <td>{{ instance.report_num__adjustment_type__iaf_code }}</td>
+                            <td>{{ instance.report_num__iaf_action }}</td>
+                            <td>{{ instance.report_num__date_requested }}</td>
+                            <td>{{ instance.report_num__date_approved }}</td>
+                            <td>{{ instance.report_num__date_adjusted }}</td>
+                            <td>{{ instance.report_num__prepared_by }}</td>
+                            <td>{{ instance.report_num__noted_by }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script>
+$(document).ready(function() {
+    var table = $('#report_table').DataTable( {
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
+        dom: 'Blfrtip',
+        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+    } );
+ 
+    table.buttons().container()
+        .appendTo( '#report_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#item_table').DataTable( {
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
+        dom: 'Blfrtip',
+        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+    } );
+ 
+    table2.buttons().container()
+        .appendTo( '#item_table_wrapper .col-md-6:eq(0)' );
+
+    var table3 = $('#prod_table').DataTable( {
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
+        dom: 'Blfrtip',
+        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+    } );
+ 
+    table3.buttons().container()
+        .appendTo( '#prod_table_wrapper .col-md-6:eq(0)' );
+} );
+ </script>
+{% endblock javascripts %}

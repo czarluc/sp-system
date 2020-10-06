@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %} Report System Adjustment {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style>
+    input:not([name="notes"]){ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> Create a Transfer Item Report </h2>
+    <form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Report Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_report_num">Report Number:</label>
+                        <input type="text" name="report_num" class="form-control" required="" readonly id="id_report_num" value="{{reportid}}">
+                   </div>
+               </div>
+
+                <div class="col-1">
+                    <label for="id_iaf_whse">Warehouse:</label>
+                </div>
+
+                <div class="col-3">
+                    <select name="iaf_whse" class="form-control" id="id_iaf_whse">
+                        <option value="">---------</option>
+                        <option value="1" selected="">WHSE</option>
+                        <option value="2">88</option>
+                        <option value="3">98</option>
+                    </select>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_date_reported">Scheduled Date:</label>
+                        <input type="text" name="date_reported" class="form-control" required="" readonly id="id_date_reported">
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Components to be transfered in the System:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto small table-responsive" id="part_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Bin Location ID</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Total Cost</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Operator ID</th>
+                            <th scope="col">Operator</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ transferitem_formset.management_form }}
+                        {% for form in transferitem_formset %}
+                        <div class="row form-row">
+                            <tr class="tablerow">
+                                <td><input type="text" name="form-0-bin_location" class="form-control" id="id_form-0-bin_location" value="" readonly="readonly"></td>
+                                <td><input type="text" name="form-{{forloop.counter0}}-bin_locationTEXT" class="form-control" id="id_form-{{forloop.counter0}}-bin_locationTEXT" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="form-0-item_number" class="form-control" id="id_form-0-item_number" value="" readonly="readonly"></td>
+                                
+                                <td><input type="text" name="form-0-item_quantity" class="form-control" id="id_form-0-item_quantity" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="form-0-total_cost" class="form-control" id="id_form-0-total_cost" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="form-0-reason" class="form-control" id="id_form-0-reason" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="form-0-iaf_operator" class="form-control" id="id_form-0-iaf_operator" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="form-0-iaf_operatorTEXT" class="form-control" id="id_form-0-iaf_operatorTEXT" value="" readonly="readonly"></td>
+
+                                <td><button class="btn btn-success add-form-row">+</button></td>
+                            </tr>
+                        </div> 
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_notes">Notes:</label> 
+                        <input type="text" name="notes" maxlength="200" required="" class="form-control" id="id_notes">
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-block btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        var d = new Date($.now());
+        var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+        $('#id_date_reported').val(currentdate);
+
+        });
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+)');
+        var replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+
+    function cloneMore(prefix, bin_id, bin_loc, item_num, item_quan, tot_cost, reason, operator_id, operator) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1
+        var counter = 0
+        console.log(lastrowtbl);
+        $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(bin_id);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(bin_loc);
+                    counter++;
+                } else if(counter === 2){
+                    $(this).val(item_num);
+                    counter++;
+                } else if(counter === 3){
+                    $(this).val(item_quan);
+                    counter++;
+                } else if(counter === 4){
+                    $(this).val(tot_cost);
+                    counter++;
+                } else if(counter === 5){
+                    $(this).val(reason);
+                    counter++;
+                } else if(counter === 6){
+                    $(this).val(operator_id);
+                    counter++;
+                } else {
+                    $(this).val(operator);
+                    counter++;
+                }
+            }
+        });
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#part_table tr.tablerow:last').after(lastrowtbl);
+        var conditionRow = $('#part_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-');
+        return false;
+    }
+
+    function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            btn.closest('#part_table tr.tablerow').remove();
+            var forms = $('#part_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+    
+    $(document).on('click', '.add-form-row', function(e){
+        var newwin = window.open("{% url 'warehouse:TransferItem_SelectItem' %}");
+        return false;
+    });
+    
+    $(document).on('click', '.remove-form-row', function(e){
+        e.preventDefault();
+        deleteForm('form', $(this));
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

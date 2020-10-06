@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+<style type="text/css">
+    #req_table tr td:nth-child(1), #req_table th:nth-child(1){
+        display: none;
+    }
+    #req_table tr td:nth-child(2), #req_table th:nth-child(2){
+        display: none;
+    }
+    #req_table tr td:nth-child(3), #req_table th:nth-child(3){
+        display: none;
+    }
+    #req_table tr td:nth-child(6), #req_table th:nth-child(6){
+        display: none;
+    }
+    #rec_table tr td:nth-child(1), #rec_table th:nth-child(1){
+        display: none;
+    }
+    #rec_table tr td:nth-child(2), #rec_table th:nth-child(2){
+        display: none;
+    }
+    #rec_table tr td:nth-child(3), #rec_table th:nth-child(3){
+        display: none;
+    }
+    #rec_table tr td:nth-child(8), #rec_table th:nth-child(8){
+        display: none;
+    }
+    #sum_table tr td:nth-child(1), #sum_table th:nth-child(1){
+    display: none;
+    }
+    #sum_table tr td:nth-child(2), #sum_table th:nth-child(2){
+    display: none;
+    }
+    #sum_table tr td:nth-child(3), #sum_table th:nth-child(3){
+    display: none;
+    }
+    #sum_table tr td:nth-child(7), #sum_table th:nth-child(7){
+    display: none;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> View Work Order Component Issuance Schedules </h2>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Component Issuance Schedules:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="sched_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Schedule Number</th>
+                            <th scope="col">Date Scheduled</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Cleared</th>
+                            <th scope="col">Issues</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in issuance_sched_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
+                            <td>{{ instance.date_scheduled }}</td>
+                            <td>{{ instance.notes }}</td>
+                            <td>{{ instance.cleared }}</td>
+                            <td>{{ instance.issues }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Component Issuance Items:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-lg-5">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Required Items:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive"> <!--Shrnk Items-->
+                                <table class="table table-hover table-striped table-bordered" id="req_table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Schedule Number</th>
+                                            <th scope="col">Production Schedule</th>
+                                            <th scope="col">Work Order Number</th>
+                                            <th scope="col">Item Number</th>
+                                            <th scope="col">Required Item Quantity</th>
+                                            <th scope="col">Bin location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for instance in issuance_reqitem_set %}
+                                        <tr class="tablerow" id="req-{{forloop.counter}}">
+
+                                            <td>{{ instance.schedule_num__schedule_num }}</td>
+                                            <td>{{ instance.prod_sched__id }}</td>
+                                            <td>{{ instance.prod_sched__work_order_number }}</td>
+                                            <td>{{ instance.item_num__item_number }}</td>
+                                            <td>{{ instance.item_quantity }}</td>
+                                            <td>{{ instance.bin_location__bin_location }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Received Items:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive"> <!--Shrnk Items-->
+                                <table class="table table-hover table-striped table-bordered" id="rec_table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Schedule Number</th>
+                                            <th scope="col">Production Schedule</th>
+                                            <th scope="col">Work Order Number</th>
+                                            <th scope="col">Item Number</th>
+                                            <th scope="col">Received Item Quantity</th>
+                                            <th scope="col">Date Received</th>
+                                            <th scope="col">Notes</th>
+                                            <th scope="col">Bin location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for instance in issuance_recitem_set %}
+                                        <tr class="tablerow" id="rec-{{forloop.counter}}">
+                                            <td>{{ instance.schedule_num__schedule_num }}</td>
+                                            <td>{{ instance.prod_sched__id }}</td>
+                                            <td>{{ instance.prod_sched__work_order_number }}</td>
+                                            <td>{{ instance.item_num__item_number }}</td>
+                                            <td>{{ instance.item_quantity }}</td>
+                                            <td>{{ instance.date_received }}</td>
+                                            <td>{{ instance.notes }}</td>
+                                            <td>{{ instance.bin_location__bin_location }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Component Issuance Summary:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="sum_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Schedule Number</th>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Total Required Quantity</th>
+                            <th scope="col">Total Received Quantity</th>
+                            <th scope="col">Discrepancy</th>
+                            <th scope="col">Discrepancy Quantity</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date Received</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in issuance_sum_set %}
+                        <tr class="tablerow" id="sum-{{forloop.counter}}">
+                            <td>{{ instance.schedule_num__schedule_num }}</td>
+                            <td>{{ instance.prod_sched__id }}</td>
+                            <td>{{ instance.prod_sched__work_order_number }}</td>
+                            <td>{{ instance.item_num__item_number }}</td>
+                            <td>{{ instance.totalreq_quan }}</td>
+                            <td>{{ instance.totalrec_quan }}</td>
+                            <td>{{ instance.discrepancy }}</td>
+                            <td>{{ instance.discrepancy_quantity }}</td>
+                            <td>{{ instance.status }}</td>
+                            <td>{{ instance.date_received }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script>
+$(document).ready(function() {
+    var table = $('#sched_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table.buttons().container()
+        .appendTo( '#sched_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#req_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table2.buttons().container()
+        .appendTo( '#req_table_wrapper .col-md-6:eq(0)' );
+
+    var table3 = $('#rec_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table3.buttons().container()
+        .appendTo( '#rec_table_wrapper .col-md-6:eq(0)' );
+
+    var table4 = $('#sum_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table4.buttons().container()
+        .appendTo( '#sum_table_wrapper .col-md-6:eq(0)' );
+} );
+ </script>
+{% endblock javascripts %}

@@ -1,0 +1,131 @@
+<div class="form-group">
+                <label for="prod_number">Product Number:</label>
+                {{ form.prod_number }}
+            </div>
+            <div class="form-group">
+                <label for="prod_desc">Product Description:</label>
+                {{ form.prod_desc }}
+            </div>
+            <div class="form-group">
+                <label for="uom">Unit of Measure:</label>
+                {{ form.uom }}
+            </div>
+            <div class="form-group">
+                <label for="prod_type">Product Type:</label>
+                {{ form.prod_type }}
+            </div>
+            <div class="form-group">
+                <label for="prod_class">Product Class:</label>
+                {{ form.prod_class }}
+            </div>
+            <div class="form-group">
+                <label for="barcode">Barcode:</label>
+                {{ form.barcode }}
+            </div>
+            <div class="form-group">
+                <label for="price">Price:</label>
+                {{ form.price }}
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                {{ form.notes }}
+            </div>
+            <div class="form-group">
+                <label for="imgpath">Image Path:</label>
+                {{ form.imgpath }}
+            </div>
+
+                /*
+                $('#submitbtn').click(function(){
+                    var proddata = [, 2, 3, 4];
+                    var formData = new FormData();
+                    formData.append('arr', arr);
+
+                    $.ajax({
+                        url: '...',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false
+                    });               
+                });
+                */
+
+
+<!-- DUMP #2 BEFORE DYNAMIC -->
+{% extends 'base.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/Warehouse/InvReview/CreateProd_SelectItem.css' %}">
+
+    <div class="col-md-5">
+        <h2>Add Product</h2>
+    </div>
+
+    <div class="col-md-5">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST" id="prodform">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <br>
+            <br>
+
+            <div class="col-md-10">
+                <div class="display_table">
+                    <table class="table table-hover table-striped">
+                        <thead class="thead-dark">
+                            <tr class="tablerow">
+                            <th scope="col">ID</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Description</th>
+                            <th scope="col">Unit of Measure</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Delete</th>
+                          </tr>
+                        </thead>
+                        <tbody> <!--INSERT ITEMS HERE-->
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+             
+            <br>
+            <br>
+            <button type="submit" id="submitbtn" class="btn btn-primary">Save</button>
+            <button type="button" id="storebtn" class="btn btn-warehouse btn-lg"> Select Items </button>
+        </form>
+
+        <script>
+            $(document).ready(function(){
+                $('#storebtn').click(function(){
+                    var newwin = window.open("{% url 'warehouse:whse_add_prod_selectitem' %}");
+                });
+
+                $('body').on('click', 'button.btn-danger.deleteDep', function() {
+                   $(this).parents('tr').remove();  
+                });
+
+                $('#prodform').submit(function() {
+                    // Get all the forms elements and their values in one step
+                    alert('Submit button!');
+                    var values = $(this).serialize();
+
+
+                
+                });
+            });
+        </script>
+
+    </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

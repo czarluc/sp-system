@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %} Report System Adjustment {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style>
+    input:not([name="notes"]){ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> Ship out a Work Order </h2>
+<form class="form-horizontal" method="POST" action="">
+	{% csrf_token %}
+	<div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Item Details:</h4>
+        </div>
+        <div class="card-body">
+
+        	<div class="form-row align-items-center">
+                <div class="col-4">
+                	<div class="form-group">
+	                	<label for="id_wo_num">Wo num:</label>
+	                	<input type="text" name="wo_num" id="id_wo_num" class="form-control" readonly>
+	                </div>
+                </div>
+                <div class="col-2">
+		            <button class="btn btn-success add-wonum"><i class="fas fa-file-medical"></i></button>
+                </div>
+                <div class="col-4">
+                	<div class="form-group">
+	                	<label for="id_ship_out_num">Ship out num:</label>
+	                	<input type="text" name="ship_out_num" maxlength="200" id="id_ship_out_num" class="form-control">
+	                </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Production Schedules in Work Order:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto" id="prodsched_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <div class="row form-row">
+                            <tr class="tablerow">
+                                
+                            </tr>
+                        </div>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_notes">Notes:</label> 
+                        <input type="text" name="notes" maxlength="200" required="" class="form-control" id="id_notes">
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-block btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.name = "Ship_Prod";
+	    
+	    $(document).on('click', '.add-wonum', function(e){
+	        var newwin = window.open("{% url 'warehouse:ShipProduct_SelectWONum' %}");
+	        return false;
+	    });
+
+    });
+
+	function showprod_sched(prod_sched, prod_quan, status) { //selector - .form-row:last | prefix - form
+        $('#prodsched_table').prepend('<tr><td>'+prod_sched+'</td><td>'+prod_quan+'</td><td>'+status+'</td></tr>');
+        
+        return false;
+    }
+
+</script>
+{% endblock javascripts %}

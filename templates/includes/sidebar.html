@@ -1,0 +1,327 @@
+    <div class="sidebar" data-color="purple" data-background-color="white" data-image="/static/assets/img/sidebar-1.jpg">
+      {% if user.is_authenticated and user.is_warehouse %}
+      <div class="logo">
+        <a target="_blank" rel="noopener noreferrer" 
+           target="_blank" rel="noopener noreferrer" 
+           href="https://www.creative-tim.com/product/material-dashboard-django" class="simple-text logo-normal">
+          Warehouse
+        </a>
+      </div>
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}">
+            <a class="nav-link" href="{% url 'warehouse:warehouse_home' %}">
+              <i class="material-icons">dashboard</i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop1" class="nav-link"><i class="material-icons">accessibility</i>Incoming Shipment<span class="caret"></span></a>
+                <ul id="drop1" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:InboundShipment' %}">Inbound Shipment</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ReceiveShipment' %}">Validate Shipment</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ContinueReceiveShipment' %}">Validate VDR Shipment</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewShipmentSummary' %}">View Shipment Summary</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ResolvePO' %}">Resolve PO</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:UpdatePO' %}">Update PO</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop2" class="nav-link"> Put Away<span class="caret"></span></a>
+                <ul id="drop2" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:GeneratePutAwaySchedule' %}">Generate Put Away Schedule</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:FinishPutAway' %}">Finish Put Away</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewPutAwaySummary' %}">Put Away Summary</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop3" class="nav-link"> Component Issuance<span class="caret"></span></a>
+                <ul id="drop3" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewPendingWO' %}">View Pending Work Orders</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:GenerateCompIssuanceSchedule' %}">Generate Component Issuance Schedule</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:FinishCompIssuance' %}">Finish Component Issuance</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewCompIssuanceSummary' %}">Component Issuance Summary</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop4" class="nav-link"> Shipping<span class="caret"></span></a>
+                <ul id="drop4" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ReceiveProduct' %}">Receive Product</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ShipProduct' %}">Ship Product</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop6" class="nav-link">Inventory Review<span class="caret"></span></a>
+                <ul id="drop6" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:GenerateCCSchedule' %}" class="dropdown-item">Generate Cycle Count List</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:FinishCycleCount' %}">Conduct Cycle Count</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewCycleCountSummary' %}">Cycle Count Summary</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop7" class="nav-link">Part Request Issuance<span class="caret"></span></a>
+                <ul id="drop7" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:GeneratePartRequestSchedule' %}">Generate Part Request Issuance Schedule</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:FinishPartReqIssuance' %}">Finish Part Request Issuance</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewCycleCountSummary' %}">Part Request Issuance Summary</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop8" class="nav-link">Component Return<span class="caret"></span></a>
+                <ul id="drop8" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:GenerateCompReturnSchedule' %}">Generate Component Return Schedule</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:FinishCompReturn' %}">Finish Component Return</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewCycleCountSummary' %}">Component Return Summary</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop9" class="nav-link">Warehouse Update<span class="caret"></span></a>
+                <ul id="drop9" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:WarehouseAdjustments' %}">Warehouse Adjustments</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ReportDMMR' %}">Damaged Material</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ReportDFMR' %}">Defective Material</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ReportSysAdj' %}">System Adjustment</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:DismantleProduct' %}">Dismantle Product</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:TransferItem' %}">Transfer Item</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop10" class="nav-link">Warehouse Locations<span class="caret"></span></a>
+                <ul id="drop10" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckInboundLobby' %}">Inbound Lobby</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckReceivingLobby' %}">Receiving Lobby</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckVDRLobby' %}">VDR Lobby</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckWarehouse' %}">Warehouse</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckAssemblyItem' %}">Assembly Item</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckAssemblyItem' %}">Assembly Discrepancies</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckShippingLobby' %}">Shipping Lobby</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop11" class="nav-link">View Inventory<span class="caret"></span></a>
+                <ul id="drop11" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckItem' %}">Items</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:CheckProduct' %}">Products</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewItemTransactions' %}">Item Transactions</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewProductTransactions' %}">Product Transactions</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop5" class="nav-link"> Inventory Master<span class="caret"></span></a>
+                <ul id="drop5" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:whse_add_item' %}">Add Item</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:whse_add_prod' %}">Add Product</a>
+                    </li>
+                </ul>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+      {% if user.is_authenticated and user.is_planner %}
+      <div class="logo">
+        <a target="_blank" rel="noopener noreferrer" 
+           target="_blank" rel="noopener noreferrer" 
+           href="https://www.creative-tim.com/product/material-dashboard-django" class="simple-text logo-normal">
+          Production Plan
+        </a>
+      </div>
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}">
+            <a class="nav-link" href="/">
+              <i class="material-icons">dashboard</i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#" data-toggle="collapse" data-target="#drop1" class="nav-link"><i class="material-icons">accessibility</i>Work-Order<span class="caret"></span></a>
+                <ul id="drop1" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'planner:CreateWO' %}">Create Work-Order</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'planner:ViewWO' %}">View Work-Orders</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'planner:ConvertWO' %}">Convert Work-Orders</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#" data-toggle="collapse" data-target="#drop2" class="nav-link">View Available Inventory<span class="caret"></span></a>
+                <ul id="drop2" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'planner:CheckPart' %}">Check Items</a>
+                    </li>
+                </ul>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+      {% if user.is_authenticated and user.is_assembly %}
+      <div class="logo">
+        <a target="_blank" rel="noopener noreferrer" 
+           target="_blank" rel="noopener noreferrer" 
+           href="https://www.creative-tim.com/product/material-dashboard-django" class="simple-text logo-normal">
+          Assembly
+        </a>
+      </div>
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}">
+            <a class="nav-link" href="/">
+              <i class="material-icons">dashboard</i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#" data-toggle="collapse" data-target="#drop1" class="nav-link"><i class="material-icons">accessibility</i>Work-Order<span class="caret"></span></a>
+                <ul id="drop1" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'assembly:FinishAssembly' %}">Finish Assembly</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'assembly:FinishCoupling' %}">Finish Coupling</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'assembly:FinishTesting' %}">Finish Testing</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'assembly:ViewPendingWO' %}">View Work-Orders</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#" data-toggle="collapse" data-target="#drop2" class="nav-link">Shrinkage<span class="caret"></span></a>
+                <ul id="drop2" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'assembly:ReportShrinkage' %}">Report Shrinkage</a>
+                    </li>
+                </ul>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+    </div>

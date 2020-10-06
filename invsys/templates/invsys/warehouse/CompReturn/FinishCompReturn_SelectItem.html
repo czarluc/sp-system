@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>Select an Item to Return</h2>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-primary">
+            <h4 class="card-title">Selected Item Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-5">
+                    <div class="form-group">
+                        <input type ="hidden" class="form-control" id="name1" readonly/> <!--PROD SCHED ID-->
+                        <label>Item Number</label>
+                        <input type ="text" class="form-control" id="name3" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+            <label>Item Category</label>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+            <input type ="text" class="form-control" id="name4" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-3">
+            <label>Date Received</label>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+            <input type ="text" class="form-control" id="name5" readonly/>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <label>Assembly Line</label>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                    <input type ="hidden" class="form-control" id="name6"/> <!--Assembly Line ID-->
+                    <input type ="text" class="form-control" id="name7" readonly/>
+                  </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-3">
+            <label>Received Quantity</label>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+            <input type ="text" class="form-control" id="name8"/>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+            <label>Notes</label>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <input type ="text" class="form-control" id="name9"/>
+                        <input type ="hidden" class="form-control" id="name10"/> <!--Required Quan-->
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+            <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-primary">
+            <h4 class="card-title">Select a Part to Return:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Bill of Materials-->
+                <table class="table table-hover table-striped w-auto" id="bom_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Prod Sched ID</th>
+                            <th scope="col">Item Number ID</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Item Quantity</th>
+                            <th scope="col">Assembly Line</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for reqpart in compreturn_list %}
+                        <tr class="tablerow bom_table">
+                            <td>{{reqpart.prod_sched__id}}</td>
+
+                            <td><button type="button" class="btn btn-primary item_number" data-prod_sched="{{reqpart.prod_sched__id}}" data-item_num="{{reqpart.item_number__item_number}}" data-ass_id="{{reqpart.location_from__id}}" data-ass_line="{{reqpart.location_from__name}}" data-item_cat="{{reqpart.item_number__item_cat__item_cat}}" data-req_quan="{{reqpart.quantity}}">{{reqpart.item_number__item_number}}</button></td>
+
+                            <td>{{reqpart.item_number__item_cat__item_cat}}</td>
+                            <td>{{reqpart.quantity}}</td>
+                            <td>{{reqpart.location_from__name}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>          
+    $(document).ready(function(){
+
+        var d = new Date($.now());
+        var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+        $('#name5').val(currentdate);
+
+        $( "#bom_table" ).on("click", ".btn.btn-primary.item_number", function () {
+            var btn = this;
+            var prod_sched = btn.dataset.prod_sched;
+            var item_num = btn.dataset.item_num;
+            var bin_id = btn.dataset.bin_id;
+            var bin_loc = btn.dataset.bin_loc;
+            var ass_id = btn.dataset.ass_id;
+            var ass_line = btn.dataset.ass_line;
+            var item_cat = btn.dataset.item_cat;
+            var req_quan = btn.dataset.req_quan;
+
+            $('#name1').val(prod_sched);
+            $('#name3').val(item_num);
+            $('#name4').val(item_cat);
+
+            $('#name6').val(ass_id);
+            $('#name7').val(ass_line);
+            $('#name10').val(req_quan);
+
+        });
+        
+        $(".btn.btn-warehouse.btn-lg").on("click", function () {
+            
+            var prod_sched = $('#name1').val();
+            var item_num = $('#name3').val();
+            var ass_id = $('#name6').val();
+            var ass_line = $('#name7').val();
+
+            var date_rec = $('#name5').val();
+            var rec_quan = $('#name8').val();
+            var notes = $('#name9').val();
+            var req_quan = $('#name10').val();
+
+            window.opener.cloneMore('formsetitem', prod_sched, item_num, date_rec, rec_quan, ass_id, ass_line, notes, req_quan);
+
+            alert(itemnum+" has been received with a quantity of "+quan);                 
+        });
+
+
+        $("#bom_table").DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+
+
+</script>
+{% endblock javascripts %}

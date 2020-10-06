@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style type="text/css">
+    #bin_table {
+        display: none;
+    }
+    #bom_table tr td:nth-child(1), #bom_table th:nth-child(1){
+    display: none;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>Select a Product</h2>
+    <div class="card" id="select_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Selected Product Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Product Number</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Product Description</label>
+                        <input type ="text" class="form-control" id="name2" data-refid="" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Product Type</label>
+                        <input type ="text" class="form-control" id="name3" data-binid="" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Product Class</label>
+                        <input type ="text" class="form-control" id="name4" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Proposed Quantity</label>
+                        <input type ="text" class="form-control" id="name5"/>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-warning btn-lg check">Check</button>
+                </div>
+                <div class="col-lg-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg select">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-row align-top">
+        <div class="col-lg-6">
+
+            <div class="card" id="prod_card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Product List:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--List of Products-->
+                        <table class="table table-hover table-striped w-auto" id="prod_table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Product Number</th>
+                                    <th scope="col">Product Description</th>
+                                    <th scope="col">UOM</th>
+                                    <th scope="col">Product Type</th>
+                                    <th scope="col">Product Class</th>
+                                    <th scope="col">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for instance in prodset %}
+                                <tr class="tablerow" id="prod-{{forloop.counter}}">
+                                    <td><button type="button" class="btn btn-primary prodnum" data-prod_num="{{instance.prod_number}}" data-prod_desc="{{instance.prod_desc}}" data-uom="{{instance.uom__uom}}" data-counter="{{forloop.counter}}" data-prod_type="{{ instance.prod_type }}" data-prod_class="{{instance.prod_class__prod_class}}" data-price="{{ instance.price }}">{{ instance.prod_number }}</button></td>
+                                    <td>{{ instance.prod_desc }}</td>
+                                    <td>{{ instance.uom__uom }}</td>
+                                    <td>{{ instance.prod_type }}</td>
+                                    <td>{{ instance.prod_class__prod_class }}</td>
+                                    <td>{{ instance.price }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Bill of Materials:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--Bill of Materials-->
+                    <table class="table table-hover table-striped w-auto" id="bom_table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Product Number</th>
+                                <th scope="col">Item Number</th>
+                                <th scope="col">Item Description</th>
+                                <th scope="col">Required Quantity</th>
+                                <th scope="col">Total Required Quantity</th>
+                                <th scope="col">Quantity in Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for instance in proditemset %}
+                            <tr class="tablerow bom_table" id="bom-{{forloop.counter}}" data-prod_num="{{ instance.prod_number__prod_number }}" data-itemnum="{{ instance.item_number__item_number }}" data-item_desc="{{instance.item_number__item_desc}}" data-item_quan="{{instance.quantity}}" data-totreq="" data-stockquan="">
+                                <td>{{ instance.prod_number__prod_number }}</td>
+                                <td>{{ instance.item_number__item_number }}</td>
+                                <td>{{ instance.item_number__item_desc }}</td>
+                                <td>{{ instance.quantity }}</td>
+                                <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-totrequan" value="" readonly style="text-align:center"></td>
+                                <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-stockquan" value="" readonly style="text-align:center"></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    
+
+    
+
+<!--Warehouse Item Stock-->
+<table class="table table-hover table-striped w-auto" id="bin_table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Bin Location ID</th>
+            <th scope="col">Bin Location</th>
+            <th scope="col">Item Number</th>
+            <th scope="col">Quantity In Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for instance in whseitemset %}
+        <tr class="tablerow bin_table" data-binlocid="{{ instance.bin_location__id }}" data-binloc="{{ instance.bin_location__bin_location }}" data-itemnum="{{instance.item_number__item_number}}" data-quan="{{instance.quantity}}">
+
+            <td>{{ instance.bin_location__id }}</td>
+            <td>{{ instance.bin_location__bin_location }}</td>
+            <td>{{ instance.item_number__item_number }}</td>
+            <td>{{ instance.quantity }}</td>
+
+        </tr>
+    {% endfor %}
+    </tbody>
+</table> 
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
+<script>
+    $(window).on('load', function() {
+        document.getElementById("prod_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $('#bin_table').find('tr.tablerow.bin_table').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $( "#prod_table" ).on("click", ".btn.btn-primary.prodnum", function () {
+            var btn = this;
+
+            var prodnum = btn.dataset.prod_num; 
+            var desc = btn.dataset.prod_desc; 
+            var prodtype = btn.dataset.prod_type;
+            var prodclass = btn.dataset.prod_class; 
+            var counter = btn.dataset.counter; 
+
+            $('#name1').val(prodnum);
+            $('#name2').val(desc);
+            $('#name3').val(prodtype);
+            $('#name4').val(prodclass);
+
+            toastr.info('Product ' + prodnum + " is selected.");
+        });
+
+
+        $(".btn.btn-success.btn-lg.select").on("click", function () {
+            var prodnum = $('#name1').val();
+            var prodquan = $('#name5').val();
+            var prodclass = $('#name4').val();
+                                                   
+            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+                var rowid = this.id;
+
+                if ($('#'+rowid).is(":visible")){
+                    var bomrow = this;
+
+                    var itemnum = bomrow.dataset.itemnum;
+                    var itemreq = bomrow.dataset.item_quan;
+                    var totitemreq = bomrow.dataset.totreq;
+                    var stockquan = bomrow.dataset.stockquan;
+                    
+                    if (!(parseInt(stockquan) < parseInt(totitemreq))){
+                        window.opener.cloneMore('form', itemnum, itemreq);
+                    }else{
+                        alert("Please enter a required quantity lower than the stock quantity");
+                    }
+                }                     
+            });
+
+            $(window.opener.document).find('#id_prod_number').val(prodnum);
+            $(window.opener.document).find('#id_prod_quantity').val(prodquan);
+            $(window.opener.document).find('#id_prod_class').val(prodclass);
+
+            toastr.success('Product ' + prodnum + " is selected to the Work Order.");
+
+            var goBack = window.open('', 'Create_WO');
+            goBack.focus();
+            window.close();
+                                
+        });
+
+        
+        
+        $(".btn.btn-warning.btn-lg.check").on("click", function () {
+            var prodnum = $('#name1').val();
+            var prodquan = $('#name5').val();
+
+            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+                var bomrow = this;
+                var stockquan = 0
+
+                var rowid = bomrow.id;
+                var itemprod_num = bomrow.dataset.prod_num;
+                var item_num = bomrow.dataset.itemnum;
+                var itemreq = bomrow.dataset.item_quan;
+                var totitemreq = parseInt(itemreq) * parseInt(prodquan);
+                var stockquan = getstockinstances(item_num, stockquan)
+
+                this.dataset.totreq = totitemreq;
+                this.dataset.stockquan = stockquan;
+
+                if (itemprod_num === prodnum){
+                    $('#'+rowid+'-totrequan').val(totitemreq);
+                    $('#'+rowid+'-stockquan').val(stockquan);
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });  
+        });
+
+        function getstockinstances(item_num, stockquan){
+            $('#bin_table').find('tr.tablerow.bin_table').each(function (i, el) {
+                var binrow = this;
+
+                var binlocid = binrow.dataset.binlocid;
+                var binloc = binrow.dataset.binloc;
+                var binitemnum = binrow.dataset.itemnum;
+                var binitemnum = binrow.dataset.itemnum;
+                var binitemquan = binrow.dataset.quan;
+
+                if ( binitemnum === item_num ){
+                    stockquan += parseInt(binitemquan);
+                }
+
+            });
+            return stockquan;
+        }
+
+        $("#prod_table").DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#bom_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#bin_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% load static %}
+<style>
+    .table-striped tbody tr.highlight td { 
+    background-color: #f3fafe;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2> Resolve PO </h2>
+
+    <form class="form-horizontal" method="POST" action="" id="ship_form">
+        {% csrf_token %}
+
+        <div class="card">
+            <div class="card-header card-header-tabs card-header-info">
+                <h4 class="card-title">Shipment Details:</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-row align-items-center">
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="id_po_num">PO Num:</label>
+                            <input type="text" name="po_num" id="id_po_num" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-success add-form-row ponum"><i class="fas fa-file-medical" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <div class="form-row align-items-center">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="id_notes">Notes:</label>
+                            <input type="text" name="notes" maxlength="200" id="id_notes" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="row spacer">
+        <div class="col-2">
+            <button type="submit" class="btn btn-block btn-success">Create</button>
+        </div>
+    </div>
+    </form>
+
+    <!--
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Shipment Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <input type="hidden" name="shipment_po" class="form-control" id="shipment_po" readonly>
+                        <label>Purchase Order Number: </label>
+                        <input type="text" name="po_num" class="form-control" id="id_po_num" readonly>
+                    </div>                    
+                </div>
+                <div class="col-1">
+                    <button class="btn btn-success add-form-row ponum"><i class="fas fa-file-medical"></i></button>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Shipment: </label>
+                        <input type="text" name="supplier" class="form-control" id="id_shipment" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Supplier: </label>
+                        <input type="text" name="supplier" class="form-control" id="id_supplier" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Notes: </label>
+                        <input type="text" name="notes" class="form-control" id="id_notes" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-4">
+        <div class="card">
+            <div class="card-header card-header-tabs card-header-info">
+                <h4 class="card-title">Required Items:</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table items table-hover table-striped w-auto mx-auto" id="req_part_table">
+                        <thead class="thead-dark">
+                            <tr class="tablehead">
+                                <th scope="col">Item Number</th>
+                                <th scope="col">Item Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody ID="tblBody">
+                            <div class="row form-row">
+                                <tr class="tablerow" id="reqitem-{{forloop.counter0}}">
+                                    <td><input type="text" name="reqitem-0-item_number" class="form-control" id="id_reqitem-0-item_number" readonly form_tag = False></td>
+                                    <td><input type="text" name="reqitem-0-item_quantity" class="form-control" id="id_reqitem-0-item_quantity"  readonly form_tag = False></td>
+                                </tr>
+                            </div>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+-->
+
+    
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.name = "Resolve_PO";
+
+        $(document).on('click', '.add-form-row.ponum', function(e){
+            var wewewe = window.open("{% url 'warehouse:ResolvePO_SelectPO' %}");
+            return false;
+        });
+
+    });
+
+    function showreqitem(item_num, item_quan) { //selector - .form-row:last | prefix - form
+        $('#req_part_table').prepend('<tr><td>'+item_num+'</td><td>'+item_quan+'</td></tr>');
+        
+        return false;
+    }
+
+    function deletereqitem() { //selector - .form-row:last | prefix - form
+        $("#tblBody").empty();
+
+        return false;
+    }
+
+
+</script>
+{% endblock javascripts %}

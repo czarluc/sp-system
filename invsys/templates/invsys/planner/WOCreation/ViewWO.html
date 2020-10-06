@@ -1,0 +1,872 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+<style type="text/css">
+    #bom_table tr td:nth-child(1), #bom_table th:nth-child(1){
+        display: none;
+    }
+    #prod_table tr td:nth-child(1), #prod_table th:nth-child(1){
+    display: none;
+    }
+    #sched_table tr td:nth-child(2), #sched_table th:nth-child(2){
+    display: none;
+    }
+    .stepwizard-step p {
+        margin-top: 0px;
+        color: #666;
+    }
+    .stepwizard-row {
+        display: table-row;
+    }
+    .stepwizard {
+        display: table;
+        width: 100%;
+        position: relative;
+    }
+    .stepwizard .btn.disabled, .stepwizard .btn[disabled], .stepwizard fieldset[disabled] .btn {
+        opacity:0.5 !important;
+        background-color: #9bbaca;
+    }
+    .progress{
+        top: 25px;
+        bottom: 0;
+        position: absolute;
+        content:" ";
+        width: 80%;
+        left:10%;
+        height: 10px;
+        z-index: 0;
+    }
+    .stepwizard-step {
+        display: table-cell;
+        text-align: center;
+        position: relative;
+    }
+    .btn-circle {
+        width: 50px;
+        height: 50px;
+        padding: 20px;
+        line-height: 0;
+        border-radius: 50%;
+    }
+    input[type='checkbox'][readonly]{
+        pointer-events: none;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> View Work Order Summary </h2>
+	<div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Orders:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="wo_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Order Type</th>
+                            <th scope="col">Order Class</th>
+                            <th scope="col">FO#</th>
+                            <th scope="col">Barcode</th>
+                            <th scope="col">TID#</th>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Product Quantity</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in wo_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-wo_num="{{instance.work_order_number}}" id="wo-{{forloop.counter}}-wo_num">{{ instance.work_order_number }}</button></td>
+                            <td>{{ instance.customer }}</td>
+                            <td>{{ instance.order_type }}</td>
+                            <td>{{ instance.work_order_class }}</td>
+                            <td>{{ instance.fo_number }}</td>
+                            <td>{{ instance.barcode }}</td>
+                            <td>{{ instance.tid_number }}</td>
+                            <td>{{ instance.prod_number__prod_number }}</td>
+                            <td>{{ instance.prod_quantity }}</td>
+                            <td>{{ instance.notes }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="sched_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Production Schedules:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="sched_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Date Required</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in prod_sched_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}" data-wo_num="{{instance.work_order_number__work_order_number}}">
+
+                            <td><button type="button" class="btn btn-primary get-form prod_sched" data-wo_num="{{instance.work_order_number__work_order_number}}" data-prod_sched="{{instance.id}}" id="wo-{{forloop.counter}}-wo_num">{{ instance.id }}</button></td>
+                            <td>{{ instance.work_order_number__work_order_number }}</td>
+                            <td>{{ instance.quantity }}</td>
+                            <td>{{ instance.date_required }}</td>
+                            <td>{{ instance.status }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="status_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Production Schedule Details:</h4>
+        </div>
+        <div class="card-body">
+
+        <div class="container">
+            
+            <div class="stepwizard">
+                <div class="progress center-block">
+                    <div class="progress-bar progress-bar-success active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    </div>
+                </div>
+                
+                <div class="stepwizard-row setup-panel">
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-1" id="btn1" class="btn btn-circle btn-success" disabled><i class="fas fa-calendar-alt"></i></button>
+                        <p><small>Scheduled</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-2" id="btn2" class="btn btn-circle btn-warning" disabled><i class="fas fa-box-open"></i></button>
+                        <p><small>Issued</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-3" id="btn3" class="btn btn-circle btn-warning" disabled><i class="fas fa-cogs"></i></button>
+                        <p><small>Assembled</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-4" id="btn4" class="btn btn-circle btn-warning" disabled><i class="fas fa-tools"></i></button>
+                        <p><small>Coupled</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-5" id="btn5" class="btn btn-circle btn-warning" disabled><i class="fas fa-search"></i></button>
+                        <p><small>Tested</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-6" id="btn6" class="btn btn-circle btn-warning" disabled><i class="fas fa-clipboard-check"></i></button>
+                        <p><small>Received</small></p>
+                    </div>
+
+                </div>
+            </div>
+            
+            <form role="form">
+                <div class="panel panel-info setup-content" id="step-1">
+                    <div class="panel-heading">
+                         <h3 class="panel-title" id="stp1_header">Scheduled</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Schedule Number</label>
+                                    <input type="text" class="form-control" id="stp1_sched_num" readonly />
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Date Scheduled</label>
+                                    <input type="text" class="form-control" id="stp1_date_sched" readonly />
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Issues</label>
+                                    <input type="text" class="form-control" id="stp1_issues" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="control-label">Notes</label>
+                                    <input type="text" class="form-control" id="stp1_notes" readonly />
+                                </div>
+                            </div>
+                        </div>
+                            
+
+                        <div class="row">
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="panel panel-info setup-content" id="step-2">
+                    <div class="panel-heading">
+                         <h3 class="panel-title" id="stp2_header">Issued</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label class="control-label">Issued By</label>
+                                    <input type="text" class="form-control" id="stp2_issued_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label class="control-label">Date Issued</label>
+                                    <input type="text" class="form-control" id="stp2_date_issued" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label class="control-label">Verified By</label>
+                                    <input type="text" class="form-control" id="stp2_verified_by" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Issues</label>
+                                    <input type="checkbox" class="form-control" id="stp2_issues" readonly>
+                                </div>
+                            </div>
+                            <div class="col-1">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Cleared</label>
+                                    <input type="checkbox" class="form-control" id="stp2_cleared" readonly>
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="control-label">Notes</label>
+                                    <input type="text" class="form-control" id="stp2_notes" readonly/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="panel panel-info setup-content" id="step-3">
+                    <div class="panel-heading">
+                         <h3 class="panel-title" id="stp3_header">Assembled</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Assembled By</label>
+                                    <input type="text" class="form-control" id="stp3_assembled_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Date Received</label>
+                                    <input type="text" class="form-control" id="stp3_date_received" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Verified By</label>
+                                    <input type="text" class="form-control" id="stp3_verified_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Date Assembled</label>
+                                    <input type="text" class="form-control" id="stp3_date_assembled" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Cleared</label>
+                                    <input type="checkbox" class="form-control" id="stp3_cleared" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="control-label">Notes</label>
+                                    <input type="text" class="form-control" id="stp3_notes" readonly/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="panel panel-info setup-content" id="step-4">
+                    <div class="panel-heading">
+                         <h3 class="panel-title" id="stp4_header">Coupled</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Coupled By</label>
+                                    <input type="text" class="form-control" id="stp4_coupled_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Date Received</label>
+                                    <input type="text" class="form-control" id="stp4_date_received" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Verified By</label>
+                                    <input type="text" class="form-control" id="stp4_verified_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Date Coupled</label>
+                                    <input type="text" class="form-control" id="stp4_date_coupled" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Cleared</label>
+                                    <input type="checkbox" class="form-control" id="stp4_cleared" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="control-label">Notes</label>
+                                    <input type="text" class="form-control" id="stp4_notes" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="panel panel-info setup-content" id="step-5">
+                    <div class="panel-heading">
+                         <h3 class="panel-title" id="stp5_header">Tested</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Assembled By</label>
+                                    <input type="text" class="form-control" id="stp5_tested_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Date Received</label>
+                                    <input type="text" class="form-control" id="stp5_date_received" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Verified By</label>
+                                    <input type="text" class="form-control" id="stp5_verified_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label class="control-label">Date Assembled</label>
+                                    <input type="text" class="form-control" id="stp5_date_tested" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Cleared</label>
+                                    <input type="checkbox" class="form-control" id="stp5_cleared" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="control-label">Notes</label>
+                                    <input type="text" class="form-control" id="stp5_notes" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="panel panel-info setup-content" id="step-6">
+                    <div class="panel-heading">
+                         <h3 class="panel-title" id="stp6_header">Received</h3>
+                    </div>
+                    <div class="panel-body">
+                        
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label class="control-label">Checked By</label>
+                                    <input type="text" class="form-control" id="stp6_checked_by" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label class="control-label">Date Received</label>
+                                    <input type="text" class="form-control" id="stp6_date_received" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label class="control-label">Date Checked</label>
+                                    <input type="text" class="form-control" id="stp6_date_out" readonly/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Name Plate</label>
+                                    <input type="checkbox" class="form-control" id="stp6_name_plate" readonly>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Label Sticker</label>
+                                    <input type="checkbox" class="form-control" id="stp6_label_sticker" readonly>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">IOM</label>
+                                    <input type="checkbox" class="form-control" id="stp6_iom" readonly>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">QR Code</label>
+                                    <input type="checkbox" class="form-control" id="stp6_qr_code" readonly>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Warranty Card</label>
+                                    <input type="checkbox" class="form-control" id="stp6_wrnty_card" readonly>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label for="id_work_order_number">Packaging</label>
+                                    <input type="checkbox" class="form-control" id="stp6_packaging" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="control-label">Notes</label>
+                                    <input type="text" class="form-control" id="stp6_notes" readonly/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+            </form>
+
+            </div>
+        </div>
+    </div>    
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script>
+$(document).ready(function() {
+
+    var navListItems = $('div.setup-panel div button'),
+        allWells = $('.setup-content'),
+        allNextBtn = $('.nextBtn'),
+        allPrevBtn = $('.prevBtn');
+
+    allWells.hide();
+
+    navListItems.click(function (e) {
+        e.preventDefault();
+        var $target = $($(this).attr('href')),
+            $item = $(this);
+
+        var nextStepWizard = $(this).attr('id');
+
+        if(nextStepWizard === "btn1")
+            $('.stepwizard .progress-bar').animate({width:'0%'},0);
+        if(nextStepWizard === "btn2")
+            $('.stepwizard .progress-bar').animate({width:'20%'},0);
+        if(nextStepWizard === "btn3")
+            $('.stepwizard .progress-bar').animate({width:'40%'},0);
+        if(nextStepWizard === "btn4")
+            $('.stepwizard .progress-bar').animate({width:'60%'},0);
+        if(nextStepWizard === "btn5")
+            $('.stepwizard .progress-bar').animate({width:'80%'},0);
+        if(nextStepWizard === "btn6")
+            $('.stepwizard .progress-bar').animate({width:'100%'},0);
+        
+
+        if (!$item.hasClass('warning')) {
+            navListItems.each(function( index ) {
+                if(!($(this).attr('id') === $item.attr('id'))){
+                    $(this).attr('class', "btn btn-circle btn-warning");
+                }
+            });
+            $item.attr('class', "btn btn-circle btn-success");
+            allWells.hide();
+            $target.show();
+            $target.find('input:eq(0)').focus();
+        }
+    });
+
+    allNextBtn.click(function () {
+        var curStep = $(this).closest(".setup-content"),
+            curStepBtn = curStep.attr("id"),
+            nextStepWizard = $('div.setup-panel div button[href="#' + curStepBtn + '"]').parent().next().children("button"),
+            curInputs = curStep.find("input[type='text'],input[type='url']"),
+            isValid = true;
+
+        $(".form-group").removeClass("has-error");
+        for (var i = 0; i < curInputs.length; i++) {
+            if (!curInputs[i].validity.valid) {
+                isValid = false;
+                $(curInputs[i]).closest(".form-group").addClass("has-error");
+            }
+        }
+
+        if (!(nextStepWizard.attr('disabled') === 'disabled')) {
+            nextStepWizard.removeAttr('disabled').trigger('click');
+        }
+    });
+    
+    allPrevBtn.click(function () {
+        var curStep = $(this).closest(".setup-content"),
+            curStepBtn = curStep.attr("id"),
+            prevStepWizard = $('div.setup-panel div button[href="#' + curStepBtn + '"]').parent().prev().children("button");
+
+        prevStepWizard.removeAttr('disabled').trigger('click');
+    });
+
+    $("#sched_table").on('click', '.get-form.prod_sched', function(e){
+        $('#btn1').trigger('click');
+        resetWizard();
+        var button = this;
+        $.ajax({
+            method: "POST",
+            url: "{% url 'planner:ViewWO_getDetails' %}",
+            data: {'wo_num': button.dataset.wo_num,
+                  'prod_sched': button.dataset.prod_sched,
+                  'csrfmiddlewaretoken': '{{ csrf_token }}'},
+
+            success: function(data){
+                populateWizard(data);
+            },
+            error: function(error_data){
+                alert("error");
+            }
+        });
+
+        document.getElementById("status_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    function populateWizard(data){
+
+        //populate Schedule
+        if(data.schedule_set.length === 1){
+            data.schedule_set.forEach(function(item) {
+                $("#stp1_header").html("Scheduled-Ongoing");
+                $("#stp1_sched_num").val(item.schedule_num);
+                $("#stp1_date_sched").val(item.date_scheduled);
+                $("#stp1_issues").val(item.issues);
+                $("#stp1_notes").val(item.notes);
+            });
+            $("#btn1").removeAttr('disabled');
+        }
+
+        //populate Issuance
+        if(data.issuance_set.length === 1){
+            data.issuance_set.forEach(function(item) {
+                if(!(item.date_issued === null)){
+                    $("#stp1_header").html("Scheduled-Finished");
+                    $("#stp2_header").html("Issued-Finished");
+                    $("#stp2_issued_by").val(item.issued_by);
+                    $("#stp2_date_issued").val(item.date_issued);
+                    $("#stp2_verified_by").val(item.verified_by);
+                    $("#stp2_issues").val(item.issues);
+                    if(item.cleared === true){$("#stp2_cleared").prop('checked', true);}
+                    $("#stp2_notes").val(item.notes);
+                }else{
+                    $("#stp1_header").html("Scheduled-Finished");
+                    $("#stp2_header").html("Issued-Ongoing");
+                }
+                $("#btn2").removeAttr('disabled');
+            });
+            
+        }
+        
+
+        //populate Assembled
+        if(data.assembly_set.length === 1){
+            data.assembly_set.forEach(function(item) {
+                if(!(item.date_assembled === null)){
+                    $("#stp3_header").html("Assembled-Finished");
+                    $("#stp3_assembled_by").val(item.assembled_by);
+                    $("#stp3_date_received").val(item.date_received);
+                    $("#stp3_verified_by").val(item.verified_by);
+                    $("#stp3_date_assembled").val(item.date_assembled);
+                    if(item.cleared === true){$("#stp3_cleared").prop('checked', true);}
+                    $("#stp3_notes").val(item.notes);
+                }else{
+                    $("#stp3_header").html("Assembled-Ongoing");
+                }
+                $("#btn3").removeAttr('disabled');
+            });
+            
+        }
+
+        //populate Coupled
+        if(data.coupling_set.length === 1){
+            data.coupling_set.forEach(function(item) {
+                if(!(item.date_coupled === null)){
+                    $("#stp4_header").html("Coupled-Finished");
+                    $("#stp4_coupled_by").val(item.coupled_by);
+                    $("#stp4_date_received").val(item.date_received);
+                    $("#stp4_verified_by").val(item.verified_by);
+                    $("#stp4_date_coupled").val(item.date_coupled);
+                    if(item.cleared === true){$("#stp4_cleared").prop('checked', true);}
+                    $("#stp4_notes").val(item.notes);
+                }else{
+                    $("#stp4_header").html("Coupled-Ongoing");
+                }
+                $("#btn4").removeAttr('disabled');
+            });
+            
+        }
+
+        //populate Tested
+        if(data.testing_set.length === 1){
+            data.testing_set.forEach(function(item) {
+                if(!(item.date_tested === null)){
+                    $("#stp5_header").html("Tested-Finished");
+                    $("#stp5_tested_by").val(item.tested_by);
+                    $("#stp5_date_received").val(item.date_received);
+                    $("#stp5_verified_by").val(item.verified_by);
+                    $("#stp5_date_tested").val(item.date_tested);
+                    if(item.cleared === true){$("#stp5_cleared").prop('checked', true);}
+                    $("#stp5_notes").val(item.notes);
+                }else{
+                    $("#stp5_header").html("Tested-Ongoing");
+                }
+                $("#btn5").removeAttr('disabled');
+            });
+            
+        }
+
+        //populate Finished
+        if(data.finished_set.length === 1){
+            data.finished_set.forEach(function(item) {
+                if(!(item.date_out === null)){
+                    $("#stp6_header").html("Received-Finished");
+                    $("#stp6_checked_by").val(item.checked_by);
+                    $("#stp6_date_received").val(item.date_received);
+                    $("#stp6_date_out").val(item.date_out);
+                    if(item.name_plate === true){$("#stp6_name_plate").prop('checked', true);}
+                    if(item.label_sticker === true){$("#stp6_label_sticker").prop('checked', true);}
+                    if(item.iom === true){$("#stp6_iom").prop('checked', true);}
+                    if(item.qr_code === true){$("#stp6_qr_code").prop('checked', true);}
+                    if(item.wrnty_card === true){$("#stp6_wrnty_card").prop('checked', true);}
+                    if(item.packaging === true){$("#stp6_packaging").prop('checked', true);}
+                    $("#stp6_notes").val(item.notes);
+                }else{
+                    $("#stp6_header").html("Received-Ongoing");
+                }
+                $("#btn6").removeAttr('disabled');
+            });
+            
+        }
+
+        console.log("DONE");
+    }
+
+    function resetWizard(){
+        $("#stp2_issued_by").val("");
+        $("#stp2_date_issued").val("");
+        $("#stp2_verified_by").val("");
+        $("#stp2_issues").val("");
+        $("#stp2_cleared").prop('checked', false);
+        $("#stp2_notes").val("");
+        $("#stp3_assembled_by").val("");
+        $("#stp3_date_received").val("");
+        $("#stp3_verified_by").val("");
+        $("#stp3_date_assembled").val("");
+        $("#stp3_cleared").prop('checked', false);
+        $("#stp3_notes").val("");
+        $("#stp4_coupled_by").val("");
+        $("#stp4_date_received").val("");
+        $("#stp4_verified_by").val("");
+        $("#stp4_date_coupled").val("");
+        $("#stp4_cleared").prop('checked', false);
+        $("#stp4_notes").val("");
+        $("#stp5_tested_by").val("");
+        $("#stp5_date_received").val("");
+        $("#stp5_verified_by").val("");
+        $("#stp5_date_tested").val("");
+        $("#stp5_cleared").prop('checked', false);
+        $("#stp5_notes").val("");
+        $("#stp6_checked_by").val("");
+        $("#stp6_date_received").val("");
+        $("#stp6_date_out").val("");
+        $("#stp6_name_plate").prop('checked', false);
+        $("#stp6_label_sticker").prop('checked', false);
+        $("#stp6_iom").prop('checked', false);
+        $("#stp6_qr_code").prop('checked', false);
+        $("#stp6_wrnty_card").prop('checked', false);
+        $("#stp6_packaging").prop('checked', false);
+        $("#stp6_notes").val("");
+
+        navListItems.each(function( index ) {
+            $(this).attr('disabled', 'disabled');
+        });
+    }
+
+    $('#sched_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    }); 
+
+    $('#wo_table').on('click', '.btn-primary.wo', function(e){
+        document.getElementById("sched_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+        var wo_num = this.dataset.wo_num;
+        $('#sched_table').find('tr.tablerow').each(function (i, el) {
+            var sched_wonum = this.dataset.wo_num;
+            if( wo_num === sched_wonum ){
+                $(this).show();
+            } else{
+                $(this).hide();
+            }
+        });
+    });
+
+    var table = $('#wo_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table.buttons().container()
+        .appendTo( '#wo_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#sched_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table2.buttons().container()
+        .appendTo( '#sched_table_wrapper .col-md-6:eq(0)' );
+
+    var table3 = $('#prod_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table3.buttons().container()
+        .appendTo( '#prod_table_wrapper .col-md-6:eq(0)' );
+
+    var table4 = $('#bom_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table4.buttons().container()
+        .appendTo( '#bom_table_wrapper .col-md-6:eq(0)' );
+
+});
+ </script>
+{% endblock javascripts %}

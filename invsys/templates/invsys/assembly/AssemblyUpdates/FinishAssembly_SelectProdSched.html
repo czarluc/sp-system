@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% load static %}
+<style type="text/css">
+    #bom_table tr td:nth-child(1), #bom_table th:nth-child(1){
+        display: none;
+    }
+    input { 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2>Select a Work Order to Update</h2>
+    <div class="card" id="select_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Selected Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Schedule ID</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Work Order Number</label>
+                        <input type ="text" class="form-control" id="name2" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Number</label>
+                        <input type ="text" class="form-control" id="name3" readonly/>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Class</label>
+                        <input type ="text" class="form-control" id="name4" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Scheduled Quantity</label>
+                        <input type ="text" class="form-control" id="name5" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Date Scheduled</label>
+                        <input type ="text" class="form-control" id="name6" readonly/>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="wo_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Date Selection:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-5">
+                    <div class="form-group">
+                    <label>Select a Received Date:</label>
+                        <input type="date" class="form-control" id="datepicker">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="card">
+                    
+                    <div class="card-header card-header-tabs card-header-info">
+                        <h4 class="card-title">Work Orders received in Assembly at:<label id="label_reqdate"></label></h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive"> <!--Work Order List-->
+                            <table class="table table-hover table-striped w-auto" id="wo_table" >
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">Product Schedule ID</th>
+                                        <th scope="col">Work Order Number</th>
+                                        <th scope="col">Product Number</th>
+                                        <th scope="col">Product Class</th>
+                                        <th scope="col">Scheduled Quantity</th>
+                                        <th scope="col">Date Received</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for instance in wo_asslist %}
+                                    <tr class="tablerow wo_table" id="wo-{{forloop.counter}}" data-rec_date="{{ instance.date_received|date:'Y-m-d' }}">
+                                        <td>{{ instance.prod_sched__id }}</td>
+                                        <td><button type="button" class="btn btn-primary item_number" data-prodsched="{{instance.prod_sched__id}}" data-wonum="{{instance.prod_sched__work_order_number__work_order_number}}" data-prodnum="{{instance.prod_sched__work_order_number__prod_number__prod_number}}" data-prodclass="{{instance.prod_sched__work_order_number__prod_number__prod_class__prod_class}}" data-schedquan="{{instance.prod_sched__quantity}}" data-rec_date="{{ instance.date_received|date:'m/d/Y' }}">{{ instance.prod_sched__work_order_number__work_order_number }}</button></td>
+                                        <td>{{ instance.prod_sched__work_order_number__prod_number__prod_number }}</td>
+                                        <td>{{ instance.prod_sched__work_order_number__prod_number__prod_class__prod_class }}</td>
+                                        <td>{{ instance.prod_sched__quantity }}</td>
+                                        <td>{{ instance.date_received|date:'m/d/Y' }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table> 
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Bill of Materials:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Bill of Materials-->
+                <table class="table table-hover table-striped w-auto" id="bom_table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Prod Sched ID</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Quantity</th>
+                            <th scope="col">Assembly Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for instance in wo_itemasslist %}
+                        <tr class="tablerow bom_table" data-prodsched="{{ instance.reference_number }}">
+                            <td>{{ instance.reference_number }}</td>
+                            <td>{{ instance.item_number__item_number }}</td>
+                            <td>{{ instance.quantity }}</td>
+                            <td>{{ instance.assemblyline__name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
+<script>
+    $(window).on('load', function() {
+        document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+            
+        $( "#datepicker" ).change(function () {
+            var dateText = $(this).val();
+            $('#label_reqdate').innerHTML = dateText;
+            getWO();
+        });
+
+        function getWO(){
+            $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
+                var rowelm = this;
+                var rec_date = rowelm.dataset.rec_date;
+                var date_sel = $("#datepicker").val();
+
+                if(date_sel === rec_date){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+
+            });
+        }
+
+        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
+            $(this).hide();
+        });
+
+
+        $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $( "#wo_table" ).on("click", ".btn.btn-primary.item_number", function () {
+            var btn = this;
+            
+            var prodsched = btn.dataset.prodsched;
+            var wonum = btn.dataset.wonum;
+            var prodnum = btn.dataset.prodnum;
+            var prodclass = btn.dataset.prodclass;
+            var schedquan = btn.dataset.schedquan;
+            var rec_date = btn.dataset.rec_date;
+
+            $('#name1').val(prodsched);
+            $('#name2').val(wonum);
+            $('#name3').val(prodnum);
+            $('#name4').val(prodclass);
+            $('#name5').val(schedquan);
+            $('#name6').val(rec_date);
+
+            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+                var bomrow = this;
+                var bom_prodsched = bomrow.dataset.prodsched;
+                
+                if (bom_prodsched === prodsched){
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });
+            toastr.info('Production Schedule '+ prodsched + " from Work Order Number " + wonum + "is selected.");
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+
+            var prodsched = $('#name1').val();
+            var wonum = $('#name2').val();
+            var prodnum = $('#name3').val();
+            var prodclass = $('#name4').val();
+            var schedquan = $('#name5').val();
+            var sched_date = $('#name6').val();
+
+            $(window.opener.document).find('#id_prod_sched').val(prodsched);
+            $(window.opener.document).find('#wonum').val(wonum);
+            $(window.opener.document).find('#prod_num').val(prodnum);
+            $(window.opener.document).find('#prod_class').val(prodclass);
+            $(window.opener.document).find('#sched_quan').val(schedquan);
+            $(window.opener.document).find('#id_date_received').val(sched_date);
+            
+            window.opener.showreqitem(prodsched);
+
+            toastr.success('Production Schedule '+ prodsched + " from Work Order Number " + wonum + "is selected for Update.");
+
+            var goBack = window.open('', 'Fin_Ass');
+            goBack.focus();
+            window.close();
+
+        });
+
+
+        $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#bom_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

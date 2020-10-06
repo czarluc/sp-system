@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h1> Create a Shrinkage Report </h1>
+    <br>
+    <form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Assembly Shrinkage Report:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_work_order_number">Shrinkage Report ID:</label>
+                        <input type="text" name="shrnk_report" maxlength="200" class="form-control" required="" id="shrnk_report" value="{{ next_reportid }}" readonly>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Date Reported:</label>
+                        <input type="text" name="report-date_reported" maxlength="200" class="form-control" required="" id="id_report-date_reported" readonly>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Shrinkage Type:</label>
+                        <input type="text" name="report-shrinkage_type" maxlength="200" class="form-control" required="" id="id_report-shrinkage_type">
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_work_order_number">Production Schedule ID:</label>
+                        <input type="text" name="report-prod_sched" class="form-control" maxlength="200" required="" id="id_report-prod_sched" readonly>
+                    </div>
+                </div>
+                <div class="col-1">
+		            <button class="btn btn-success add-prod_sched">+</button>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Work Order Number:</label>
+                        <input type="text" name="wonum" maxlength="200" class="form-control" required="" id="wonum" readonly>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Date Received:</label>
+                        <input type="text" name="date_received" maxlength="200" class="form-control" required="" id="id_date_received" readonly>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_work_order_number">Product Number:</label>
+                        <input type="text" name="prod_num" maxlength="200" class="form-control" required="" id="prod_num" readonly>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Product Class:</label>
+                        <input type="text" name="prod_class" maxlength="200" class="form-control" required="" id="prod_class" readonly>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Scheduled Quantity:</label>
+                        <input type="text" name="sched_quan" maxlength="200" class="form-control" required="" id="sched_quan" readonly>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row align-top">
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Shrinkage Part Details:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row align-items-center">
+                        <div class="col-4">
+                            <div class="form-group">
+                        		<label for="id_work_order_number">Part Number:</label>
+                                <input type="text" name="report-item_number" maxlength="200" class="form-control" required="" id="id_report-item_number" readonly>
+                            </div>
+                        </div>
+                        <div class="col-2">
+        		            <button class="btn btn-success add-shrnk_part">+</button>
+                       </div>
+
+                        <div class="col-6">
+                            <div class="form-group">
+                        		<label for="id_customer">Item Category:</label>
+                        		<input type="text" name="date_assembled" maxlength="200" class="form-control" required="" id="shrnk_itemcat" readonly>
+                           </div>
+                       </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-6">
+                            <div class="form-group">
+                        		<label for="id_work_order_number">Shrinkage Quantity:</label>
+                        		<input type="text" name="report-quantity" maxlength="200" class="form-control" required="" id="id_report-quantity" readonly>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Replacement Part Details:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row align-items-center">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Part Number:</label>
+                                <input type="text" name="item-item_number" maxlength="200" class="form-control" required="" id="id_item-item_number" readonly>
+                           </div>
+                       </div>
+
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="id_customer">Item Category:</label>
+                                <input type="text" name="date_assembled" maxlength="200" class="form-control" required="" id="rpl_itemcat" readonly>
+                           </div>
+                       </div>
+
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Shrinkage Quantity:</label>
+                                <input type="text" name="item-quantity" maxlength="200" class="form-control" required="" id="id_item-quantity" readonly>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Available Quantity:</label>
+                                <input type="text" name="verified_by" maxlength="200" class="form-control" required="" id="avail_quan" readonly>
+                           </div>
+                       </div>
+
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Assembly Location:</label>
+                                <input type="text" name="ass_location" maxlength="200" class="form-control" required="" id="id_item-ass_location" readonly>
+                                <input type="hidden" name="ass_locationTEXT" maxlength="200" class="form-control" required="" id="id_item-ass_locationTEXT" readonly>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="id_customer">Reason:</label>
+                                <input type="text" name="report-reason" maxlength="200" class="form-control" required="" id="id_report-reason">
+                           </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    
+    
+    <div class="form-row align-items-center">
+        <div class="col-lg-2">
+            <button type="submit" class="btn btn-block btn-success">Report</button>
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+    	var d = new Date($.now());
+		var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+		$('#id_report-date_reported').val(currentdate);
+
+        });
+
+    $(document).on('click', '.add-prod_sched', function(e){
+        var newwin = window.open("{% url 'assembly:ReportShrinkage_SelectProdSched' %}");
+        return false;
+    });
+
+    $(document).on('click', '.add-shrnk_part', function(e){
+        var prodsched = $("#id_report-prod_sched").val();
+        var itemurl = "/SelectItem/";
+        var windowurl = prodsched+itemurl;
+        var wewewe = window.open(windowurl);
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

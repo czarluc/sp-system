@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+	body {
+	    margin-top: 30px;
+	}
+	.stepwizard-step p {
+	    margin-top: 0px;
+	    color: #666;
+	}
+	.stepwizard-row {
+	    display: table-row;
+	}
+	.stepwizard {
+	    display: table;
+	    width: 100%;
+	    position: relative;
+	}
+	.stepwizard .btn.disabled, .stepwizard .btn[disabled], .stepwizard fieldset[disabled] .btn {
+	    opacity:1 !important;
+	    color:#bbb;
+	}
+	.progress{
+	    top: 25px;
+	    bottom: 0;
+	    position: absolute;
+	    content:" ";
+	    width: 80%;
+	    left:10%;
+	    height: 10px;
+	    z-index: 0;
+	}
+	.stepwizard-step {
+	    display: table-cell;
+	    text-align: center;
+	    position: relative;
+	}
+    .btn-circle {
+        width: 50px;
+        height: 50px;
+        padding: 20px;
+        line-height: 0;
+        border-radius: 50%;
+    }
+</style>
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+
+
+<div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Shipment Details:</h4>
+        </div>
+        <div class="card-body">
+
+        <div class="container">
+            
+            <div class="stepwizard">
+                <div class="progress center-block">
+                    <div class="progress-bar progress-bar-success active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    </div>
+                </div>
+                
+                <div class="stepwizard-row setup-panel">
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-1" id="btn1" class="btn btn-circle btn-success"><i class="fas fa-calendar-alt"></i></button>
+                        <p><small>Scheduled</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-2" id="btn2" class="btn btn-circle btn-default" disabled><i class="fas fa-box-open"></i></button>
+                        <p><small>Issued</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-3" id="btn3" class="btn btn-circle btn-default" disabled><i class="fas fa-cogs"></i></button>
+                        <p><small>Assembled</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-4" id="btn4" class="btn btn-circle btn-default" disabled><i class="fas fa-tools"></i></button>
+                        <p><small>Coupled</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-5" id="btn5" class="btn btn-circle btn-default" disabled><i class="fas fa-search"></i></button>
+                        <p><small>Tested</small></p>
+                    </div>
+
+                    <div class="stepwizard-step col-m-2"> 
+                        <button href="#step-6" id="btn6" class="btn btn-circle btn-default" disabled><i class="fas fa-clipboard-check"></i></button>
+                        <p><small>Received</small></p>
+                    </div>
+
+                </div>
+            </div>
+            
+            <form role="form">
+                <div class="panel panel-primary setup-content" id="step-1">
+                    <div class="panel-heading">
+                         <h3 class="panel-title">Scheduled</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group">
+                            <label class="control-label">First Name</label>
+                            <input maxlength="100" type="text" required="required" class="form-control" placeholder="Enter First Name" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Last Name</label>
+                            <input maxlength="100" type="text" required="required" class="form-control" placeholder="Enter Last Name" />
+                        </div>
+
+                        <div class="row">
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="panel panel-primary setup-content" id="step-2">
+                    <div class="panel-heading">
+                         <h3 class="panel-title">Issued</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group">
+                            <label class="control-label">Company Name</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Name" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Company Address</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Address" />
+                        </div>
+                        
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="panel panel-primary setup-content" id="step-3">
+                    <div class="panel-heading">
+                         <h3 class="panel-title">Assembled</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group">
+                            <label class="control-label">Company Name</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Name" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Company Address</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Address" />
+                        </div>
+
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="panel panel-primary setup-content" id="step-4">
+                    <div class="panel-heading">
+                         <h3 class="panel-title">Coupled</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group">
+                            <label class="control-label">Company Name</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Name" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Company Address</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Address" />
+                        </div>
+                        
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="panel panel-primary setup-content" id="step-5">
+                    <div class="panel-heading">
+                         <h3 class="panel-title">Tested</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group">
+                            <label class="control-label">Company Name</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Name" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Company Address</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Address" />
+                        </div>
+                        
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                            <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="panel panel-primary setup-content" id="step-6">
+                    <div class="panel-heading">
+                         <h3 class="panel-title">Received</h3>
+                    </div>
+                    <div class="panel-body">
+                        
+                        <div class="form-group">
+                            <label class="control-label">Company Name</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Name" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Company Address</label>
+                            <input maxlength="200" type="text" required="required" class="form-control" placeholder="Enter Company Address" />
+                        </div>
+
+                        <div class="row">
+                            <button class="btn btn-primary prevBtn pull-right" type="button">Previous</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+	$(document).ready(function () {
+
+    var navListItems = $('div.setup-panel div button'),
+        allWells = $('.setup-content'),
+        allNextBtn = $('.nextBtn'),
+        allPrevBtn = $('.prevBtn');
+
+    allWells.hide();
+
+    navListItems.click(function (e) {
+        e.preventDefault();
+        var $target = $($(this).attr('href')),
+            $item = $(this);
+
+        var nextStepWizard = $(this).attr('id');
+
+        if(nextStepWizard === "btn1")
+            $('.stepwizard .progress-bar').animate({width:'0%'},0);
+        if(nextStepWizard === "btn2")
+            $('.stepwizard .progress-bar').animate({width:'20%'},0);
+        if(nextStepWizard === "btn3")
+            $('.stepwizard .progress-bar').animate({width:'40%'},0);
+        if(nextStepWizard === "btn4")
+            $('.stepwizard .progress-bar').animate({width:'60%'},0);
+        if(nextStepWizard === "btn5")
+            $('.stepwizard .progress-bar').animate({width:'80%'},0);
+        if(nextStepWizard === "btn6")
+            $('.stepwizard .progress-bar').animate({width:'100%'},0);
+        
+
+        if (!$item.hasClass('default')) {
+            navListItems.each(function( index ) {
+                if(!($(this).attr('id') === $item.attr('id'))){
+                    $(this).attr('class', "btn btn-circle btn-default");
+                }
+            });
+            $item.attr('class', "btn btn-circle btn-success");
+            allWells.hide();
+            $target.show();
+            $target.find('input:eq(0)').focus();
+        }
+    });
+
+    allNextBtn.click(function () {
+        var curStep = $(this).closest(".setup-content"),
+            curStepBtn = curStep.attr("id"),
+            nextStepWizard = $('div.setup-panel div button[href="#' + curStepBtn + '"]').parent().next().children("button"),
+            curInputs = curStep.find("input[type='text'],input[type='url']"),
+            isValid = true;
+
+        $(".form-group").removeClass("has-error");
+        for (var i = 0; i < curInputs.length; i++) {
+            if (!curInputs[i].validity.valid) {
+                isValid = false;
+                $(curInputs[i]).closest(".form-group").addClass("has-error");
+            }
+        }
+
+        if (isValid) {
+            nextStepWizard.removeAttr('disabled').trigger('click');    
+        }
+    });
+    
+    allPrevBtn.click(function () {
+        var curStep = $(this).closest(".setup-content"),
+            curStepBtn = curStep.attr("id"),
+            prevStepWizard = $('div.setup-panel div button[href="#' + curStepBtn + '"]').parent().prev().children("button");
+
+        prevStepWizard.removeAttr('disabled').trigger('click');    
+    });
+    
+
+    $('div.setup-panel div button.btn-success').trigger('click');
+
+});
+
+</script>
+{% endblock javascripts %}
+

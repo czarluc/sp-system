@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style type="text/css">
+    input { 
+    text-align: center; 
+    }
+    #wo_table.dataTable tbody tr.selected {
+        background-color: #5699DD !important;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css" integrity="sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==" crossorigin="anonymous" />
+{% endblock stylesheets %}
+
+{% block content %}
+<body>
+    <h2>Select a Work Order to Issue</h2>
+    <br>
+
+    <div class="card" id="select_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Selected Work Order Details:<label id="label_reqdate"></label></h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Work Order Number</label>
+                        <input type ="text" class="form-control" id="name1" data-itemid="" readonly/>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Number</label>
+                        <input type ="text" class="form-control" id="name2" data-refid="" readonly/>        
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Class</label>
+                        <input type ="text" class="form-control" id="name3" data-binid="" readonly/>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type ="text" class="form-control" id="name4" readonly/>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Production Schedule ID</label>
+                        <input type ="text" class="form-control" id="name5" readonly/>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Date Required</label>
+                        <input type ="text" class="form-control" id="name6" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+                <div class="col-1.5">
+                    <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <div class="card" id="wo_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order for Issuance:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-5">
+                    <div class="form-group">
+                        <label>Select a Required Date:</label>
+                        <input type="date" class="form-control" id="datepicker">
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive"> <!--Work Orders-->
+                <table class="table table-hover table-striped w-auto" id="wo_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Prod Sched ID</th>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Date Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in prodschedset %}
+                        <tr class="tablerow" id="wo-{{forloop.counter}}" data-date_req="{{ instance.date_required|date:'Y-m-d' }}">
+
+                            <td>{{ instance.id }}</td>
+                            
+                            <td><button type="button" class="btn btn-primary wo" data-prodschedid="{{instance.id}}" data-wonum="{{instance.work_order_number__work_order_number}}" data-prodnum="{{instance.work_order_number__prod_number__prod_number}}" data-quan="{{instance.quantity}}" data-prodclass="{{ instance.work_order_number__prod_number__prod_class__prod_class }}" data-date_req="{{ instance.date_required|date:'m/d/Y' }}" data-counter="{{forloop.counter}}">{{ instance.work_order_number__work_order_number }}</button></td>
+                            <td>{{ instance.work_order_number__prod_number__prod_number }}</td>
+                            <td>{{ instance.quantity }}</td>
+                            <td>{{ instance.work_order_number__prod_number__prod_class__prod_class }}</td>
+                            <td>{{ instance.date_required|date:'m/d/Y' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Bill of Materials:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Bill of Materials for Work Order-->
+                <table class="table table-hover table-striped w-auto" id="item_table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Work Order Number ID</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Quantity</th>
+                            <th scope="col">Total Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in woitemset %}
+                        <tr class="tablerow wo_item" id="bom-{{forloop.counter}}" data-wonum="{{ instance.work_order_number__work_order_number }}" data-item_num="{{instance.item_number__item_number}}" data-item_quan="{{instance.item_quantity}}" data-tot_quan="">
+
+                            <td>{{ instance.work_order_number__work_order_number }}</td>
+                            <td>{{ instance.item_number__item_number }}</td>
+                            <td>{{ instance.item_quantity }}</td>
+                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-tot_quan" value="" readonly></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>    
+ 
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
+<script>
+
+    $(window).on('load', function() {
+        document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        
+
+        $( "#datepicker" ).change(function () {
+            var dateText = $(this).val();
+            $('#label_reqdate').innerHTML = dateText;
+            getWO();
+        });
+
+        function getWO(){
+            $('#wo_table').find('tr.tablerow').each(function (i, el) {
+                var rowelm = this;
+                var date_req = rowelm.dataset.date_req;
+                var date_sel = $("#datepicker").val();
+
+                if(date_sel === date_req){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+
+                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+                    $(this).hide();
+                });
+
+            });
+        }
+
+        $('#wo_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+        
+        $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $( "#wo_table" ).on("click", ".btn.btn-primary.wo", function () {
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+
+            var btn = this;
+
+            var prodschedid = btn.dataset.prodschedid;
+            var wonum = btn.dataset.wonum;
+            var prodnum = btn.dataset.prodnum;
+            var quan = btn.dataset.quan;
+            var prodclass = btn.dataset.prodclass;
+            var counter = btn.dataset.counter;
+            var date_req = btn.dataset.date_req;
+
+            $('#name1').val(wonum);
+            $('#name2').val(prodnum);
+            $('#name3').val(prodclass);
+            $('#name4').val(quan);
+            $('#name5').val(prodschedid);
+            $('#name6').val(date_req);
+
+            $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+                var itemrow = this;
+                var item_wonum = itemrow.dataset.wonum;
+                var itemrowid = this.id;
+                var item_quan = itemrow.dataset.item_quan;
+                var tot_quan = parseInt(item_quan) * parseInt(quan);
+
+                $('#'+itemrowid+"-tot_quan").val(tot_quan);
+
+                if (item_wonum === wonum){
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });
+
+            var btn = this;
+            var prodschedid = btn.dataset.prodschedid;
+            var wonum = btn.dataset.wonum;
+
+            toastr.info('Work Order Number ' + wonum + ' with Production Schedule '+ prodschedid+ " is selected.");
+        });
+
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'parent');
+            goBack.focus();
+            window.close();
+        });
+
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var wonum = $('#name1').val();
+            var prodnum = $('#name2').val();
+            var prodclass = $('#name3').val();
+            var quantity = $('#name4').val();
+            var prodschedid = $('#name5').val();
+            var datereq = $('#name6').val();
+
+            window.opener.cloneMore('form', prodschedid, wonum, prodnum, quantity, datereq);
+
+            toastr.success('Work Order Number ' + wonum + ' with Production Schedule '+ prodschedid+ " is added to the schedule.");
+        });
+
+
+        $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+        $("#item_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+        $('#wo_table').on('click', '.btn.btn-primary.wo', function() {
+            var parent_row = $(this).closest('tr');
+            parent_row.addClass('selected');
+            /*
+            setTimeout(function(){
+                parent_row.removeClass('selected');
+            },1000);
+            */
+        });
+
+    });
+</script>
+{% endblock javascripts %}

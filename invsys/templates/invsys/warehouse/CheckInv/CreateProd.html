@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %}  
+<h2> Create a Product </h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_prod_number">Prod number:</label>
+                        <input type="text" name="prod_number" maxlength="100" required="" id="id_prod_number" class="form-control">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_prod_desc">Prod desc:</label>
+                        <input type="text" name="prod_desc" maxlength="100" required="" id="id_prod_desc" class="form-control">
+                    </div>
+                </div>
+                <div class="col-1">
+                    <label for="id_uom">Uom:</label>
+                </div>
+                <div class="col-3"> 
+                    <select name="uom" id="id_uom" class="form-control">
+                        <option value="">---------</option>
+
+                        <option value="1" selected="">Kg</option>
+
+                        <option value="2">Pcs</option>
+                    </select>  
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                    <label for="id_prod_type">Prod type:</label>
+                    <input type="text" name="prod_type" maxlength="100" required="" id="id_prod_type" class="form-control">
+                    </div>
+                </div>
+                <div class="col-1">
+                    <label for="id_prod_class">Prod class:</label>
+                </div>
+                <div class="col-3"> 
+                    <select name="prod_class" id="id_prod_class" class="form-control" class="form-control">
+                        <option value="">---------</option>
+
+                        <option value="1" selected="">GS</option>
+
+                        <option value="2">GISO</option>
+
+                        <option value="3">Jets</option>
+
+                        <option value="4">eSV</option>
+
+                        <option value="5">AC Fire</option>
+
+                        <option value="6">None</option>
+
+                    </select>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_barcode">Barcode:</label>
+                        <input type="text" name="barcode" maxlength="100" required="" id="id_barcode" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_price">Price:</label>
+                        <input type="number" name="price" id="id_price" class="form-control">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_notes">Notes:</label>
+                        <input type="text" name="notes" maxlength="200" required="" id="id_notes" class="form-control">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_orderpoint">Orderpoint:</label> <input type="number" name="orderpoint" id="id_orderpoint" class="form-control" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <label for="id_image">Image:</label>
+                    <input type="file" name="image" accept="image/*" id="id_image" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Select Items for Product:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto small" id="part_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <div class="row form-row">
+                            <tr class="tablerow">
+                                <td><input type="text" name="form-0-prod_number" class="form-control" id="id_form-0-prod_number" value="" readonly="readonly"></td>
+                                <td><input type="text" name="form-0-item_number" class="form-control" id="id_form-0-item_number" value="" readonly="readonly"></td>
+                                <td><input type="text" name="form-0-quantity" class="form-control" id="id_form-0-quantity" value="" readonly="readonly"></td>
+                                <td><button class="btn btn-success add-form-row">+</button></td>
+                            </tr>
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-2">
+                <button type="submit" class="btn btn-block btn-primary">Create</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        });
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+)');
+        var replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+
+    function cloneMore(prefix, item_num, item_quantity) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1
+        var counter = 0
+
+        $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(0);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(item_num);
+                    counter++;
+                }else {
+                    $(this).val(item_quantity);
+                    counter++;
+                }
+            }
+        });           
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#part_table tr.tablerow:last').after(lastrowtbl);
+
+        var conditionRow = $('#part_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-');
+        return false;
+    }
+
+    function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            btn.closest('#part_table tr.tablerow').remove();
+            var forms = $('#part_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+    
+    $(document).on('click', '.add-form-row', function(e){
+        var newwin = window.open("{% url 'warehouse:whse_add_prod_selectitem' %}");
+        return false;
+    });
+    
+    $(document).on('click', '.remove-form-row', function(e){
+        e.preventDefault();
+        deleteForm('form', $(this));
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

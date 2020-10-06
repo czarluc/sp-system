@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+    input:not([name="notes"]){ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2> Receive a Product </h2>
+    <br>
+
+    <form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_work_order_number">Production Schedule ID:</label>
+                        <input type="text" name="prod_sched" class="form-control" maxlength="200" required="" id="id_prod_sched" readonly>
+                    </div>
+                </div>
+                <div class="col-1">
+		            <button class="btn btn-success add-prodsched"><i class="fas fa-file-medical"></i></button>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Work Order Number:</label>
+                        <input type="text" name="wonum" maxlength="200" class="form-control" required="" id="wonum" readonly>
+                   </div>
+               </div>
+
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_customer">Date Received:</label>
+                        <input type="text" name="date_received" maxlength="200" class="form-control" required="" id="id_date_received" readonly>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_work_order_number">Product Number:</label>
+                        <input type="text" name="prod_num" maxlength="200" class="form-control" required="" id="prod_num" readonly>
+                   </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Product Class:</label>
+                        <input type="text" name="prod_class" maxlength="200" class="form-control" required="" id="prod_class" readonly>
+                   </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer">Scheduled Quantity:</label>
+                        <input type="text" name="sched_quan" maxlength="200" class="form-control" required="" id="sched_quan" readonly>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product Receiving Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-top">
+                <div class="col-lg-6">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Product Checklist:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_work_order_number">Name Plate:</label>
+                                        <input type="checkbox" class="form-control" name="name_plate" id="id_name_plate">
+                                   </div>
+                               </div>
+
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_customer">Label Sticker:</label>
+                                        <input type="checkbox" class="form-control" name="label_sticker" id="id_label_sticker">
+                                   </div>
+                               </div>
+
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_work_order_number">IOM:</label>
+                                        <input type="checkbox" class="form-control" name="iom" id="id_iom">
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="form-row align-items-center">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_work_order_number">QR Code:</label>
+                                        <input type="checkbox" class="form-control" name="qr_code" id="id_qr_code">
+                                   </div>
+                               </div>
+
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_customer">Warranty Card:</label>
+                                        <input type="checkbox" class="form-control" name="wrnty_card" id="id_wrnty_card">
+                                   </div>
+                               </div>
+
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_work_order_number">Packaging:</label>
+                                        <input type="checkbox" class="form-control" name="packaging" id="id_packaging">
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-6">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Verification Details:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_customer">Date Out:</label>
+                                        <input type="text" class="form-control" name="date_out" id="id_date_out" readonly>
+                                   </div>
+                               </div>
+
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="id_customer">Checked By:</label>
+                                        <input type="text" class="form-control" name="checked_by" maxlength="200" id="id_checked_by" value="{{user}}" readonly>
+                                   </div>
+                               </div>
+                            </div>
+                                                    
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_customer">Notes:</label>
+                        <input type="text" class="form-control" name="notes" maxlength="200" class="form-control" required="" id="id_notes">
+                   </div>
+                </div>
+            </div>
+            <br>
+            <div class="form-row align-items-center">
+                <div class="col-lg-3">
+                    <button type="submit" name="btn_shplby" class="btn btn-block btn-primary">Add Product to Shipping Lobby</button>
+                 </div>
+                <div class="col-lg-3">
+                    <button type="submit" name="btn_whse" class="btn btn-block btn-warning">Add Product to Warehouse</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+
+    
+
+	</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.name = "Rec_Prod";
+    	var d = new Date($.now());
+		var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+		$('#id_date_out').val(currentdate);
+
+        });
+
+    $(document).on('click', '.add-prodsched', function(e){
+        var newwin = window.open("{% url 'warehouse:ReceiveProduct_SelectProdSched' %}");
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

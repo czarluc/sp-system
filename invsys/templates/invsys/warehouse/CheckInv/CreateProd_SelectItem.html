@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %} Create a Product {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %} 
+<h2>Select an Item</h2>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Number:</label>
+                        <input type ="text" id="name1" class="form-control" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Description:</label>
+                        <input type ="text" id="name2" class="form-control" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Unit of Measure:</label>
+                        <input type ="text" id="name3" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Category:</label>
+                        <input type ="text" id="name4" class="form-control" readonly> 
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Class:</label>
+                        <input type ="text" id="name5" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Quantity:</label>
+                        <input type ="text" id="name6" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg"> Select </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Select Items for Product:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto" id="item_table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Description</th>
+                            <th scope="col">Unit of Measure</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Product Class</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in itemset %}
+                        <tr class="tablerow">
+                            <td><button type="button" class="btn btn-primary" data-itemid="{{instance.id}}" data-itemnum="{{instance.item_number}}" data-itemdesc="{{instance.item_desc}}" data-itemuom="{{instance.uom}}" data-itemcat="{{instance.item_cat}}" data-itemprodclass="{{instance.prod_class}}">{{instance.item_number}}</button></td>
+                            <td>{{instance.item_desc}}</td>
+                            <td>{{instance.uom}}</td>
+                            <td>{{instance.item_cat}}</td>
+                            <td>{{instance.prod_class}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>          
+    $(document).ready(function(){
+        $( ".btn.btn-success.btn-lg" ).on("click", function () {
+            var itemnum = $('#name1').val();
+            var itemdesc = $('#name2').val();
+            var itemuom = $('#name3').val();
+            var itemcat = $('#name4').val();
+            var itemprodclass = $('#name5').val();
+
+            var quantity = $('#name6').val();
+
+            if(quantity > 0) {
+                window.opener.cloneMore('form', itemnum, quantity);
+                alert("Item "+itemnum+" added with quantity of "+quantity);
+            }else {
+                alert("Please enter a quantity!");
+            }
+
+
+            /*
+            window.opener.document.querySelector("tbody").insertAdjacentHTML("beforeend", '<tr><td scope="row">'+ itemid +'</td><td>'+ itemnum +'</td><td>'+ itemdesc +'</td><td>'+ itemuom +'</td><td>'+ itemcat +'</td><td>'+ itemprodclass +'</td><td>'+ quantity +'</td><td><button type="submit" class="btn btn-danger deleteDep" onclick="deleteRow()">Delete</button></td></tr>');
+
+            var scripttt_tag = document.createElement('script');
+            scripttt_tag.text = '$( ".btn.btn-item" ).on("click", function () {'
+            scripttt_tag.text += 'var item = this;});'
+            window.opener.document.head.appendChild(scripttt_tag);
+            */
+        });
+
+        $( "#item_table" ).on("click", ".btn.btn-primary", function () {
+            var item = this;
+            $('#name1').val(item.dataset.itemnum);
+            $('#name2').val(item.dataset.itemdesc);
+            $('#name3').val(item.dataset.itemuom);
+            $('#name4').val(item.dataset.itemcat);
+            $('#name5').val(item.dataset.itemprodclass);
+        });
+
+        $('#item_table').DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+
+
+</script>
+{% endblock javascripts %}

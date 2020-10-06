@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>View VDR Lobby</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Receiving Lobby:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="vdr_lobby">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Purchase Number</th>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">Purchased Quantity</th>
+                        <th scope="col">Received Quantity</th>
+                        <th scope="col">Date Received</th>
+                        <th scope="col">Time Received</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in vdr_lobby_set %}
+                    <tr class="tablerow" id="sched-{{forloop.counter}}">
+                        <td>{{ instance.po_number }}</td>
+                        <td>{{ instance.item_number__item_number }}</td>
+                        <td>{{ instance.item_number__item_desc }}</td>
+                        <td>{{ instance.purchased_quantity }}</td>
+                        <td>{{ instance.received_quantity }}</td>
+                        <td>{{ instance.date_received }}</td>
+                        <td>{{ instance.time_received }}</td>
+                        <td>{{ instance.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    var table = $('#vdr_lobby').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>Purchase Number</option><option>Item Number</option><option>Item Description</option><option>Purchased Quantity</option><option>Received Quantity</option><option>Date Received</option><option>Time Received</option><option>Status</option></select>");
+
+    $('#vdr_lobby_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+});
+ </script>
+{% endblock javascripts %}

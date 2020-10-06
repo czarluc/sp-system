@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style>
+    input{ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}    
+    <h2>Choose a Warehouse Bin</h2>
+    
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Warehouse Bin Selection Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-top">
+                <div class="col-6">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Selected Bin:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Bin Location:</label>
+                                        <input type ="text" class="form-control" id="name1" readonly/>
+                                   </div>
+                               </div>
+
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Quantity:</label>
+                                        <input type ="text" class="form-control" id="name2"/>
+                                        <input type ="hidden" class="form-control" id="name3"/> <!--Bin loc ID-->
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                   
+                </div>
+                <div class="col-6">
+
+                    {% for instance in prod_sched %}
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Work Order Quantity:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="prod_required_quan">Quantity to be Stored:</label>
+                                        <input type="text" name="prod_required_quan" class="form-control" maxlength="200" id="prod_required_quan" value ="{{ instance.quantity }}"readonly>
+                                   </div>
+                               </div>
+
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="prod_store_quan">Quantity to Store:</label>
+                                        <input type="text" name="prod_store_quan" class="form-control" required="" id="prod_store_quan" value="0" readonly>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <div class="form-row align-top">
+                <div class="col-lg-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-m">Select</button>
+                </div>
+                <div class="col-lg-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-warning btn-m">Done</button>
+                </div>
+            </div>
+
+        </div>
+    </div>   
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Available Warehouse Bin Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-top">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Warehouse Bins:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped w-auto" id="whsebin_table">
+                                    <thead class="thead-dark">
+                                        <tr class="tablehead">
+                                            <th scope="col">Bin Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for whsebin in whsebin_product %}
+                                        <div class="row form-row">
+                                            <tr class="tablerow" id="whsebin-{{forloop.counter0}}">
+                                                <td><button type="button" class="btn btn-primary bin_loc" data-binlocid="{{whsebin.id}}" data-binloc="{{whsebin.bin_location}}">{{ whsebin.bin_location }}</button></td>
+                                            </tr>
+                                        </div>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Warehouse Products:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped w-auto" id="whseprod_table">
+                                    <thead class="thead-dark">
+                                        <tr class="tablehead">
+                                            <th scope="col">Product Number</th>
+                                            <th scope="col">Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for whsebin in whsebin_product_list %}
+                                        <div class="row form-row">
+                                            <tr class="tablerow" id="whseprod-{{forloop.counter0}}" data-binid="{{whsebin.bin_location__id}}">
+                                                <td>{{whsebin.prod_number}}</td>
+                                                <td>{{whsebin.quantity}}</td>
+                                            </tr>
+                                        </div>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        $('#whseprod_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $( "#whsebin_table" ).on("click", ".btn.btn-primary.bin_loc", function () {
+            var btn = this;
+            var binlocid = btn.dataset.binlocid;
+            var binloc = btn.dataset.binloc;
+
+            $('#name3').val(binlocid);
+            $('#name1').val(binloc);
+            
+            $('#whseprod_table').find('tr.tablerow').each(function (i, el) {
+                var binprod_row = this;
+                var prod_bin_id = binprod_row.dataset.binid;
+                if(prod_bin_id === binlocid){
+                    $(this).show();
+                } else{
+                    $(this).hide();
+                }
+                
+            });
+
+            toastr.info('Warehouse Bin '+ binloc + "is selected.");
+
+        });
+            
+        $(".btn.btn-success.btn").on("click", function () {
+                
+            var binloc = $('#name1').val();
+            var quantity = $('#name2').val();
+            var binlocid = $('#name3').val();
+            
+            window.opener.cloneMore('form',binloc,quantity,binlocid);
+
+            toastr.success("The product has been stored in "+binloc+" with a quantity of "+quantity);
+        });
+
+        $('#whsebin_table').DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $('#whseprod_table').DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    });
+</script>
+{% endblock javascripts %}
+

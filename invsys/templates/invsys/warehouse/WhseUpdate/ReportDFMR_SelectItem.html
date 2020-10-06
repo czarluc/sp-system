@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %} Report Defective Material {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    input:([name="reason"]){ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2>Select an Item to Report for Defective</h2>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Defective Item Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Bin Location</label>
+                        <input type ="hidden" class="form-control" id="name1" readonly/> <!--Item Number ID-->
+                        <input type ="text" class="form-control" id="name2" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Number</label>
+                        <input type ="hidden" class="form-control" id="name3" readonly/> <!--Item Number ID-->
+                        <input type ="text" class="form-control" id="name4" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Description</label>
+                        <input type ="text" class="form-control" id="name5" readonly/>
+                   </div>
+               </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Item Category</label>
+                        <input type ="text" class="form-control" id="name6" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Product Class</label>
+                        <input type ="text" class="form-control" id="name7" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>UOM</label>
+                        <input type ="text" class="form-control" id="name8" readonly/>
+                   </div>
+               </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type ="text" class="form-control" id="name9" readonly/>
+                   </div>
+               </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type ="text" class="form-control" id="name10" readonly/>
+                   </div>
+               </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Defective Quantity</label>
+                        <input type ="text" class="form-control" id="name11"/>
+                   </div>
+               </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <input type ="text" class="form-control" name="reason" id="name12"/>
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Warehouse Search:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped w-auto" id="whse_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Bin Location ID</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Description</th>
+                            <th scope="col">Item Category</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">UOM</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Stock Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in whse_items %}
+                        <tr class="tablerow" id="wo-{{forloop.counter}}">
+
+                            <td>{{ instance.bin_location__id }}</td>
+                            <td>{{ instance.bin_location__bin_location }}</td>
+                            
+                            <td><button type="button" class="btn btn-primary wo" data-bin_id="{{instance.bin_location__id}}" data-bin_loc="{{instance.bin_location__bin_location}}" data-item_num="{{instance.item_number__item_number}}" data-item_desc="{{ instance.item_number__item_desc }}" data-item_cat="{{ instance.item_number__item_cat__item_cat }}" data-prod_class="{{ instance.item_number__prod_class__prod_class }}" data-uom="{{ instance.item_number__uom__uom }}" data-item_price="{{ instance.item_number__price }}" data-stock_quan="{{ instance.quantity }}">{{ instance.item_number__item_number }}</button></td>
+
+                            <td>{{ instance.item_number__item_desc }}</td>
+                            <td>{{ instance.item_number__item_cat__item_cat }}</td>
+                            <td>{{ instance.item_number__prod_class__prod_class }}</td>
+                            <td>{{ instance.item_number__uom__uom }}</td>
+                            <td>{{ instance.item_number__price }}</td>
+                            <td>{{ instance.quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>         
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+<script>          
+    $(document).ready(function(){
+
+        var table = $('#whse_table').DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+        $('#cmbAssLine').change(function() {
+            if ($(this).val() === '2') {
+                alert("GISO Assembly");
+            }
+        });
+
+
+        /*
+        $( "#datepicker" ).datepicker({
+            onSelect: function(dateText, inst) { 
+                document.getElementById('label_reqdate').innerHTML = dateText;
+                getWO()
+            }
+        });
+
+        function getWO(){
+            $('#wo_table').find('tr.tablerow').each(function (i, el) {
+                var rowelm = this;
+                var date_req = rowelm.dataset.date_req;
+                var date_sel = document.getElementById('label_reqdate').innerHTML
+
+                if(date_sel === date_req){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+
+                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+                    $(this).hide();
+                });
+
+            });
+        }
+        
+        $('#wo_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+        */
+
+        $( ".btn.btn-primary.wo" ).on("click", function () {
+            var btn = this;
+
+            var bin_id = btn.dataset.bin_id;
+            var bin_loc = btn.dataset.bin_loc;
+            var item_num = btn.dataset.item_num;
+            var item_desc = btn.dataset.item_desc;
+            var item_cat = btn.dataset.item_cat;
+            var prod_class = btn.dataset.prod_class;
+            var uom = btn.dataset.uom;
+            var item_price = btn.dataset.item_price;
+            var stock_quan = btn.dataset.stock_quan;
+
+            $('#name1').val(bin_id);
+            $('#name2').val(bin_loc); 
+            $('#name4').val(item_num); 
+            $('#name5').val(item_desc); 
+            $('#name6').val(item_cat);
+            $('#name7').val(prod_class); 
+            $('#name8').val(uom); 
+            $('#name9').val(item_price); 
+            $('#name10').val(stock_quan); 
+
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var btn = this;
+            var bin_id = $('#name1').val();
+            var bin_loc = $('#name2').val();  
+            var item_num = $('#name4').val(); 
+            var item_price = $('#name9').val();
+            var item_quan = $('#name11').val();
+            var tot_cost = parseInt(item_price) * parseInt(item_quan)
+            var reason = $('#name12').val();
+
+            alert(item_num+" has been reported for defective with a quantity of "+item_quan);   
+
+            window.opener.cloneMore('form', bin_id, bin_loc, item_num, item_quan, tot_cost, reason)
+
+        });
+
+
+    });
+
+
+</script>
+{% endblock javascripts %}

@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+    table.table.items {
+        display:none;
+    }
+
+    tr.datarow {
+        display:none;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h1> Update Purchase Orders </h1>
+
+<form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Upload an Excel File:</h4>
+        </div>
+        <div class="card-body">
+
+        	<input type="file" id="excelfile" class="btn btn-danger" />  
+            <input type="button" id="viewfile" class="btn btn-primary" value="Export To Table" onclick="ExportToTable()" />
+          	<button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Purchase Orders:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+               	<table class="table items table-hover table-striped w-auto mx-auto" id="exceltable">
+            		<thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">PO Num</th>
+                            <th scope="col">Item Num</th>
+                            <th scope="col">Purchase Date</th>
+                        	<th scope="col">Item Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    	{{ ponumformset.management_form }}
+                		{{ ponum_itemformset.management_form }}
+                		<tr class="breakrow" id="porow-">
+                			<td><button class="btn btn-success add-form-row item">+</button><input type="text" name="formsetpo-0-po_number" class="form-control" id="id_formsetpo-0-po_number" readonly form_tag = False></td>
+                            <td><input type="hidden" name="formsetpo-0-item_num" class="form-control" id="id_formsetpo-0-item_num" readonly form_tag = False></td>
+                            <td><input type="text" name="formsetpo-0-purchase_date" class="form-control" id="id_formsetpo-0-purchase_date" readonly form_tag = False></td>
+                            <td><input type="hidden" name="formsetpo-0-item_quantity" class="form-control" id="id_formsetpo-0-item_quantity" readonly form_tag = False></td>
+                		</tr>
+                		<tr class="datarow sample" id="poitem-">
+                			<td><input type="text" name="formsetitem-0-po_number" class="form-control" id="id_formsetitem-0-po_number" readonly form_tag = False></td>
+                            <td><input type="text" name="formsetitem-0-item_number" class="form-control" id="id_formsetitem-0-item_number" readonly form_tag = False></td>
+                            <td><input type="text" name="formsetitem-0-purchase_date" class="form-control" id="id_formsetitem-0-purchase_date" readonly form_tag = False></td>
+                            <td><input type="text" name="formsetitem-0-item_quantity" class="form-control" id="id_formsetitem-0-item_quantity" readonly form_tag = False></td>
+                		</tr>
+                    </tbody>
+               	</table> 
+            </div>
+        </div>
+    </div>
+
+</form>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
+<script>
+    $( document ).ready(function() {
+
+    toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+    $("#excelfile").on('change',function(){
+        toastr.info('Loaded file!');
+    });
+
+    //collapse and expand sections
+    $('#exceltable').on('click', 'tr.breakrow',function(){
+        $(this).nextUntil('tr.breakrow').slideToggle(200);
+        });
+    });
+
+    $(document).on('click', '.remove-form-row', function(e){
+        $(this).removeClass('btn-danger').addClass('btn-success');
+        $(this).removeClass('remove-form-row').addClass('add-form-row');
+        $(this).html('+');
+        return false;
+    });
+
+    $(document).on('click', '.add-form-row', function(e){
+        $(this).removeClass('btn-success').addClass('btn-danger');
+        $(this).removeClass('add-form-row').addClass('remove-form-row');
+        $(this).html('-');
+        return false;
+    });
+
+function ExportToTable() {
+    $('#exceltable').css({"display":"inline"});
+    var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xlsx|.xls)$/;  
+    /*Checks whether the file is a valid excel file*/  
+    if (regex.test($("#excelfile").val().toLowerCase())) {  
+        var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/  
+        if ($("#excelfile").val().toLowerCase().indexOf(".xlsx") > 0) {  
+            xlsxflag = true;  
+        }
+        /*Checks whether the browser supports HTML5*/  
+        if (typeof (FileReader) != "undefined") {  
+            var reader = new FileReader();  
+            reader.onload = function (e) {  
+                var data = e.target.result;  
+                /*Converts the excel data in to object*/  
+                if (xlsxflag) {  
+                    var workbook = XLSX.read(data, { type: 'binary' });  
+                }  
+                else {  
+                    var workbook = XLS.read(data, { type: 'binary' });  
+                }  
+                /*Gets all the sheetnames of excel in to a variable*/  
+                var sheet_name_list = workbook.SheetNames;  
+
+                var cnt = 0; /*This is used for restricting the script to consider only first sheet of excel*/  
+                sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/  
+                     /*Convert the cell value to Json*/  
+                    if (xlsxflag) {  
+                        var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);  
+                    }  
+                    else {  
+                        var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);  
+                    }  
+                    if (exceljson.length > 0 && cnt == 0) {  
+                        GetCellvalue(exceljson, '#exceltable');  /*(JSONDATA,WHAT TABLE TO PUT THE DATA)*/
+                        cnt++;  
+                    }  
+                });  
+                $('#exceltable').show();  
+            }  
+            if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/  
+                reader.readAsArrayBuffer($("#excelfile")[0].files[0]);  
+            }  
+            else {  
+                reader.readAsBinaryString($("#excelfile")[0].files[0]);  
+            }  
+        }  
+        else {  
+            alert("Sorry! Your browser does not support HTML5!");  
+        }  
+    }  
+    else {  
+        alert("Please upload a valid Excel file!");  
+    }
+    toastr.success('Exported to Table!');
+}
+
+function GetCellvalue(jsondata, tableid) {/*Function used to convert the JSON array to Html Table*/  
+    var columns = GetRowTitle(jsondata, tableid); /*Gets all the column headings of Excel*/
+    var po_row = []; /*Container for the rows in the data*/
+    for (var i = 0; i < jsondata.length; i++) { /*The legnth of all rows*/  
+        var po_details = [];/*Gets the PO Num*/
+        po_details.push(jsondata[i][columns[2]]); /*Gets the PO Num*/
+        po_details.push(jsondata[i][columns[3]]); /*Gets item num*/
+        var date = jsondata[i][columns[4]] + "/" + jsondata[i][columns[5]] + "/" + jsondata[i][columns[6]];
+        po_details.push(date); /*Gets purch date*/
+        po_details.push(jsondata[i][columns[7]]); /*Gets item quantity*/
+        po_row.push(po_details);
+    }
+    BindTable(po_row, tableid);
+}
+
+function GetRowTitle(jsondata, tableid) {/*Function used to get all column names from JSON and bind the html table header*/  
+    var columnSet = []; 
+    for (var i = 0; i < jsondata.length; i++) { /*GOES THROUGH EACH ROW IN THE EXCEL FILE*/
+        var rowHash = jsondata[i];  
+        for (var key in rowHash) {  
+            if (rowHash.hasOwnProperty(key)) {  
+                if ($.inArray(key, columnSet) == -1) { /*Adding each unique column names to a variable array-ONLY GOES THROUGH THE TITLE ROW*/
+                    columnSet.push(key);/*Add the title in the columnset array*/
+                }  
+            }  
+        }  
+    }
+    return columnSet;  
+}
+
+function BindTableHeader(tableid) {/*Function used to get all column names from JSON and bind the html table header*/  
+    var columnSet = [];  
+    var headerTr$ = $('<tr/>');  
+    headerTr$.append($('<th/>').html());/*automatically places a <th> tag and adds it in the text*/
+    headerTr$.append($('<th/>').html(""));/*automatically places a <th> tag and adds it in the text*/
+    headerTr$.append($('<th/>').html(""));/*automatically places a <th> tag and adds it in the text*/
+    headerTr$.append($('<th/>').html(""));/*automatically places a <th> tag and adds it in the text*/
+    $(tableid).append(headerTr$); /*Adds the header into the table*/
+}
+
+function BindTable(po_row, tableid) {/*Function used to convert the JSON array to Html Table*/  
+    //BindTableHeader(tableid); /*Gets all the column headings of Excel*/
+    var po_row_sorted = Sort_PO(po_row);
+    var po_num_only = Filter_PO_Num(po_row_sorted);
+    var po_index = 0;
+
+        for (var n = 0; n < po_row_sorted.length; n++) { /*The legnth of all rows*/
+            if (n == 0){
+                clone_More('formsetpo',po_num_only[po_index],"",po_row_sorted[n][2],"");        
+
+                clone_More('formsetitem',po_row_sorted[n][0],po_row_sorted[n][1],po_row_sorted[n][2],po_row_sorted[n][3]);
+
+                po_index++;
+            } else if (parseInt(po_row_sorted[n][0]) == parseInt(po_row_sorted[n-1][0])){ /*Same purchase order number*/
+                
+                clone_More('formsetitem',po_row_sorted[n][0],po_row_sorted[n][1],po_row_sorted[n][2],po_row_sorted[n][3]);
+            
+            }else {
+                clone_More('formsetpo',po_num_only[po_index],"",po_row_sorted[n][2],"");
+
+                clone_More('formsetitem',po_row_sorted[n][0],po_row_sorted[n][1],po_row_sorted[n][2],po_row_sorted[n][3]);
+                po_index++;
+            }
+        }
+}
+
+
+    function clone_More(prefix, ponum, poitem, purch_date, item_quan) { //selector - .form-row:last | prefix - form
+        if(prefix == "formsetpo"){
+            var lastrowtbl = $('#exceltable tr.breakrow:last').clone(true);
+        } else{
+            var lastrowtbl = $('#exceltable tr.datarow:last').clone(true);
+        }
+
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1;
+        var counter = 0;
+
+        if(prefix == "formsetpo"){
+            $('#exceltable tr.breakrow:last').show();
+            $('#exceltable tr.breakrow:last').find('input').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        $(this).val(ponum);
+                        counter++;
+                    } else if(counter === 1){
+                        $(this).val("");
+                        counter++;
+                    } else if(counter === 2){
+                        $(this).val(purch_date);
+                        counter++;
+                    } else {
+                        $(this).val("");
+                        counter++;
+                    }
+                }
+            });
+        }else{
+            $('#exceltable tr.datarow:last').find('input').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        $(this).val(ponum);
+                        counter++;
+                    } else if(counter === 1){
+                        $(this).val(poitem);
+                        counter++;
+                    } else if(counter === 2){
+                        $(this).val("");
+                        counter++;
+                    } else {
+                        $(this).val(item_quan);
+                        counter++;
+                    }
+                }
+            });
+            console.log($('#exceltable tr.breakrow').eq(-2));
+            $('#exceltable tr.breakrow').eq(-2).after($('#exceltable tr.datarow:last'));
+
+        }
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+
+        if(prefix == "formsetpo"){
+            $('#exceltable tr.breakrow:last').after(lastrowtbl);
+            $('#exceltable tr.breakrow:last').hide();
+        } else{
+            $('#exceltable tr.datarow:last').after(lastrowtbl);
+            $('#exceltable tr.datarow:last').hide();
+        }
+
+        /*
+        var conditionRow = $('#part_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-');
+        */
+
+        return false;
+    }
+
+function Sort_PO(po_row){
+    po_row.sort( function mysortfunction(a, b) {
+        var d1 = new Date(a[2]);
+        var d2 = new Date(b[2]);
+
+        var n1 = parseInt(a[0]);
+        var n2 = parseInt(b[0]);
+
+        if (n1 < n2) return -1;
+        if (n1 > n2) return 1;
+        if (d1 < d2) return -1;
+        if (d1 > d2) return 1;
+        return 0;
+    });
+    return po_row;
+}
+
+function Filter_PO_Num(po_row_sorted){
+    var po_num_only = [];
+    for (var rowIndex = 0; rowIndex < po_row_sorted.length; rowIndex++) { /*Goes through each row*/
+        if (rowIndex == 0) {
+            po_num_only.push(po_row_sorted[rowIndex][0]);   
+        }else if (!(parseInt(po_num_only[po_num_only.length-1]) == parseInt(po_row_sorted[rowIndex][0]))) {
+            po_num_only.push(po_row_sorted[rowIndex][0]);
+        }
+    }
+    return po_num_only;
+}
+
+</script>
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.7/xlsx.core.min.js"></script>  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xls/0.7.4-a/xls.core.min.js"></script>  
+{% endblock javascripts %}

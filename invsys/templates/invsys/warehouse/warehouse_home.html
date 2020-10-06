@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %} Welcome {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+	<h1> Warehouse </h1>
+    <div class="card">
+      <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Sample:</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-danger">
+                  <h4 class="card-title">Shipment Accuracy</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="sample-chart"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date_sample">
+                  To: <input type="date" id="to_date_sample">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Receiving:</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-danger">
+                  <h4 class="card-title">Shipment Accuracy</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="ship_acc_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-success">
+                  <h4 class="card-title">Shipment Timeliness</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="ship_time_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Put Away:</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-danger">
+                  <h4 class="card-title">Put Away Accuracy</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="pa_acc_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-success">
+                  <h4 class="card-title">Put Away Timeliness</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="pa_time_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Storage:</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-danger">
+                  <h4 class="card-title">Storage Accuracy</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="storage_acc_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-success">
+                  <h4 class="card-title">Storage Utilization</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="storage_util_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Component Issuance:</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-danger">
+                  <h4 class="card-title">Issuance Accuracy</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="issuance_acc_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-success">
+                  <h4 class="card-title">Issuance Productivity</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="issuance_prod_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Shipping:</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-danger">
+                  <h4 class="card-title">Shipping:</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="pa_acc_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card card-chart">
+                <div class="card-header card-header-success">
+                  <h4 class="card-title">Put Away Timeliness</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="pa_time_chrt"></canvas>
+                  <form action="">
+                    {% csrf_token %}
+                  From: <input type="date" id="from_date">
+                  To: <input type="date" id="to_date">
+                  <button class="btn btn-success add-form-row ponum">Filter</button>
+                  <a href="#"> See more </a>
+                  </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+		$(document).ready(function(){
+      var ctx = $("#sample-chart");
+      var myChart = new Chart(ctx);
+      var defaultData = []
+      var labels = [];
+
+      $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_data' %}",
+          success: function(data){
+              labels = data.labels;
+              defaultData = data.default;
+
+              ctx = $("#sample-chart");
+
+              myChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                      labels: labels,
+                      datasets: [{
+                          label: 'Purchase Orders Created',
+                          data: defaultData,
+                          backgroundColor: '#80cee1',
+                          borderWidth: 1
+                      }]
+                  },
+                  options: {
+                      scales: {
+                          yAxes: [{
+                              ticks: {
+                                  beginAtZero:true
+                              }
+                          }],
+                          xAxes: [{
+                              type: 'time',
+                              time: {
+                              unit: 'day',
+                              unitStepSize: 25,
+                              displayFormats: {
+                                 'day': 'MMM DD'
+                              }
+                              }
+                          }],
+                      },
+                        legend: {
+                          position: 'bottom',
+                        },
+                      responsive: true,
+                  }
+              });
+
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+      });
+
+      $(document).on('click', '.add-form-row.ponum', function(e){
+        $.ajax({
+            method: "POST",
+            url: "{% url 'warehouse:Dashboard_update_data' %}",
+            data: {'from': $("#from_date_sample").val(),
+                  'to': $("#to_date_sample").val(),
+                  'csrfmiddlewaretoken': '{{ csrf_token }}'},
+
+            success: function(data){
+                labels = data.labels;
+                defaultData = data.default;
+                updateChart(labels,defaultData);
+            },
+            error: function(error_data){
+                alert("error");
+                console.log(error_data);
+            }
+        });
+
+        function updateChart(labels, defaultData){
+
+          myChart.data.labels = labels;
+          myChart.data.datasets[0].data = defaultData;
+
+          myChart.update();
+        }
+
+
+        return false;
+      });
+
+      var ctx_ship_acc = $("#ship_acc_chrt");
+      var myChart2 = new Chart(ctx);
+      
+      var ship_acc_labels = [];
+      var ship_acc_data = [];
+
+      $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_ship_acc' %}",
+          success: function(data){
+              ship_acc_labels = data.labels;
+              ship_acc_data = data.default;
+
+              ctx = $("#ship_acc_chrt");
+
+              myChart2 = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                  labels: ship_acc_labels,
+                  datasets: [{
+                    backgroundColor: [
+                      "#2ecc71",
+                      "#e74c3c",
+                    ],
+                    data: ship_acc_data
+                  }]
+                }
+              });
+
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+      });
+
+		});
+
+	</script>
+{% endblock javascripts %}

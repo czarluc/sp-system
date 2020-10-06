@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    input{ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>Select an Item to Return</h2>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Production Schedule:</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Item Number:</label>
+                        <input type ="hidden" class="form-control" id="name2" readonly/> <!--Item Number ID-->
+                        <input type ="text" class="form-control" id="name3" readonly/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Required Quantity:</label>
+                        <input type ="text" class="form-control" id="name4" readonly/>
+                        <input type ="hidden" class="form-control" id="name5" readonly/> <!--Assembly Line ID-->
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Assembly Line:</label>
+                        <input type ="text" class="form-control" id="name6" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Components for Return for:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Work Orders-->
+                <table class="table table-hover table-striped w-auto" id="wo_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Assembly Line</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Quantity</th>
+                            <th scope="col">Production Schedule</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in assdisc_items %}
+                        <tr class="tablerow" id="wo-{{forloop.counter}}">
+                            <td>{{ instance.assemblyline__name }}</td>
+                            <td><button type="button" class="btn btn-primary wo" data-ass_id="{{instance.assemblyline__id}}" data-ass_line="{{instance.assemblyline__name}}" data-item_num="{{instance.item_number__item_number}}" data-quantity="{{ instance.quantity }}" data-prod_sched="{{ instance.reference_number }}">{{ instance.item_number__item_number }}</button></td>
+                            <td>{{ instance.quantity }}</td>
+                            <td>{{ instance.reference_number }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+<script>          
+    $(document).ready(function(){
+
+        $("#wo_table").DataTable();
+
+        document.getElementById('label_reqdate').innerHTML = 'Hello World!';
+
+        $('#cmbAssLine').change(function() {
+            if ($(this).val() === '2') {
+                alert("GISO Assembly");
+            }
+        });
+
+
+        /*
+        $( "#datepicker" ).datepicker({
+            onSelect: function(dateText, inst) { 
+                document.getElementById('label_reqdate').innerHTML = dateText;
+                getWO()
+            }
+        });
+
+        function getWO(){
+            $('#wo_table').find('tr.tablerow').each(function (i, el) {
+                var rowelm = this;
+                var date_req = rowelm.dataset.date_req;
+                var date_sel = document.getElementById('label_reqdate').innerHTML
+
+                if(date_sel === date_req){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+
+                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+                    $(this).hide();
+                });
+
+            });
+        }
+        
+        $('#wo_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+        */
+
+        $( ".btn.btn-primary.wo" ).on("click", function () {
+            var btn = this;
+
+            var ass_id = btn.dataset.ass_id;
+            var ass_line = btn.dataset.ass_line;
+            var item_num = btn.dataset.item_num;
+            var quantity = btn.dataset.quantity;
+            var prod_sched = btn.dataset.prod_sched;
+
+            $('#name1').val(prod_sched);
+            $('#name3').val(item_num); 
+            $('#name4').val(quantity); 
+            $('#name5').val(ass_id); 
+            $('#name6').val(ass_line); 
+
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var btn = this;
+            var prod_sched = $('#name1').val();
+            var item_num = $('#name3').val();
+            var quantity = $('#name4').val();
+            var ass_id = $('#name5').val();
+            var ass_line = $('#name6').val();
+
+            alert(item_num+" has been selected for issuance with a quantity of "+quantity);   
+
+            window.opener.cloneMore('form', prod_sched, item_num, quantity, ass_id, ass_line)
+
+
+        });
+
+
+    });
+</script>
+{% endblock javascripts %}

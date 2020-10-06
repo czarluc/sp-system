@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %} Welcome {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+  <h2>Welcome to the Xylem Warehouse Inventory System! </h2>
+  <p class="lead">
+    If you already have an account, go ahead and <a href="{% url 'login' %}">log in</a>. 
+    <br> <br> 
+    If you are new to Xylem, get started by creating either a <a href="{% url 'warehouse_signup' %}">warehouse personnel account</a> or a <a href="{% url 'planner_signup' %}"> production planner account</a> or an <a href="{% url 'assembly_signup' %}"> assembler account</a>.
+  </p>
+  <hr>
+{% endblock content %}

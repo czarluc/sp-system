@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<link href='/static/assets/css/fullcalendar.css' rel='stylesheet' />
+<link href='/static/assets/css/fullcalendar.print.css' rel='stylesheet' media='print' />
+
+<style>
+#wrap {
+    width: 1100px;
+    margin: 0 auto;
+    }
+
+#external-events {
+    float: left;
+    width: 150px;
+    padding: 0 10px;
+    text-align: left;
+    }
+
+#external-events h4 {
+    font-size: 16px;
+    margin-top: 0;
+    padding-top: 1em;
+    }
+
+.external-event { /* try to mimick the look of a real event */
+    margin: 10px 0;
+    padding: 2px 4px;
+    background: #3366CC;
+    color: #fff;
+    font-size: .85em;
+    cursor: pointer;
+    }
+
+#external-events p {
+    margin: 1.5em 0;
+    font-size: 11px;
+    color: #666;
+    }
+
+#external-events p input {
+    margin: 0;
+    vertical-align: middle;
+    }
+
+#calendar {
+/*      float: right; */
+    margin: 0 auto;
+    background-color: #FFFFFF;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px #C3C3C3;
+    }
+
+</style>
+
+
+{% endblock stylesheets %}
+
+{% block content %}
+<form class="form-horizontal" method="POST" action="" id="prodsched_form">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-primary">
+                    <h4 class="card-title">Work Order Details:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Event ID:</label>
+                                <input type="text" name="prod_sched" class="form-control" maxlength="200" required="" id="event_id">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="id_customer">Event Title:</label>
+                                <input type="text" name="wonum" maxlength="200" class="form-control" required="" id="event_title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Event Date:</label>
+                                <input type="date" name="prod_sched" class="form-control" maxlength="200" required="" id="event_date">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="id_customer">Work Order Number:</label>
+                                <input type="text" name="wonum" maxlength="200" class="form-control" required="" id="wo_num">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="id_work_order_number">SAMPLE NUM:</label>
+                                <input type="text" name="prod_sched" class="form-control" maxlength="200" required="" id="sample_data">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <button type="button" id="btn_add" class="btn btn-block btn-warning">Add Event</button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" id="btn_delete" class="btn btn-block btn-danger">Delete Event</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <button type="button" id="btn_update" class="btn btn-block btn-info">Update Event</button>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" id="btn_save" class="btn btn-block btn-success">Save Event</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-primary">
+                    <h4 class="card-title">Work Order Details:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div id='calendar'>
+                            
+                        </div>
+
+                        <div style='clear:both'>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+    
+
+
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src='/static/assets/js/jquery-ui.custom.min.js' type="text/javascript"></script>
+<script src='/static/assets/js/fullcalendar.js' type="text/javascript"></script>
+<script>
+var collection = [];
+    $(document).ready(function() {
+        
+        var date = new Date();
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
+
+        /*  className colors
+
+        className: default(transparent), important(red), chill(pink), success(green), info(blue)
+
+        */
+
+
+        /* initialize the external events
+        -----------------------------------------------------------------*/
+
+        $('#external-events div.external-event').each(function() {
+
+            // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
+            // it doesn't need to have a start or end
+            var eventObject = {
+                title: $.trim($(this).text()) // use the element's text as the event title
+            };
+
+            // store the Event Object in the DOM element so we can get to it later
+            $(this).data('eventObject', eventObject);
+
+            // make the event draggable using jQuery UI
+            $(this).draggable({
+                zIndex: 999,
+                revert: true,      // will cause the event to go back to its
+                revertDuration: 0  //  original position after the drag
+            });
+
+        });
+
+
+        /* initialize the calendar
+        -----------------------------------------------------------------*/
+
+        var calendar =  $('#calendar').fullCalendar({
+            header: {
+                left: 'title',
+                center: 'agendaDay,agendaWeek,month',
+                right: 'prev,next today'
+            },
+            editable: true,
+            firstDay: 1, //  1(Monday) this can be changed to 0(Sunday) for the USA system
+            selectable: true,
+            defaultView: 'month',
+
+            axisFormat: 'h:mm',
+            columnFormat: {
+                month: 'ddd',    // Mon
+                week: 'ddd d', // Mon 7
+                day: 'dddd M/d',  // Monday 9/7
+                agendaDay: 'dddd d'
+            },
+            titleFormat: {
+                month: 'MMMM yyyy', // September 2009
+                week: "MMMM yyyy", // September 2009
+                day: 'MMMM yyyy'                  // Tuesday, Sep 8, 2009
+            },
+            allDaySlot: false,
+            selectHelper: true,
+            select: function(start, end, allDay) {
+                var title = prompt('Event Title:');
+                if (title) {
+                    calendar.fullCalendar('renderEvent',
+                        {
+                            title: title,
+                            start: start,
+                            end: end,
+                            allDay: allDay
+                        },
+                        true // make the event "stick"
+                    );
+                }
+                calendar.fullCalendar('unselect');
+            },
+            droppable: true, // this allows things to be dropped onto the calendar !!!
+            drop: function(date, allDay) { // this function is called when something is dropped
+
+                // retrieve the dropped element's stored Event Object
+                var originalEventObject = $(this).data('eventObject');
+
+                // we need to copy it, so that multiple events don't have a reference to the same object
+                var copiedEventObject = $.extend({}, originalEventObject);
+
+                // assign it the date that was reported
+                copiedEventObject.start = date;
+                copiedEventObject.allDay = allDay;
+
+                // render the event on the calendar
+                // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
+                $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+
+                // is the "remove after drop" checkbox checked?
+                if ($('#drop-remove').is(':checked')) {
+                    // if so, remove the element from the "Draggable Events" list
+                    $(this).remove();
+                }
+
+            },
+
+            events: [
+                {% for event in events %}
+                    {
+                        title: "{{ event.name}}",
+                        start: '{{ event.start|date:"Y-m-d" }}',
+                        end: '{{ event.end|date:"Y-m-d" }}',
+                        wo_num: '{{ event.event_type }}',
+                        className: 'success'
+                    },
+                {% endfor %}
+            ],
+            eventClick: function(calEvent, jsEvent, view) {
+
+            $("#event_id").val(calEvent._id);
+            $("#event_title").val(calEvent.title);
+            $("#wo_num").val(calEvent.wo_num);
+
+            // change the border color just for fun
+            // $(this).css('border-color', 'red');
+
+            },
+            eventRender: function(event, element) { 
+                element.find('.fc-event-title').append("<br/>" + event.wo_num); 
+            } 
+        });
+
+
+    });
+    
+    
+
+    $(document).on('click', '#btn_delete', function(e){
+        var event_id = $("#event_id").val();
+        var event_title = $("#event_title").val();
+        var event = $("#calendar").fullCalendar('clientEvents',event_id);
+
+        event[0].title = event_title;
+
+        $('#calendar').fullCalendar('removeEvents' , function(ev){  
+            return (ev._id == event[0]._id);
+        });
+
+    });
+
+    $(document).on('click', '#btn_add', function(e){
+        var event_id = $("#event_id").val();
+        var event_title = $("#event_title").val();
+        var event_date = $("#event_date").val();
+        var wo_num = $("#wo_num").val();
+
+        $('#calendar').fullCalendar('renderEvent',
+                        {
+            id:event_id,
+            title:event_title,
+            allDay: true,
+            start: event_date,
+            end: event_date,
+            className: 'info',
+            wo_num: wo_num,
+            prod_cat: "new_sched"
+        },
+        true // make the event "stick"
+        );
+
+    });
+
+    $(document).on('click', '#btn_update', function(e){
+        var event_id = $("#event_id").val();
+        var event_title = $("#event_title").val();
+        var event_date = $("#event_date").val();
+        var wo_num = $("#wo_num").val();
+
+        var eventObject = $('#calendar').fullCalendar( 'clientEvents', event_id );
+        if (eventObject != null)
+        {
+            console.log(true);
+            eventObject[0].title = event_title;
+            eventObject[0].start = event_date;
+            eventObject[0].end = event_date;
+            eventObject[0].wo_num = wo_num;
+
+
+            $('#calendar').fullCalendar( 'updateEvent', eventObject[0] );
+        }
+        return eventObject;
+    });
+
+    $('#prodsched_form').submit(function() {
+        event.preventDefault();
+
+        var new_sched = $("#calendar").fullCalendar('clientEvents', function(evt) {
+            return evt.prod_cat == "new_sched";
+        });
+
+        
+        var sched_list = [];
+        new_sched.forEach(function(item) {
+            var sched_details = [];
+            sched_details.push(item.title,moment(item.start).format('YYYY-MM-DD'),item.wo_num);
+            sched_list.push(sched_details);
+        });
+
+        alert("ogt");
+
+        $.ajax({
+            method: "POST",
+            url: "{% url 'warehouse:add_event' %}",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+            },
+            data: {'prod_sched_set[]': JSON.stringify(sched_list),
+                  'wo_num': $("#sample_data").val()},
+            dataType: 'json',
+
+          success: function(data){
+                return;
+
+          },
+          error: function(error_data){
+              console.log("error");
+              console.log(error_data);
+          }
+        });
+        
+        console.log("did the ajax");
+
+        $(this).unbind('submit').submit();
+    });
+
+
+    /*
+    function DeploySchedule(){
+        $.ajax({
+            type: "POST"
+            , url: "/Services/ScheduleService.svc/DeploySchedule"
+            , contentType: "application/json; charset=utf-8"
+            , dataType: "json"
+            , success: function (result) {
+                $('#calendar').fullCalendar('removeEvents');
+
+                result.forEach(function (_row) {
+                    var event = new Object();
+                    event.title = _row.TrackingNumber + " (" + _row.Worker + ")";
+                    event.start = _row.Date;
+                    event.WorkerGuid = _row.WorkerGuid;
+                    event.ScheduleGuid = _row.ScheduleGuid;
+                    event.TrackingNumber = _row.TrackingNumber;
+                    event.Worker = _row.Worker;
+                    $('#calendar').fullCalendar('renderEvent', event);
+                });
+            }
+            , error: function (xhr, status, error) { // if error occure
+                alert(xhr.responseText);
+            }
+            , complete: function () {
+            }
+        });
+    }
+
+    events: [
+                {
+                    title: 'All Day Event Bitch',
+                    start: new Date(y, m, 1),
+                    className: 'info'
+                },
+                {
+                    id: 999,
+                    title: 'Repeating Event',
+                    start: new Date(y, m, d-3, 16, 0),
+                    allDay: false,
+                    className: 'info'
+                },
+                {
+                    id: 999,
+                    title: 'Repeating Event',
+                    start: new Date(y, m, d+4, 16, 0),
+                    allDay: false,
+                    className: 'info'
+                },
+                {  
+                    id: 'a',
+                    title: 'Meeting',
+                    start: new Date(y, m, d, 10, 30),
+                    allDay: false,
+                    className: 'important',
+                    extendedProps: {
+                        department: 'BioChemistry'
+                    }
+                },
+                {
+                    title: 'Lunch',
+                    start: new Date(y, m, d, 12, 0),
+                    end: new Date(y, m, d, 14, 0),
+                    allDay: false,
+                    className: 'important'
+                },
+                {
+                    title: 'Birthday Party',
+                    start: new Date(y, m, d+1, 19, 0),
+                    end: new Date(y, m, d+1, 22, 30),
+                    allDay: false,
+                },
+                {
+                    title: 'Click for Google',
+                    start: new Date(y, m, 28),
+                    end: new Date(y, m, 29),
+                    url: 'http://google.com/',
+                    className: 'success'
+                }
+    */
+</script>
+{% endblock javascripts %}
+

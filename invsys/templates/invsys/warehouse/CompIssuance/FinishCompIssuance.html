@@ -1,0 +1,737 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style type="text/css">
+    input { 
+    text-align: center; 
+    }
+    #reqpart_table tr td:nth-child(1), #reqpart_table th:nth-child(1){
+        display: none;
+    }
+    #recpart_table tr td:nth-child(1), #recpart_table th:nth-child(1){
+        display: none;
+    }
+    #recpart_table tr td:nth-child(6), #recpart_table th:nth-child(6){
+        display: none;
+    }
+    #sum_table tr td:nth-child(1), #sum_table th:nth-child(1){
+        display: none;
+    }
+    .table-striped tbody tr.highlight td { 
+    background-color: #f3fafe;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+	
+	<h2> Finish Component Issuance </h2>
+    <br>
+    <form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Component Issuance Schedule Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-top">
+                <div class="col-lg-5">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Component Issuance Schedule Details:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-5">
+                                    <div class="form-group">
+                                        <label for="id_work_order_number">Component Issuance Schedule Number:</label>
+                                        <input type="text" name="compissuesched" class="form-control" maxlength="200" required="" id="compissuesched" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                		            <button class="btn btn-success add-compissuesched"><i class="fas fa-file-medical"></i></button>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                    <label for="id_customer">Date Scheduled:</label>
+                                    <input type="text" name="date_sched" maxlength="200" class="form-control" required="" id="date_sched" readonly>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Work Order Details:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="id_customer">Production Schedule:</label>
+                                        <input type="text" name="prodsched" maxlength="200" class="form-control" required="" id="prodsched" readonly>
+                                   </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                    <label for="id_work_order_number">Work Order Number:</label>
+                                    <input type="text" name="wonum" class="form-control" maxlength="200" required="" id="wonum" readonly>
+                                   </div>
+                                </div>
+                            </div>
+                            <div class="form-row align-items-center">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                    <label for="id_customer">Product Number:</label>
+                                    <input type="text" name="prodnum" maxlength="200" class="form-control" required="" id="prodnum" readonly>
+                                   </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                    <label for="id_work_order_number">Product Class:</label>
+                                    <input type="text" name="prodclass" class="form-control" maxlength="200" required="" id="prodclass" readonly>
+                                   </div>
+                                </div>
+                            </div>
+                            <div class="form-row align-items-center">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                    <label for="id_customer">Scheduled Quantity:</label>
+                                    <input type="text" name="prodschedquan" maxlength="200" class="form-control" required="" id="prodschedquan" readonly>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Required Bill of Materials:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-top">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Required Bill of Materials:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped w-auto" id="reqpart_table">
+                                    <thead class="thead-dark">
+                                        <tr class="tablehead">
+                                            <th scope="col">Prod Sched ID</th>
+                                            <th scope="col">Item Number</th>
+                                            <th scope="col">Item Quantity</th>
+                                            <th scope="col">Bin Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for reqpart in wo_itemissuance_list %}
+                                        <div class="row form-row">
+                                            <tr class="tablerow part" id="reqpart-{{forloop.counter}}" data-prodsched="{{reqpart.prod_sched__id}}" data-req_quan="{{reqpart.item_quantity}}" data-itemnum="{{reqpart.item_num__item_number}}">
+                                                <td><input type="text" class="form-control" id="reqpart-{{forloop.counter}}-prod_sched" value="{{reqpart.prod_sched__id}}" readonly="readonly"></td>
+                                                <td><input type="text" class="form-control" id="reqpart-{{forloop.counter}}-item_num" value="{{reqpart.item_num__item_number}}" readonly="readonly"></td>
+                                                <td><input type="text" class="form-control" id="reqpart-{{forloop.counter}}-item_quantity" value="{{reqpart.item_quantity}}" readonly="readonly"></td>
+                                                <td><input type="text" class="form-control" id="reqpart-{{forloop.counter}}-binloc" value="{{reqpart.bin_location__bin_location}}" readonly="readonly"></td>
+                                            </tr>
+                                        </div>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Received Component Issuance:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped w-auto" id="recpart_table">
+                                    <thead class="thead-dark">
+                                        <tr class="tablehead">
+                                            <th scope="col">Prod Sched ID</th>
+                                            <th scope="col">Item Number</th>
+                                            <th scope="col">Date Received</th>
+                                            <th scope="col">Received Quantity</th>
+                                            <th scope="col">Notes</th>
+                                            <th scope="col">Bin Location ID</th>
+                                            <th scope="col">Bin Location</th>
+                                            <th scope="col">Edit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{ wo_recitem.management_form }}
+                                        {% for formsetitem in wo_recitem %}
+                                        <div class="row form-row">
+                                            <tr class="tablerow recpart" id="formsetitem-{{forloop.counter0}}">
+                                                <td><input type="text" name="formsetitem-0-prod_sched" class="form-control" id="id_formsetitem-0-prod_sched" value="" readonly="readonly"></td>
+                                                <td><input type="text" name="formsetitem-0-item_num" class="form-control" id="id_formsetitem-0-item_num" value="" readonly="readonly"></td>
+                                                <td><input type="text" name="formsetitem-0-date_received" class="form-control" id="id_formsetitem-0-date_received" value="" readonly="readonly"></td>
+                                                <td><input type="text" name="formsetitem-0-item_quantity" class="form-control" id="id_formsetitem-0-item_quantity" value="" readonly="readonly"></td>
+                                                <td><input type="text" name="formsetitem-0-notes" class="form-control" id="id_formsetitem-0-notes" value="" readonly="readonly"></td>
+                                                <td><input type="text" name="formsetitem-0-bin_location" class="form-control" id="id_formsetitem-0-bin_location" value="" readonly="readonly"></td>
+                                                <td><input type="text" name="formsetitem-0-bin_locationTEXT" class="form-control" id="id_formsetitem-0-bin_locationTEXT" value="" readonly="readonly"></td>
+                                                <td><button class="btn btn-success btn-sm add-form-row item" title="Add"><i class="fa fa-table"></i></button><button class="btn btn-primary edit-form-row btn-sm" type="button" data-toggle="modal" title="Edit"><i class="fa fa-edit"></i></button></td>
+                                            </tr>
+                                        </div>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>   
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Component Issuance Summary:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto" id="sum_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Prod Sched ID</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Total Required Quantity</th>
+                            <th scope="col">Total Received Quantity</th>
+                            <th scope="col">Discrepancy</th>
+                            <th scope="col">Discrepancy Quantity</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ wo_summary.management_form }}
+                        {% for formsetsummary in wo_summary %}
+                        <div class="row form-row">
+                            <tr class="tablerow sum" id="id_formsetsummary-{{forloop.counter0}}">
+                                <td><input type="text" name="formsetsummary-0-prod_sched" class="form-control" id="id_formsetsummary-0-prod_sched" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="formsetsummary-0-item_num" class="form-control" id="id_formsetsummary-0-item_num" value="" readonly="readonly"></td>
+                                
+                                <td><input type="text" name="formsetsummary-0-totalreq_quan" class="form-control" id="id_formsetsummary-0-totalreq_quan" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="formsetsummary-0-totalrec_quan" class="form-control" id="id_formsetsummary-0-totalrec_quan" value="" readonly="readonly"></td>
+                                <td><input type="text" name="formsetsummary-0-discrepancy" class="form-control" id="id_formsetsummary-0-discrepancy" value="" readonly="readonly"></td>
+
+                                <td><input type="text" name="formsetsummary-0-discrepancy_quantity" class="form-control" id="id_formsetsummary-0-discrepancy_quantity" value="" readonly="readonly"></td>
+                                
+                                <td><input type="text" name="formsetsummary-0-status" class="form-control" id="id_formsetsummary-0-status" value="" readonly="readonly"></td>
+                            </tr>
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row align-items-center">
+        <div class="col-lg-2">
+            <button type="submit" class="btn btn-block btn-success">Finish</button>
+        </div>
+    </div>
+
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.name = "Fin_Issuance";
+
+    $('#recpart_table tr.tablerow:last').find('.btn.edit-form-row')
+        .hide();
+
+    $('#reqpart_table').find('tr.tablerow.part').each(function (i, el) {
+            $(this).hide();
+        });
+    });
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+)');
+        var replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+
+    $('#recpart_table').on('click', '.edit-form-row', function(event) {
+        var parent_row = $(this).closest('tr');
+        console.log(parent_row.attr('class'));
+        if(parent_row.attr('class') === "tablerow recpart highlight"){
+            parent_row.removeClass('highlight');
+            $(this).html('<i class="fa fa-edit"></i>');
+            var counter = 0;
+
+            var item_num = '';
+            var purchasedquan = 0;
+            var item_quan = 0;
+
+
+
+            parent_row.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        $(this).attr("readonly", true);
+                        prodsched = $(this).val();
+                        counter++;
+                    } else if(counter === 1){
+                        $(this).attr("readonly", true);
+                        item_num = $(this).val();
+                        req_quan = $(this).data('req_quan');
+                        counter++;
+                    } else if(counter === 3){
+                        $(this).attr("readonly", true);
+                        rec_quan = $(this).val();
+                        counter++;
+                    }else {
+                        $(this).attr("readonly", true);
+                        counter++;
+                    }
+                }
+            });
+            
+            checkExistingSum(prodsched, item_num,  req_quan, rec_quan);
+
+        }else{
+            parent_row.addClass('highlight');
+            $(this).html('<i class="fa fa-check"></i>');
+            var counter = 0;
+            parent_row.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        counter++;
+                    } else if(counter === 3){
+                        $(this).attr("readonly", false);
+                        counter++;
+                    } else if(counter === 4){
+                        $(this).attr("readonly", false);
+                        counter++;
+                    } else {
+                        counter++;
+                    }
+                }
+            });
+        
+        }
+    });
+
+    function cloneMore(prefix, prodsched, itemnum, daterec, rec_quan, notes, req_quan, binloc, binlocid) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#recpart_table tr.tablerow.recpart:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1;
+        var counter = 0;
+
+        $('#recpart_table tr.tablerow.recpart:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(prodsched);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(itemnum);
+                    $(this).attr({"data-req_quan":req_quan});
+                    counter++;
+                }else if(counter === 2){
+                    $(this).val(daterec);
+                    counter++;
+                }else if(counter === 3){
+                    $(this).val(rec_quan);
+                    counter++;
+                }else if(counter === 4){
+                    $(this).val(notes);
+                    counter++;
+                }else if(counter === 5){
+                    $(this).val(binlocid);
+                    counter++;
+                }else {
+                    $(this).val(binloc);
+                    counter++;
+                }
+            }
+        });
+
+        $('#recpart_table tr.tablerow.recpart:last').find('.btn.edit-form-row')
+        .show();
+
+        var lastrowtbl_sliced = lastrowtbl.attr('id').slice(0,-1);
+        lastrowtbl.attr('id', lastrowtbl_sliced+total);
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#recpart_table tr.tablerow.recpart:last').after(lastrowtbl);
+
+        var conditionRow = $('#recpart_table tr.tablerow.recpart:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('<i class="fa fa-trash"></i>');
+
+        checkExistingSum(prodsched, itemnum, req_quan, rec_quan);
+
+        return false;
+    }
+
+    function getTot_rec(item_number){
+        var tot_rec = 0;
+        console.log("#recpart_table");
+        console.log($('#recpart_table'));
+        $('#recpart_table').find('tr.tablerow.recpart').each(function (i, el) {
+            var part_row_id = this.id;
+            var part_item = "#id_"+part_row_id+"-item_num"
+            var ex_item_number = $(part_item).val();
+            console.log("item_number");
+            console.log(item_number);
+            console.log("ex_item_number");
+            console.log(ex_item_number);  
+            console.log("selector");
+            console.log(part_item);    
+            if ((ex_item_number) === (item_number)){
+                tot_rec += parseInt($("#id_"+part_row_id+"-item_quantity").val());
+            }
+        });
+
+        return tot_rec;
+    }
+
+    function checkExistingSum(prodsched, itemnum,  req_quan, rec_quan){
+        var total = $('#id_formsetsummary-TOTAL_FORMS').val();
+        var lastrow = total - 1;
+        var counter = 0;
+
+        $('#sum_table').find('tr.tablerow.sum').each(function (i, el) {
+            if( counter < lastrow ){
+                var sumrow = this;
+                var id = sumrow.id;
+                var id_spliced = id.slice(0,-1);
+
+                var sum_itemnum = $('#'+id_spliced+counter+"-item_num").val();
+
+                if(itemnum === sum_itemnum){
+                    var totalrec_quan = parseInt($('#'+id_spliced+counter+"-totalrec_quan").val());
+                    var totalreq_quan = parseInt($('#'+id_spliced+counter+"-totalreq_quan").val());
+                    totalrec_quan = getTot_rec(itemnum);
+
+                    var status = '' 
+                    var disc = false;
+                    var discQuan = totalreq_quan - totalrec_quan;
+                    if(discQuan === 0){ //Non-issue
+                        disc = false;
+                        status = 'Non-Issue';
+                    }else if (discQuan > 0){//Short-Shipped
+                        disc = true;
+                        status = 'Short-Shipped';
+                    }else {//Over-Shipped
+                         disc = true;
+                        status = 'Over-Shipped';
+                    }
+                    $('#'+id_spliced+counter+"-totalrec_quan").val(totalrec_quan);
+                    $('#'+id_spliced+counter+"-discrepancy").val(disc);
+                    $('#'+id_spliced+counter+"-discrepancy_quantity").val(discQuan);
+                    $('#'+id_spliced+counter+"-status").val(status);
+                    return false;
+                }
+
+            }else{
+                dosummary('formsetsummary', prodsched, itemnum, req_quan, rec_quan);
+            }
+            counter++;
+        });
+    }
+
+    function get_totreq(itemnum){
+        var req_itemnum = "";
+        var req_itemreq_quan = 0;
+                
+        $('#reqpart_table').find('.tablerow.part').each(function (i, el) {
+            var req_itemrow = this;
+            req_itemnum = req_itemrow.dataset.itemnum;
+
+            if($(this).is(":visible")){
+                var req_itemrow = this;
+                req_itemnum = req_itemrow.dataset.itemnum;
+                if(itemnum === req_itemnum){
+                    req_itemreq_quan += parseInt(req_itemrow.dataset.req_quan);
+                }
+            }else{
+                console.log("FALSE");
+            }
+        });
+
+        return req_itemreq_quan;
+    }
+
+    function dosummary(prefix, prodsched, itemnum,  req_quan, rec_quan) {
+        $('#sum_table tr.tablerow.sum:last').show();
+        var lastrowtbl = $('#sum_table tr.tablerow.sum:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1;
+        var counter = 0;
+
+        var total_req = get_totreq(itemnum);
+
+        var status = '' 
+        var disc = false;
+        var discQuan = parseInt(total_req) - parseInt(rec_quan);
+            if(discQuan === 0){ //Non-issue
+                disc = false;
+                status = 'Non-Issue';
+            }else if (discQuan > 0){//Short-Shipped
+                disc = true;
+                status = 'Short-Shipped';
+            }else {//Over-Shipped
+                disc = true;
+                status = 'Over-Shipped';
+            }
+            
+        $('#sum_table tr.tablerow.sum:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(prodsched);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(itemnum);
+                    counter++;
+                } else if(counter === 2){
+                    $(this).val(total_req);
+                    counter++;
+                } else if(counter === 3){
+                    $(this).val(rec_quan);
+                    counter++;
+                }else if(counter === 4){
+                    $(this).val(disc);
+                    counter++;
+                }else if(counter === 5){
+                    $(this).val(discQuan);
+                    counter++;
+                }else {
+                    $(this).val(status);
+                    counter++;
+                }
+            }
+        });
+
+        var lastrowtbl_sliced = lastrowtbl.attr('id').slice(0,-1);
+        lastrowtbl.attr('id', lastrowtbl_sliced+total);
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#sum_table tr.tablerow.sum:last').after(lastrowtbl);
+        $('#sum_table tr.tablerow.sum:last').hide();
+
+        return false;
+    }
+
+    function deleteForm(prefix, btn) {
+        var item_total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (item_total > 1){
+
+            var values = UpdateSummary(btn.closest('.recpart'));
+            var tot_rec = values[0];
+            var sum_row = values[1];
+
+            if (parseInt(tot_rec) === 0){
+                var sum_total = parseInt($('#id_formsetsummary-TOTAL_FORMS').val());
+                $(sum_row).remove();
+                var forms = $('#sum_table tr.tablerow.sum');
+                $('#id_formsetsummary-TOTAL_FORMS').val(forms.length);
+                for (var i=0, formCount=forms.length; i<formCount; i++) {
+                    $(forms.get(i)).find(':input[type=text]').each(function() {
+                        updateElementIndex(this, "formsetsummary", i);
+                    });
+                }
+                sum_total--;
+                UpdateSum_ID(sum_total);
+                $('#id_formsetsummary-TOTAL_FORMS').val(sum_total);
+            }
+
+            btn.closest('#recpart_table tr.tablerow.recpart').remove();
+            var forms = $('#recpart_table tr.tablerow.recpart');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+            }
+            item_total--;
+            UpdateRecItem_ID(item_total);
+            $('#id_' + prefix + '-TOTAL_FORMS').val(item_total);
+        }
+        return false;
+    }
+
+    function getExistingSum_Row(item_number) {
+        counter_row = -1;
+        $('#sum_table').find('tr.tablerow').each(function (i, el) {
+            if ($(this).is(":visible")){
+                var ship_row_id = this.id;
+                var ship_item = "#id_"+ship_row_id+"-item_number";
+                var counter = ship_row_id.slice(-1);
+                var ship_item_number = $(ship_item).val();
+
+                if (ship_item_number === item_number){
+                    counter_row = parseInt(counter);
+                }
+            }
+        });
+        return counter_row;
+    }
+
+    function UpdateSummary(part_row){
+        var part_row_id = part_row.attr('id');
+
+        var partrow_recitem_selector = "#id_"+part_row_id+"-item_quantity";
+        var partrow_itemid_selector = "#id_"+part_row_id+"-item_number";
+
+        var partrow_item_id = $(partrow_itemid_selector).val();
+        var sumrow_rowid = getExistingSum_Row(partrow_item_id);
+
+        var ship_sum_rowid = "#id_formsetsummary-" + sumrow_rowid;
+        
+        var shipsum_totalreqquan_selector = ship_sum_rowid + "-totalreq_quan";
+        var shipsum_totrec_selector = ship_sum_rowid + "-totalrec_quan";
+        var shipsum_disc_selector =  ship_sum_rowid + "-discrepancy";
+        var shipsum_discquan_selector = ship_sum_rowid + "-discrepancy_quantity";
+        var shipsum_issue_selector = ship_sum_rowid + "-status";
+
+        var partrow_recitem_quan = $(partrow_recitem_selector).val();
+        
+        var tot_reqquan = $(shipsum_totalreqquan_selector).val();
+        var tot_recquan = $(shipsum_totrec_selector).val();
+
+        tot_recquan -= parseInt(partrow_recitem_quan);
+
+        var status = ''
+        var disc = false;
+        var discQuan = tot_reqquan - tot_recquan;
+            if(discQuan === 0){ //Non-issue
+                disc = false;
+                status = 'Non-Issue';
+            }else if (discQuan > 0){//Short-Shipped
+                disc = true;
+                status = 'Short-Shipped';
+            }else {//Over-Shipped
+                disc = true;
+                status = 'Over-Shipped';
+            }
+        $(shipsum_totrec_selector).val(tot_recquan);
+        $(shipsum_disc_selector).val(disc);
+        $(shipsum_discquan_selector).val(discQuan);
+        $(shipsum_issue_selector).val(status); 
+
+        sumrow_id = "#formsetsummary-" + sumrow_rowid;
+
+        return [tot_recquan, sumrow_id];
+    }
+
+    function UpdateSum_ID(sum_total){
+        counter_row = 0;
+        $('#sum_table').find('tr.tablerow.sum').each(function (i, el) {
+            var ship_row_id = this.id;
+            var ship_row_id_temp = ship_row_id.slice(0,-1);
+            var ship_row_newid = ship_row_id_temp+counter_row;
+            $(this).attr('id', ship_row_newid);
+            counter_row++;
+        });
+
+    }
+
+    function UpdateRecItem_ID(item_total){
+        counter_row = 0;
+        $('#recpart_table').find('tr.tablerow.recpart').each(function (i, el) {
+            var item_row_id = this.id;
+            var item_row_id_temp = item_row_id.slice(0,-1);
+            var item_row_newid = item_row_id_temp+counter_row;
+            $(this).attr('id', item_row_newid);
+            counter_row++;
+        });
+    }
+
+    $(document).on('click', '.add-compissuesched', function(e){
+        var newwin = window.open("{% url 'warehouse:FinishCompIssuance_SelectCompIssuanceSched' %}");
+        return false;
+    });
+
+    $(document).on('click', '.add-wonum', function(e){
+        var schedid = $("#compissuesched").val();
+        var wourl = "/SelectWO/";
+        var windowurl = schedid+wourl;
+        var wewewe = window.open(windowurl);
+        return false;
+    });
+
+    function showreqitem(prodsched){
+        $('#reqpart_table').find('tr.tablerow.part').each(function (i, el) {
+            var bomrow = this;
+            var bom_prodsched = bomrow.dataset.prodsched;
+                    
+            if (bom_prodsched === prodsched){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+        });
+    }
+
+    $(document).on('click', '.add-form-row', function(e){
+        var prodsched = $("#prodsched").val();
+        var itemurl = "/SelectItem/";
+        var windowurl = prodsched+itemurl;
+        var wewewe = window.open(windowurl);
+        return false;
+    });
+    
+    $(document).on('click', '.remove-form-row', function(e){
+        e.preventDefault();
+        deleteForm('formsetitem', $(this));
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

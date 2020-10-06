@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style type="text/css">
+    input { 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    
+    <h2> Create a Work Order </h2>
+    <form class="form-horizontal" method="POST" action="">
+        {% csrf_token %}    
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_work_order_number">Work Order Number:</label>
+                        <input type="text" name="work_order_number" class="form-control" maxlength="200" required="" id="id_work_order_number">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_customer">Customer:</label>
+                        <input type="text" name="customer" maxlength="200" class="form-control" required="" id="id_customer">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_order_type">Order Type:</label>
+                        <input type="text" name="order_type" maxlength="200" class="form-control" required="" id="id_order_type">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_work_order_class">Class:</label>
+                        <input type="text" name="work_order_class" maxlength="200" class="form-control" required="" id="id_work_order_class">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_fo_number">FO#:</label>
+                        <input type="text" name="fo_number" maxlength="200" class="form-control" required="" id="id_fo_number">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_barcode">Barcode:</label>
+                        <input type="text" name="barcode" maxlength="200" class="form-control" required="" id="id_barcode">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="id_tid_number">TID#:</label>
+                        <input type="text" name="tid_number" maxlength="200" class="form-control" required="" id="id_tid_number">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_prod_number">Product Number:</label>
+                        <input type="text" name="prod_number" maxlength="200" class="form-control" required="" id="id_prod_number" readonly>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <button class="btn btn-success add-product">+</button>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_prod_quantity">Product Class:</label>
+                        <input type="text" name="prod_class" class="form-control" id="id_prod_class" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_prod_quantity">Product Quantity:</label>
+                        <input type="number" name="prod_quantity" class="form-control" id="id_prod_quantity" readonly>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Dates:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_customer_order_date">Customer Order Date:</label>
+                        <input type="date" name="customer_order_date" required="" class="form-control" id="id_customer_order_date">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_otd_customer_req_date">OTD Customer Required Date:</label>
+                        <input type="date" name="otd_customer_req_date" required="" class="form-control" id="id_otd_customer_req_date">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_otp_commitment_date">OTP Customer Commitment Date:</label>
+                        <input type="date" name="otp_commitment_date" required="" class="form-control" id="id_otp_commitment_date">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_required_completion_date">Required Completion Date:</label>
+                        <input type="date" name="required_completion_date" required="" class="form-control" id="id_required_completion_date">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_finished_completion_date">Finished Completion Date:</label>
+                        <input type="date" name="finished_completion_date" required="" class="form-control" id="id_finished_completion_date">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_creation_date">Creation Date:</label>
+                        <input type="date" name="creation_date" required="" class="form-control" id="id_creation_date">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_notes">Notes:</label>
+                        <input type="text" name="notes" maxlength="200" required="" class="form-control" id="id_notes">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    input[readonly="readonly"] {
+      border:0px;
+    }
+    </style>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Selected Items:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto" id="part_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <div class="row form-row">
+                            <tr class="tablerow">
+                                <td><input type="text" name="form-0-item_number" class="form-control" id="id_form-0-item_number" value="" readonly="readonly"></td>
+                                <td><input type="text" name="form-0-item_quantity" class="form-control" id="id_form-0-item_quantity" value="" readonly="readonly"></td>
+                                <td><button class="btn btn-success add-form-row">+</button></td>
+                            </tr>
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-1">
+        <button type="submit" class="btn btn-block btn-success">Create</button>
+    </div>
+
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.name = "Create_WO";
+
+        });
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+)');
+        var replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+
+    function cloneMore(prefix, itemnum, item_quan) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1
+        var counter = 0
+
+        $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(itemnum);
+                    counter++;
+                } else {
+                    $(this).val(parseInt(item_quan));
+                    console.log($(this));
+                    counter++;
+                }
+            }
+        });           
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#part_table tr.tablerow:last').after(lastrowtbl);
+
+        var conditionRow = $('#part_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-');
+        return false;
+    }
+
+    function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            btn.closest('#part_table tr.tablerow').remove();
+            var forms = $('#part_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+    
+    $(document).on('click', '.add-product', function(e){
+        var newwin = window.open("{% url 'planner:CreateWO_SelectProduct' %}");
+        newwin.focus();
+        return false;
+    });
+
+    $(document).on('click', '.add-form-row', function(e){
+        var newwin = window.open("{% url 'warehouse:whse_add_prod_selectitem' %}");
+        return false;
+    });
+    
+    $(document).on('click', '.remove-form-row', function(e){
+        e.preventDefault();
+        deleteForm('form', $(this));
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}

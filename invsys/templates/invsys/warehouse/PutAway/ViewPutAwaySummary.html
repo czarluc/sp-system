@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> View Put Away Schedules </h2>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Put Away Schedules:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="sched_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Schedule Number</th>
+                            <th scope="col">Date Scheduled</th>
+                            <th scope="col">Notes</th>
+                            <th scope="col">Cleared</th>
+                            <th scope="col">Issues</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in pasched_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
+                            <td>{{ instance.date_scheduled }}</td>
+                            <td>{{ instance.notes }}</td>
+                            <td>{{ instance.cleared }}</td>
+                            <td>{{ instance.issues }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Put Away Items:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="req_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Schedule Number</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Required Quantity</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Reference Number</th>
+                            <th scope="col">Stored</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in paitem_set %}
+                        <tr class="tablerow" id="req-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="req-{{forloop.counter}}-sched">{{ instance.schedule_num__schedule_num }}</button></td>
+                            <td>{{ instance.item_num__item_number }}</td>
+                            <td>{{ instance.required_quantity }}</td>
+                            <td>{{ instance.bin_location__bin_location }}</td>
+                            <td>{{ instance.reference_number }}</td>
+                            <td>{{ instance.stored }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Put Away Summary:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="sum_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Schedule Number</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Required Quantity</th>
+                            <th scope="col">Stored Quantity</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Discrepancy</th>
+                            <th scope="col">Discrepancy Quantity</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date Scheduled</th>
+                            <th scope="col">Date Stored</th>
+                            <th scope="col">Reference Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in pasum_set %}
+                        <tr class="tablerow" id="sum-{{forloop.counter}}">
+                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="sum-{{forloop.counter}}-sched">{{ instance.schedule_num__schedule_num }}</button></td>
+                            <td>{{ instance.item_num__item_number }}</td>
+                            <td>{{ instance.required_quantity }}</td>
+                            <td>{{ instance.stored_quantity }}</td>
+                            <td>{{ instance.bin_location__bin_location }}</td>
+                            <td>{{ instance.discrepancy }}</td>
+                            <td>{{ instance.discrepancy_quantity }}</td>
+                            <td>{{ instance.status }}</td>
+                            <td>{{ instance.date_scheduled }}</td>
+                            <td>{{ instance.date_stored }}</td>
+                            <td>{{ instance.reference_number }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script>
+$(document).ready(function() {
+    var table = $('#sched_table').DataTable( {
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
+        dom: 'Blfrtip',
+        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+    } );
+ 
+    table.buttons().container()
+        .appendTo( '#sched_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#req_table').DataTable( {
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
+        dom: 'Blfrtip',
+        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+    } );
+ 
+    table2.buttons().container()
+        .appendTo( '#req_table_wrapper .col-md-6:eq(0)' );
+
+    var table3 = $('#sum_table').DataTable( {
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
+        dom: 'Blfrtip',
+        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+    } );
+ 
+    table3.buttons().container()
+        .appendTo( '#sum_table_wrapper .col-md-6:eq(0)' );
+} );
+ </script>
+{% endblock javascripts %}

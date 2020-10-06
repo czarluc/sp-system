@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% load crispy_forms_tags %}{% endblock stylesheets %}
+
+{% block content %}
+  <h2>Sign up for a free account</h2>
+  <p class="lead">Select below the type of account you want to create</p>
+  <a href="{% url 'warehouse_signup' %}" class="btn btn-warehouse btn-lg" role="button">I'm a warehouse personnel</a>
+  <a href="{% url 'planner_signup' %}" class="btn btn-planner btn-lg" role="button">I'm a production planner</a>
+  <a href="{% url 'assembly_signup' %}" class="btn btn-assembly btn-lg" role="button">I'm an assembler</a>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

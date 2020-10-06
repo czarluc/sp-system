@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style type="text/css">
+    #wosched_table tr td:nth-child(1), #wosched_table th:nth-child(1){
+    display: none;
+    }
+    input { 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+    
+{% block content %}        
+    <h2> Work Order Production Scheduler </h2>
+    {% for instance in woquery %}
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-primary">
+            <h4 class="card-title">Work Order {{ instance.work_order_number }} Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-lg-6">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-primary">
+                            <h4 class="card-title">Product Details:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-lg-3">
+                                    <label for="prod_number">Product Number:</label>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="input-group">
+                                    <input type="hidden" class="form-control" required="" id="wo_num" value="{{ instance.work_order_number }}" readonly>
+                                    <input type="text" name="prod_number" class="form-control" required="" id="prod_number" value="{{ instance.prod_number__prod_number }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="prod_quan">Product Quantity:</label>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="input-group">
+                                    <input type="text" name="prod_quan" class="form-control" id="prod_quan" value="{{ instance.prod_quantity }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-6">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-primary">
+                            <h4 class="card-title">Quantity for Scheduling:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-lg-3">
+                                    <label for="wo_required_quan">Quantity to be Scheduled:</label>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="input-group">
+                                    <input type="text" name="wo_required_quan" class="form-control" maxlength="200" id="wo_required_quan" value ="{{ instance.prod_quantity }}"readonly>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="wo_schedule_quan">Quantity Scheduled:</label>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="input-group">
+                                    <input type="text" name="wo_schedule_quan" class="form-control" required="" id="wo_schedule_quan" value="0" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-primary">
+            <h4 class="card-title">Work Order Scheduling:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-top">
+                <div class="col-lg-6">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-primary">
+                            <h4 class="card-title">Create a Work Order Schedule:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row align-items-center">
+                                <div class="col-lg-1.5">
+                        <label for="prop_quan">Quantity:</label>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="input-group">
+                        <input type="text" name="prop_quan" class="form-control" required="" id="prop_quan">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                        <label for="datepicker">Date Scheduled:</label>
+                                </div>
+                                <div class="col-lg-3.5">
+                                    <div class="input-group">
+                        <input type="date" class="form-control" id="datepicker">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row align-items-center">
+                                <div class="col-lg-3"></div>
+                                <div class="col-lg-3">
+                            <button class="btn btn-block btn-primary Schedule">Schedule</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-6">
+
+                    <form class="form-horizontal" method="POST" action="">
+                    {% csrf_token %}
+
+                <div class="card">
+                    <div class="card-header card-header-tabs card-header-primary">
+                        <h4 class="card-title">Production Schedule:</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped w-auto" id="wosched_table">
+                                <thead class="thead-dark">
+                                    <tr class="tablehead">
+                                        <th scope="col">Work Order Number</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Date Required</th>
+                                        <th scope="col">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{ formset.management_form }}
+                                    {% for form in formset %}
+                                    <div class="row form-row">
+                                        <tr class="tablerow">
+                                            <td><input type="text" name="form-0-work_order_number" class="form-control" id="id_form-0-work_order_number" value="" readonly=></td>
+                                            <td><input type="text" name="form-0-quantity" class="form-control" id="id_form-0-quantity" readonly></td>
+                                            <td><input type="text" name="form-0-date_required" class="form-control" id="id_form-0-date_required" readonly></td>
+                                            <td><button class="btn btn-success add-form-row">+</button></td>
+                                        </tr>
+                                    </div>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+                    <button type="submit" class="btn btn-block btn-primary Save">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>  
+            
+
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        $('#wosched_table tr.tablerow:last').hide();
+
+        //$( "#datepicker" ).datepicker();
+
+        $(document).on('click', '.btn-primary.Schedule', function(e){
+            var wonum = $('#wo_num').val();
+            var quantity = $('#prop_quan').val();
+            var datesched = $('#datepicker').val();
+
+            var req_quan = $('#wo_required_quan').val();
+            var remain_quan = parseInt(req_quan) - parseInt(quantity);
+            var quan_sched = parseInt($('#wo_schedule_quan').val());
+            quan_sched += parseInt(quantity);
+
+            if(!(remain_quan < 0)){
+                cloneMore('form', wonum,quantity,datesched);
+                $('#wo_required_quan').val(remain_quan);
+                $('#wo_schedule_quan').val(quan_sched);
+            }else{
+                alert("Please enter a quantity equal or less than the required.");
+            }
+            
+
+        });
+
+    });
+
+
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+)');
+        var replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+
+    function cloneMore(prefix, wonum,quantity,datesched) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#wosched_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1
+        var counter = 0
+
+        $('#wosched_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(wonum);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(quantity);
+                    console.log($(this));
+                    counter++;
+                }else {
+                    $(this).val(datesched);
+                    console.log($(this));
+                    counter++;
+                }
+            }
+        });           
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#wosched_table tr.tablerow:last').after(lastrowtbl);
+
+        var conditionRow = $('#wosched_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-')
+        .show();
+        conditionRow.show();
+        return false;
+    }
+
+    function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            btn.closest('#wosched_table tr.tablerow').remove();
+            var forms = $('#wosched_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+       
+    
+
+
+    $(document).on('click', '.add-product', function(e){
+        var newwin = window.open("{% url 'planner:CreateWO_SelectProduct' %}");
+        return false;
+    });
+
+    $(document).on('click', '.add-form-row', function(e){
+        var newwin = window.open("{% url 'warehouse:whse_add_prod_selectitem' %}");
+        return false;
+    });
+    
+    $(document).on('click', '.remove-form-row', function(e){
+        e.preventDefault();
+        deleteForm('form', $(this));
+        return false;
+    });
+
+</script>
+{% endblock javascripts %}
+

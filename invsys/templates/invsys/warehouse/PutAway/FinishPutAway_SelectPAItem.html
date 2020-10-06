@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Select an Item to Put Away:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Item Number</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Reference Number</label>
+                        <input type ="text" class="form-control" id="name2" data-refid="" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Bin Location</label>
+                        <input type ="text" class="form-control" id="name3" data-binid="" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Put Away Quantity</label>
+                        <input type ="text" class="form-control" id="name4"/>
+                    </div>
+                </div>
+                <input type ="hidden" class="form-control" id="name5"/>
+                <input type ="hidden" class="form-control" id="name6"/>
+                <input type ="hidden" class="form-control" id="name7"/>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+            <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Warehouse Bin Locations:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Warehouse Bin Locations-->
+            <table class="table table-hover table-striped w-auto" id="paitem_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Required Quantity</th>
+                        <th scope="col">Bin Location ID</th>
+                        <th scope="col">Bin Location</th>
+                        <th scope="col">Reference Number</th>
+                        <th scope="col">Stored</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in paitemset %}
+                    <tr class="tablerow paitem">
+                        <td><button type="button" class="btn btn-primary paitem" id="paitem-{{forloop.counter}}-item_num__item_number" data-item="{{instance.item_num__item_number}}" data-binid="{{ instance.bin_location__id }}" data-binloc="{{instance.bin_location__bin_location}}" data-refnum="{{instance.reference_number}}" data-requan="{{instance.required_quantity}}">{{ instance.item_num__item_number }}</button></td>
+
+                        <td>{{ instance.required_quantity }}</td>
+                        <td>{{ instance.bin_location__id }}</td>
+                        <td>{{ instance.bin_location__bin_location }}</td>
+                        <td>{{ instance.reference_number }}</td>
+                        <td>{{ instance.stored }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+            </div>
+        </div>
+    </div>         
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>          
+    $(document).ready(function(){
+
+        $( ".btn.btn-primary.paitem" ).on("click", function () { //PA ITEM BUTTON
+            var btn = this;
+            var item_num = btn.dataset.item;
+            var bin_id = btn.dataset.binid;
+            var bin_loc = btn.dataset.binloc;
+            var refnum = btn.dataset.refnum;
+            var requan = btn.dataset.requan;
+            $('#name1').val(item_num);
+            $('#name2').val(bin_loc);
+            $('#name3').val(refnum);
+
+            $('#name6').val(bin_id);
+            $('#name7').val(requan);
+        });
+
+        $(".btn.btn-warehouse.btn-lg").on("click", function () { //SELECT BUTTON
+            
+            var item_num = $('#name1').val();
+            var bin_loc = $('#name2').val();
+            var refnum = $('#name3').val();
+
+            var paquan = $('#name4').val();
+
+            var bin_id = $('#name6').val();
+            var requan = $('#name7').val();
+
+            var issue = '' 
+            var disc = 'false';
+            var discQuan = requan - paquan;
+                if(discQuan === 0){ //Non-issue
+                    disc = 'false';
+                    issue = 'Non-Issue';
+                }else if (discQuan > 0){//Short-Shipped
+                    disc = 'true';
+                    issue = 'Short-Shipped';
+                }else {//Over-Shipped
+                    disc = 'true';
+                    issue = 'Over-Shipped';
+                }
+
+            var d = new Date($.now());
+            var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+
+            if ( !(requan < paquan) ){
+                //PUT AWAY ITEM SECTION
+                $(window.opener.document).find('#id_item_num').val(item_num);
+                
+                //PUT AWAY SUMMARY SECTION
+                $(window.opener.document).find('#id_required_quantity').val(requan);
+                $(window.opener.document).find('#id_stored_quantity').val(paquan);
+                $(window.opener.document).find('#id_bin_locationTEXT').val(bin_loc);
+                $(window.opener.document).find('#id_bin_location').val(bin_id);
+                $(window.opener.document).find('#id_discrepancy').val(disc);
+                $(window.opener.document).find('#id_discrepancy_quantity').val(discQuan);
+                $(window.opener.document).find('#id_status').val(issue);
+                $(window.opener.document).find('#id_date_stored').val(currentdate);
+                $(window.opener.document).find('#id_reference_number').val(refnum);
+                
+            }else{
+                alert("Please enter a put away quantity less than the scheduled quantity");
+            }
+        });
+
+        $("#paitem_table").DataTable(
+            {"columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

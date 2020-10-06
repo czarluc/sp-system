@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    input{ 
+    text-align: center; 
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>Select an Item for Request Issuance</h2>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Production Schedule ID</label>
+                        <input type ="text" class="form-control" id="name1" data-itemid="" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Item Number</label>
+                        <input type ="text" class="form-control" id="name3" data-refid="" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Required Quantity</label>
+                        <input type ="text" class="form-control" id="name4" data-binid="" readonly/>
+                        <input type ="hidden" class="form-control" id="name5" readonly/> <!--Assembly Line ID-->
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Assembly Line</label>
+                        <input type ="text" class="form-control" id="name6" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Allocated Warehouse Bin</label>
+                        <input type ="hidden" class="form-control" id="name7" readonly/>
+                        <input type ="text" class="form-control" id="name8" readonly/>
+                        <input type ="hidden" class="form-control" id="name9" readonly/> <!--Report ID-->
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-1">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row align-top">
+        <div class="col-lg-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Part Details:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped w-auto" id="wo_table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Production Schedule</th>
+                                    <th scope="col">Item Number</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Assembly Line</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for instance in shrnk_items %}
+                                <tr class="tablerow" id="wo-{{forloop.counter}}">
+                                    <td>{{ instance.report_num__prod_sched__id }}</td>
+                                    <td><button type="button" class="btn btn-primary wo" data-prod_sched="{{instance.report_num__prod_sched__id}}" data-item_num="{{instance.item_number__item_number}}" data-item_quan="{{instance.quantity}}" data-assline_id="{{ instance.ass_location__id }}" data-assline="{{ instance.ass_location__name }}" data-report_id="{{ instance.report_num__report_num }}">{{ instance.item_number__item_number }}</button></td>
+                                    <td>{{ instance.quantity }}</td>
+                                    <td>{{ instance.ass_location__name }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Allocated Warehouse Bin:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive"> <!--Bill of Materials for Work Order-->
+                        <table class="table table-hover table-striped w-auto" id="item_table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Bin Location</th>
+                                    <th scope="col">Item Number</th>
+                                    <th scope="col">Item Quantity</th>
+                                    <th scope="col">Production Schedule</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for instance in whsebinshrnk_items %}
+                                <tr class="tablerow wo_item" id="bom-{{forloop.counter}}" data-bin_id="{{ instance.bin_location__id }}" data-bin_loc="{{ instance.bin_location__bin_location }}" data-item_num="{{instance.item_number__item_number}}" data-item_quan="{{instance.quantity}}" data-prod_sched="{{instance.reference_number}}">
+                                    <td>{{ instance.bin_location__bin_location }}</td>
+                                    <td>{{ instance.item_number__item_number }}</td>
+                                    <td>{{ instance.quantity }}</td>
+                                    <td>{{ instance.reference_number }}</td>
+
+
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> 
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    
+
+              
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+<script>          
+    $(document).ready(function(){
+        /*
+        $( "#datepicker" ).datepicker({
+            onSelect: function(dateText, inst) { 
+                document.getElementById('label_reqdate').innerHTML = dateText;
+                getWO()
+            }
+        });
+
+        function getWO(){
+            $('#wo_table').find('tr.tablerow').each(function (i, el) {
+                var rowelm = this;
+                var date_req = rowelm.dataset.date_req;
+                var date_sel = document.getElementById('label_reqdate').innerHTML
+
+                if(date_sel === date_req){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+
+                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+                    $(this).hide();
+                });
+
+            });
+        }
+        
+        $('#wo_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+        */
+
+        $('#whsebin_items').hide();
+
+        $( "#wo_table" ).on("click", ".btn.btn-primary.wo", function () {
+            var btn = this;
+
+            var prod_sched = btn.dataset.prod_sched;
+            var item_num = btn.dataset.item_num;
+            var item_quan = btn.dataset.item_quan;
+            var assline_id = btn.dataset.assline_id;
+            var assline = btn.dataset.assline;
+            var report_id = btn.dataset.report_id;
+
+            $('#name1').val(prod_sched);
+            $('#name3').val(item_num);
+            $('#name4').val(item_quan);
+            $('#name5').val(assline_id);
+            $('#name6').val(assline);
+            $('#name9').val(report_id);
+
+            $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
+                var itemrow = this;
+                var item_prod_sched = itemrow.dataset.prod_sched;
+                var bin_id = itemrow.dataset.bin_id;
+                var bin_loc =  itemrow.dataset.bin_loc;
+                var whsebin_item_num = itemrow.dataset.item_num;
+
+                if (prod_sched === item_prod_sched){
+                    if (item_num === whsebin_item_num){
+                        $('#name7').val(bin_id);
+                        $('#name8').val(bin_loc);
+
+                    }                            
+                }
+            });
+        });
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var btn = this;
+            var prod_sched = $('#name1').val();
+            var item_num = $('#name3').val();
+            var item_quan = $('#name4').val();
+            var assline_id = $('#name5').val();
+            var assline = $('#name6').val();
+            var bin_id = $('#name7').val();
+            var bin_loc = $('#name8').val();
+            var report_id = $('#name9').val();
+
+            alert(item_num+" has been selected for issuance with a quantity of "+item_quan);   
+
+            window.opener.cloneMore('form', prod_sched, item_num, item_quan, bin_id, bin_loc, assline_id, assline, report_id)
+        });
+
+
+        $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#item_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    });
+</script>
+{% endblock javascripts %}

@@ -1,0 +1,921 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% load static %}
+<style>
+     .form-control-xs {
+        height: calc(1em + .375rem + 2px) !important;
+        padding: .125rem .25rem !important;
+        font-size: .75rem !important;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+    #part_table tr td:nth-child(2), #part_table th:nth-child(2) {
+        display: none;
+    }
+    #part_table tr td:nth-child(3), #part_table th:nth-child(3) {
+        display: none;
+    }
+    #part_table tr td:nth-child(4), #part_table th:nth-child(4) {
+        display: none;
+    }
+    .table-striped tbody tr.highlight td { 
+    background-color: #f3fafe;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2> Validate a VDR Shipment </h2>
+
+    <form class="form-horizontal" method="POST" action="" id="ship_form">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Shipment Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <input type="hidden" name="shipment_po" class="form-control" id="shipment_po" readonly>
+                        <label>Purchase Order Number: </label>
+                        <input type="text" name="po_num" class="form-control" id="id_po_num" readonly>
+                    </div>                    
+                </div>
+                <div class="col-1">
+                    <button class="btn btn-success add-form-row ponum"><i class="fas fa-file-medical"></i></button>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Shipment: </label>
+                        <input type="text" name="supplier" class="form-control" id="id_shipment" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Supplier: </label>
+                        <input type="text" name="supplier" class="form-control" id="id_supplier" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Notes: </label>
+                        <input type="text" name="notes" class="form-control" id="id_notes" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type ="hidden" class="form-control" id="val_start" readonly>
+    
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Required Items:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table items table-hover table-striped w-auto mx-auto" id="req_part_table">
+                            <thead class="thead-dark">
+                                <tr class="tablehead">
+                                    <th scope="col">Item Number</th>
+                                    <th scope="col">Item Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody ID="tblBody">
+                                <div class="row form-row">
+                                    <tr class="tablerow" id="reqitem-{{forloop.counter0}}">
+                                        <td><input type="text" name="reqitem-0-item_number" class="form-control" id="id_reqitem-0-item_number" readonly form_tag = False></td>
+                                        <td><input type="text" name="reqitem-0-item_quantity" class="form-control" id="id_reqitem-0-item_quantity"  readonly form_tag = False></td>
+                                    </tr>
+                                </div>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Received Items: </h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table items table-hover table-striped w-auto" id="part_table">
+                            <thead class="thead-dark">
+                                <tr class="tablehead">
+                                    <th scope="col">Ship PO Number</th>
+                                    <th scope="col">Date Validated</th>
+                                    <th scope="col">Validation Start Time</th>
+                                    <th scope="col">Validation End Time</th>
+                                    <th scope="col">Validation Time</th>
+                                    <th scope="col">Received Item Number</th>
+                                    <th scope="col">Received Item Quantity</th>
+                                    <th scope="col">Notes</th>
+                                    <th scope="col">Edit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ shipmentitemformset.management_form }}
+                                {% for formsetitem in shipmentitemformset %}
+                                <div class="row form-row">
+                                    <tr class="tablerow" id="formsetitem-{{forloop.counter0}}">
+                                        <td><input type="text" name="formsetitem-0-shipment_po" class="form-control" id="id_formsetitem-0-shipment_po" readonly form_tag = False></td>
+                                        <td><input type="text" name="formsetitem-0-date_validated" class="form-control" id="id_formsetitem-0-date_validated" readonly form_tag = False></td>
+                                        <td><input type="text" name="formsetitem-0-start_time_validation" class="form-control" id="id_formsetitem-0-start_time_validation" readonly form_tag = False></td>
+                                        <td><input type="text" name="formsetitem-0-end_time_validation" class="form-control" id="id_formsetitem-0-end_time_validation" readonly form_tag = False></td>
+                                    	<td><input type="text" name="formsetitem-0-validation_time" class="form-control" id="id_formsetitem-0-validation_time" readonly form_tag = False></td>
+                                        <td><input type="text" name="formsetitem-0-item_number" class="form-control" id="id_formsetitem-0-item_number" readonly form_tag = False></td>
+                                        <td><input type="text" name="formsetitem-0-item_quantity" class="form-control" id="id_formsetitem-0-item_quantity"  readonly form_tag = False></td>
+                                        <td><input type="text" name="formsetitem-0-notes" class="form-control" id="id_formsetitem-0-notes"  readonly form_tag = False></td>
+                                        <td><button class="btn btn-success btn-sm add-form-row item" title="Add"><i class="fa fa-table"></i></button><button class="btn btn-primary edit-form-row btn-sm" type="button" data-toggle="modal" title="Edit"><i class="fa fa-edit"></i></button></td>
+                                    </tr>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Received Shipment Summary:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table summary table-hover table-striped w-auto" id="summary_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Ship PO Number</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Purchased Quantity</th>
+                            <th scope="col">Total Received Quantity</th>
+                            <th scope="col">Discrepancy</th>
+                            <th scope="col">Discrepancy Quantity</th>
+                            <th scope="col">Issue</th>
+                            <th scope="col">Received</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ shipmentsummaryformset.management_form }}
+                        {% for formsetsum in shipmentsummaryformset %}
+                        <div class="row form-row">
+                            <tr class="tablerow" id="formsetsum-{{forloop.counter0}}">
+                                <td><input type="text" name="formsetsum-0-shipment_po" class="form-control" id="id_formsetsum-0-shipment_po" value="" readonly="readonly" form_tag = False></td>
+                                <td><input type="text" name="formsetsum-0-item_number" class="form-control" id="id_formsetsum-0-item_number" value="" readonly="readonly" form_tag = False></td>
+                                <td><input type="text" name="formsetsum-0-purchased_quantity" class="form-control" id="id_formsetsum-0-purchased_quantity" value="" readonly="readonly" form_tag = False></td>
+                                <td><input type="text" name="formsetsum-0-total_received_quantity" class="form-control" id="id_formsetsum-0-total_received_quantity" value="" readonly="readonly" form_tag = False></td>
+                                <td><input type="text" name="formsetsum-0-discrepancy" class="form-control" id="id_formsetsum-0-discrepancy" value="" readonly="readonly" form_tag = False></td>
+                                <td><input type="text" name="formsetsum-0-discrepancy_quantity" class="form-control" id="id_formsetsum-0-discrepancy_quantity" value="" readonly="readonly" form_tag = False></td>
+                                <td><input type="text" name="formsetsum-0-issue" class="form-control" id="id_formsetsum-0-issue" value="" readonly="readonly" form_tag = False></td>
+                                <td><input type="text" name="formsetsum-{{forloop.counter0}}-received" class="form-control" id="id_formsetsum-{{forloop.counter0}}-received" value="" readonly="readonly" form_tag = False></td>
+                            </tr>
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row spacer">
+        <div class="col-2">
+            <button type="submit" class="btn btn-block btn-success">Create</button>
+        </div>
+    </div>
+    </form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.name = "Validate_VDR";
+
+        $('#part_table tr.tablerow:last').find('.btn.edit-form-row')
+        .hide();
+
+        $(document).on('click', '.add-form-row.ponum', function(e){
+            var wewewe = window.open("{% url 'warehouse:ContinueReceiveShipment_SelectPO' %}");
+            return false;
+        });
+
+        $(document).on('click', '.add-form-row.item', function(e){
+            var poid = $("#id_po_num").val();
+            var itemurl = "/SelectItem/";
+            var windowurl = poid + itemurl;
+            var wewewe = window.open(windowurl);
+            return false;
+        });
+
+        $('#summary_table tr.tablerow:last').hide(); //Hides the last row of the summary
+
+    });
+
+    $('#ship_form').submit(function() {
+        event.preventDefault();
+
+        var start_time = $('#val_start').val();
+        var endtime = Math.ceil((Date.now()-Math.floor(Date.now()/1000/60/60/24)*24*60*60*1000)/1000);
+        var validationtime = timeToSeconds(secondsToTime(endtime)) - timeToSeconds(start_time);
+
+        $('#part_table').find('tr.tablerow').each(function (i, el) { //iterate through row
+            
+            var counter = 0;
+            $(this).find('input[type=text]').each(function (i, el) { //iterate through row controls
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        counter++;
+                    } else if(counter === 2){ //val start
+                        counter++;
+                    } else if(counter === 3){ //val end
+                        var currend_time = $(this).val();
+                        if (currend_time === ''){
+                            $(this).val(secondsToTime(endtime));
+                        }                        
+                        counter++;
+                    } else if(counter === 4){ //val time
+                        $(this).val(validationtime);
+                        counter++;
+                    } else {
+                        counter++;
+                    }
+                }
+            });
+
+        });
+
+        $(this).unbind('submit').submit();
+    });
+
+    function timeToSeconds(hms) {
+        var a = hms.split(':'); // split it at the colons
+
+        // minutes are worth 60 seconds. Hours are worth 60 minutes.
+        var seconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]); 
+
+        return seconds;
+    }
+
+    function secondsToTime(secs) {
+        var hours = Math.floor(secs / (60 * 60));
+        var divisor_for_minutes = secs % (60 * 60);
+        var minutes = Math.floor(divisor_for_minutes / 60);
+        var divisor_for_seconds = divisor_for_minutes % 60;
+        var seconds = Math.ceil(divisor_for_seconds);
+        return hours+":"+minutes+":"+seconds;
+    }
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+)');
+        var replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+
+    $('#part_table').on('click', '.edit-form-row', function(event) {
+        var parent_row = $(this).closest('tr');
+        console.log(parent_row.attr('class'));
+        if(parent_row.attr('class') === "tablerow highlight"){
+            parent_row.removeClass('highlight');
+            $(this).html('<i class="fa fa-edit"></i>');
+            var counter = 0;
+
+            var item_num = '';
+            var purchasedquan = 0;
+            var item_quan = 0;
+            var ship_po = '';
+
+            parent_row.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        $(this).attr("readonly", true);
+                        ship_po = $(this).val();
+                        counter++;
+                    } else if(counter === 5){
+                        $(this).attr("readonly", true);
+                        item_num = $(this).val();
+                        purchasedquan = $(this).data('purchasedquan');
+                        counter++;
+                    } else if(counter === 6){
+                        $(this).attr("readonly", true);
+                        item_quan = $(this).val();
+                        counter++;
+                    }else {
+                        $(this).attr("readonly", true);
+                        counter++;
+                    }
+                }
+            });
+
+            dosummary('formsetsum', ship_po, item_num, purchasedquan, item_quan);
+
+        }else{
+            parent_row.addClass('highlight');
+            $(this).html('<i class="fa fa-check"></i>');
+            var counter = 0;
+            parent_row.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        $(this).attr("readonly", false);
+                        counter++;
+                    } else if(counter === 5){
+                        $(this).attr("readonly", false);
+                        counter++;
+                    } else if(counter === 6){
+                        $(this).attr("readonly", false);
+                        counter++;
+                    } else {
+                        $(this).attr("readonly", false);
+                        counter++;
+                    }
+                }
+            });
+        
+        }
+    });
+
+    function showreqitem(item_num, item_quan) { //selector - .form-row:last | prefix - form
+        $('#req_part_table').prepend('<tr><td>'+item_num+'</td><td>'+item_quan+'</td></tr>');
+        
+        return false;
+    }
+
+    function deletereqitem() { //selector - .form-row:last | prefix - form
+        $("#tblBody").empty();
+
+        return false;
+    }
+
+    function insert_shipitem_new(prefix, ship_po, currentdate, start_time, item_num, purchasedquan) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1
+        var counter = 0
+
+        $('#part_table tr.tablerow:last').attr('id', "formsetitem-"+currentnum);
+
+        $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(ship_po);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(currentdate);
+                    counter++;
+                } else if(counter === 2){
+                    $(this).val(start_time);
+                    counter++;
+                } else if(counter === 5){
+                    $(this).val(item_num);
+                    $(this).attr({"data-purchasedquan":purchasedquan}),
+                    console.log("item_num");
+                    console.log(item_num);
+                    console.log("purchasedquan");
+                    console.log(purchasedquan);
+                    counter++;
+                } else {
+                    counter++;
+                }
+            }
+        });
+
+        $('#part_table tr.tablerow:last').find('.btn.edit-form-row')
+        .show();
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#part_table tr.tablerow:last').after(lastrowtbl);
+        lastrow = total-1;
+        $('#part_table tr.tablerow:last').attr('id', "formsetitem-"+lastrow);
+
+        var conditionRow = $('#part_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('<i class="fa fa-trash"></i>');        
+
+        dosummary('formsetsum', ship_po, item_num, purchasedquan, 0);
+
+        return false;
+    }
+
+    function insert_shipitem(prefix, ship_po, currentdate, start_time, end_time, val_time, item_num, item_quan, notes) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1;
+        var counter = 0;
+
+        $('#part_table tr.tablerow:last').attr('id', "formsetitem-"+currentnum);
+
+        $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(ship_po);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(currentdate);
+                    counter++;
+                } else if(counter === 2){
+                    $(this).val(start_time);
+                    counter++;
+                } else if(counter === 3){
+                    $(this).val(end_time);
+                    counter++;
+                } else if(counter === 4){
+                    $(this).val(val_time);
+                    counter++;
+                } else if(counter === 5){
+                    $(this).val(item_num);
+                    counter++;
+                } else if(counter === 6){
+                    $(this).val(item_quan);
+                    counter++;
+                } else {
+                    $(this).val(notes);
+                    counter++;
+                }
+            }
+        });
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        $('#part_table tr.tablerow:last').find('.btn.add-form-row')
+        .hide();
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#part_table tr.tablerow:last').after(lastrowtbl);
+        lastrow = total-1;
+        $('#part_table tr.tablerow:last').attr('id', "formsetitem-"+lastrow);
+
+
+        var conditionRow = $('#part_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('<i class="fa fa-trash"></i>');
+
+        return false;
+    }
+
+    function insert_shipsum(prefix, ship_po, item_number, pur_quantity, tot_recquan, disc, disc_quan, issue, received) {
+        $('#summary_table tr.tablerow:last').show();
+        var lastrowtbl = $('#summary_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1;
+        var counter = 0;
+
+        $('#summary_table tr.tablerow:last').attr('id', "formsetsum-"+currentnum);
+
+        $('#summary_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(ship_po);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(item_number);
+                    counter++;
+                } else if(counter === 2){
+                    $(this).val(pur_quantity);
+                    counter++;
+                } else if(counter === 3){
+                    $(this).val(tot_recquan);
+                    counter++;
+                } else if(counter === 4){
+                    $(this).val(disc);
+                    counter++;
+                }else if(counter === 5){
+                    $(this).val(disc_quan);
+                    counter++;
+                }else if(counter === 6){
+                    $(this).val(issue);
+                    counter++;
+                }else {
+                    $(this).val(received);
+                    counter++;
+                }
+            }
+        });
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#summary_table tr.tablerow:last').after(lastrowtbl);
+        $('#summary_table tr.tablerow:last').hide();
+
+        lastrow = total-1;
+        $('#summary_table tr.tablerow:last').attr('id', "formsetsum-"+lastrow);
+
+
+        return false;
+    }
+
+    function cloneMore(prefix, startime, endtime, valtime, item_number, item_quantity, rr_num, dr_num, invoice_num, container_num, awl_bl, notes, purchasedquan) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1
+        var counter = 0
+
+        var d = new Date($.now());
+        var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+
+        $('#part_table tr.tablerow:last').attr('id', "formsetitem-"+currentnum);
+
+        $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){
+                    $(this).val(currentdate);
+                    counter++;
+                } else if(counter === 1){
+                    $(this).val(startime);
+                    counter++;
+                } else if(counter === 2){
+                    $(this).val(endtime);
+                    counter++;
+                } else if(counter === 3){
+                    $(this).val(valtime);
+                    counter++;
+                } else if(counter === 4){
+                    $(this).val(item_number);
+                    counter++;
+                } else if(counter === 5){
+                    $(this).val(item_quantity);
+                    counter++;
+                } else if(counter === 6){
+                    $(this).val(rr_num);
+                    counter++;
+                } else if(counter === 7){
+                    $(this).val(dr_num);
+                    counter++;
+                } else if(counter === 8){
+                    $(this).val(invoice_num);
+                    counter++;
+                } else if(counter === 9){
+                    $(this).val(container_num);
+                    counter++;
+                } else if(counter === 10){
+                    $(this).val(awl_bl);
+                    counter++;
+                } else {
+                    $(this).val(notes);
+                    counter++;
+                }
+            }
+        });
+
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#part_table tr.tablerow:last').after(lastrowtbl);
+
+        lastrow = total-1;
+        $('#part_table tr.tablerow:last').attr('id', "formsetitem-"+lastrow);
+
+        var conditionRow = $('#part_table tr.tablerow:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-');
+
+
+        
+        dosummary('formsetsum', item_number, purchasedquan);
+
+        return false;
+
+    }
+
+    function getTot_rec(item_number){
+        var tot_rec = 0;
+        $('#part_table').find('tr.tablerow').each(function (i, el) {
+            if ($(this).is(":visible")){
+                var part_row_id = this.id;
+                var part_item = "#id_"+part_row_id+"-item_number"
+                var ex_item_number = $(part_item).val();
+                console.log("selector");
+                console.log(part_item);
+                console.log("item_number");
+                console.log(item_number);
+                console.log("ex_item_number");
+                console.log(ex_item_number);
+                if ((ex_item_number) === (item_number)){
+                    console.log("ex_item_number quantity");
+                    console.log($("#id_"+part_row_id+"-item_quantity").val());
+                    tot_rec += parseInt($("#id_"+part_row_id+"-item_quantity").val());
+                }
+            }
+        });
+        return tot_rec;
+    }
+
+    function getExistingSum_Row(item_number) {
+        counter_row = -1;
+        $('#summary_table').find('tr.tablerow').each(function (i, el) {
+            if ($(this).is(":visible")){
+                var ship_row_id = this.id;
+                var ship_item = "#id_"+ship_row_id+"-item_number";
+                var counter = ship_row_id.substr(ship_row_id.length - 1);
+                var ship_item_number = $(ship_item).val();
+
+                if (ship_item_number === item_number){
+                    counter_row = parseInt(counter);
+                }
+            }
+        });
+        return counter_row;
+    }
+
+    function dosummary(prefix, ship_po, item_number, pur_quantity) {
+        var summary_row = -1;
+        summary_row = getExistingSum_Row(item_number);
+        console.log("dosummary");
+        console.log(item_number);
+
+
+        if( !(parseInt(summary_row) === -1) ){ 
+            console.log("EXISTS"); //If there is existing row
+
+            tot_recquan = getTot_rec(item_number);
+
+            console.log("tot_recquan");
+            console.log(tot_recquan);
+
+            var issue = ''
+            var disc = false;
+            var discQuan = pur_quantity - tot_recquan;
+                if(discQuan === 0){ //Non-issue
+                    disc = false;
+                    issue = 'Non-Issue';
+                }else if (discQuan > 0){//Short-Shipped
+                    disc = true;
+                    issue = 'Short-Shipped';
+                }else {//Over-Shipped
+                    disc = true;
+                    issue = 'Over-Shipped';
+                }
+
+            ship_sum_rowid = "#id_formsetsum-" + summary_row;
+            shipsum_totrec_selector = ship_sum_rowid + "-total_received_quantity";
+            shipsum_disc_selector =  ship_sum_rowid + "-discrepancy";
+            shipsum_discquan_selector = ship_sum_rowid + "-discrepancy_quantity";
+            shipsum_issue_selector = ship_sum_rowid + "-issue";
+
+            $(shipsum_totrec_selector).val(tot_recquan);
+            $(shipsum_disc_selector).val(disc);
+            $(shipsum_discquan_selector).val(discQuan);
+            $(shipsum_issue_selector).val(issue);
+
+        }else{ 
+            console.log("NOT EXISTS"); //If there is no existing row 
+                $('#summary_table tr.tablerow:last').show();
+            var lastrowtbl = $('#summary_table tr.tablerow:last').clone(true);
+            var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+            var currentnum = total - 1;
+            var counter = 0;
+
+            $('#summary_table tr.tablerow:last').attr('id', "formsetsum-"+currentnum);
+
+            tot_recquan = getTot_rec(item_number);
+
+            var issue = ''
+            var disc = false;
+            var discQuan = pur_quantity - tot_recquan;
+                if(discQuan === 0){ //Non-issue
+                    disc = false;
+                    issue = 'Non-Issue';
+                }else if (discQuan > 0){//Short-Shipped
+                    disc = true;
+                    issue = 'Short-Shipped';
+                }else {//Over-Shipped
+                    disc = true;
+                    issue = 'Over-Shipped';
+                }
+                
+            $('#summary_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        $(this).val(ship_po);
+                        counter++;
+                    } else if(counter === 1){
+                        $(this).val(item_number);
+                        counter++;
+                    } else if(counter === 2){
+                        $(this).val(pur_quantity);
+                        counter++;
+                    } else if(counter === 3){
+                        $(this).val(tot_recquan);
+                        counter++;
+                    } else if(counter === 4){
+                        $(this).val(disc);
+                        counter++;
+                    }else if(counter === 5){
+                        $(this).val(discQuan);
+                        counter++;
+                    }else if(counter === 6){
+                        $(this).val(issue);
+                        counter++;
+                    }else {
+                        $(this).val();
+                        counter++;
+                    }
+                }
+            });
+
+            lastrowtbl.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                    var id = 'id_' + name;
+                    $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+                }
+            });
+
+            total++;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+            $('#summary_table tr.tablerow:last').after(lastrowtbl);
+            $('#summary_table tr.tablerow:last').hide();
+
+            lastrow = total-1;
+            $('#summary_table tr.tablerow:last').attr('id', "formsetsum-"+lastrow);
+        }
+        
+        return false;
+    }
+
+    function UpdateSum_ID(sum_total){
+        counter_row = 0;
+        $('#summary_table').find('tr.tablerow').each(function (i, el) {
+            var ship_row_id = this.id;
+            var ship_row_id_temp = ship_row_id.slice(0,-1);
+            var ship_row_newid = ship_row_id_temp+counter_row;
+            $(this).attr('id', ship_row_newid);
+            counter_row++;
+        });
+
+    }
+
+    function UpdateRecItem_ID(item_total){
+        counter_row = 0;
+        $('#part_table').find('tr.tablerow').each(function (i, el) {
+            var item_row_id = this.id;
+            var item_row_id_temp = item_row_id.slice(0,-1);
+            var item_row_newid = item_row_id_temp+counter_row;
+            $(this).attr('id', item_row_newid);
+            counter_row++;
+        });
+    }
+
+    function deleteForm(prefix, btn) {
+        var item_total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (item_total > 1){
+            
+            var values = UpdateSummary(btn.closest('#part_table tr.tablerow'));
+            var tot_rec = values[0];
+            var sum_row = values[1];
+
+            if (parseInt(tot_rec) === 0){
+                var sum_total = parseInt($('#id_formsetsum-TOTAL_FORMS').val());
+                $(sum_row).remove();
+                var forms = $('#summary_table tr.tablerow');
+                $('#id_formsetsum-TOTAL_FORMS').val(forms.length);
+                for (var i=0, formCount=forms.length; i<formCount; i++) {
+                    $(forms.get(i)).find(':input[type=text]').each(function() {
+                        updateElementIndex(this, "formsetsum", i);
+                    });
+                }
+                sum_total--;
+                UpdateSum_ID(sum_total);
+                $('#id_formsetsum-TOTAL_FORMS').val(sum_total);
+            }
+
+
+            btn.closest('#part_table tr.tablerow').remove();
+            var forms = $('#part_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+            }
+            item_total--;
+            UpdateRecItem_ID(item_total);
+            $('#id_' + prefix + '-TOTAL_FORMS').val(item_total);
+        }
+        return false;
+    }
+                
+    $(document).on('click', '.remove-form-row', function(e){
+        e.preventDefault();
+        deleteForm('formsetitem', $(this));
+        return false;
+    });
+
+
+    function UpdateSummary(part_row){
+        console.log(part_row);
+        var part_row_id = part_row.attr('id');
+        var partrow_recitem_selector = "#id_"+part_row_id+"-item_quantity";
+        var partrow_itemid_selector = "#id_"+part_row_id+"-item_number";
+
+        var partrow_item_id = $(partrow_itemid_selector).val();
+        var sumrow_rowid = getExistingSum_Row(partrow_item_id);
+
+        var ship_sum_rowid = "#id_formsetsum-" + sumrow_rowid;
+        
+        var shipsum_purquan_selector = ship_sum_rowid + "-purchased_quantity";
+        var shipsum_totrec_selector = ship_sum_rowid + "-total_received_quantity";
+        var shipsum_disc_selector =  ship_sum_rowid + "-discrepancy";
+        var shipsum_discquan_selector = ship_sum_rowid + "-discrepancy_quantity";
+        var shipsum_issue_selector = ship_sum_rowid + "-issue";
+
+        var partrow_recitem_quan = $(partrow_recitem_selector).val();
+        
+        var pur_quantity = $(shipsum_purquan_selector).val();
+        var tot_recquan = $(shipsum_totrec_selector).val();
+
+        tot_recquan -= parseInt(partrow_recitem_quan);
+
+        var issue = ''
+        var disc = false;
+        var discQuan = pur_quantity - tot_recquan;
+            if(discQuan === 0){ //Non-issue
+                disc = false;
+                issue = 'Non-Issue';
+            }else if (discQuan > 0){//Short-Shipped
+                disc = true;
+                issue = 'Short-Shipped';
+            }else {//Over-Shipped
+                disc = true;
+                issue = 'Over-Shipped';
+            }
+        $(shipsum_totrec_selector).val(tot_recquan);
+        $(shipsum_disc_selector).val(disc);
+        $(shipsum_discquan_selector).val(discQuan);
+        $(shipsum_issue_selector).val(issue); 
+
+        sumrow_id = "#formsetsum-" + sumrow_rowid;
+
+        return [tot_recquan, sumrow_id];
+    }
+
+</script>
+{% endblock javascripts %}

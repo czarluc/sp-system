@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2>Select an Item to Put Away</h2>
+    <br>
+
+    <div class="card" id="select_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Put Away Item Details:</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Item Number</label>
+                        <input type ="text" class="form-control" id="name1" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Reference Number</label>
+                        <input type ="text" class="form-control" id="name5" data-refid="" readonly/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Bin Location</label>
+                        <input type ="text" class="form-control" id="name2" data-binid="" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Received Quantity</label>
+                        <input type ="text" class="form-control" id="txt_rec_quan" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Put Away Quantity</label>
+                        <input type ="number" class="form-control" id="name3"/>
+                        <input type ="hidden" class="form-control" id="name4"/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                </div>
+                <div class="col-1.5">
+                    <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="pa_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Items for Put Away: </h4>
+        </div>
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto mx-auto" id="purch_items">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Receiving ID</th>
+                            <th scope="col">Reference Number</th>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Received Quantity</th>
+                            <th scope="col">Scheduled Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in reclobbyitems %}
+                        <tr class="tablerow" id="reclobby-{{forloop.counter}}">
+                            <td>{{ instance.id }}</td>
+                            <td>{{ instance.reference_number }}</td>
+                            <td><button type="button" class="btn btn-primary item_number" data-recid="{{instance.id}}" data-item_number="{{instance.item_number__item_number}}" data-item_cat="{{instance.item_number__item_cat__item_cat}}" data-prod_class="{{instance.item_number__prod_class__prod_class}}" data-counter="{{forloop.counter}}" data-refnum="{{ instance.reference_number }}" data-rec_quan="{{ instance.received_quantity }}">{{ instance.item_number__item_number }}</button></td>
+                            <td>{{ instance.received_quantity }}</td>
+                            <td><input type="text" class="form-control" id="reclobby-{{forloop.counter}}-schedquan" value="{{ instance.scheduled_quantity }}" readonly style="text-align:center"></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row align-top" id="whse_card">
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Warehouse Bin Locations: </h4>
+                </div>
+                <div class="card-body">
+
+                    <div class="table-responsive"> <!--Warehouse Bin Locations-->
+                        <table class="table table-hover table-striped w-auto" id="bin_table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Warehouse Bin ID</th>
+                                    <th scope="col">Bin Location</th>
+                                    <th scope="col">Item Category</th>
+                                    <th scope="col">Product Class</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for instance in whsebinset %}
+                                <tr class="tablerow bin_location" data-binid="{{ instance.id }}" data-bin_location="{{ instance.bin_location }}" data-item_cat="{{instance.item_cat__item_cat}}" data-prod_class="{{instance.prod_class__prod_class}}">
+                                    <td>{{ instance.id }}</td>
+                                    <td><button type="button" class="btn btn-primary bin_location" data-binid="{{instance.id}}" data-bin_location="{{ instance.bin_location }}">{{ instance.bin_location }}</button></td>
+                                    <td>{{ instance.item_cat__item_cat }}</td>
+                                    <td>{{ instance.prod_class__prod_class }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-6">
+            
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Warehouse Bin Items: </h4>
+                </div>
+                <div class="card-body">
+
+                    <div class="table-responsive"><!--Warehouse Bin Items-->
+                    <table class="table table-hover table-striped w-auto" id="item_table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Warehouse Bin Item ID</th>
+                                <th scope="col">Bin Location</th>
+                                <th scope="col">Item Number</th>
+                                <th scope="col">Item Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for instance in whseitemset %}
+                            <tr class="tablerow bin_item" data-bin_location="{{ instance.bin_location__bin_location }}">
+                                <td>{{ instance.id }}</td>
+                                <td>{{ instance.bin_location__bin_location }}</td>
+                                <td>{{ instance.item_number__item_number }}</td>
+                                <td>{{ instance.quantity }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table> 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>    
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+    $(window).on('load', function() {
+        document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
+    $(document).ready(function(){
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        $("#whse_card").hide();
+
+        $('#bin_table').find('tr.tablerow.bin_location').each(function (i, el) {
+            $(this).hide();
+        });
+        $('#item_table').find('tr.tablerow.bin_item').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $( "#purch_items" ).on("click", ".btn.btn-primary.item_number", function () {
+            var btn = this;
+            var item_number = btn.dataset.item_number;
+            $('#name1').val(item_number);                
+            var counter = btn.dataset.counter;
+            $('#name4').val(counter);
+            var refnum = btn.dataset.refnum;
+            $('#name5').val(refnum);
+            var txt_rec_quan = btn.dataset.rec_quan;
+            $("#txt_rec_quan").val(txt_rec_quan);
+
+            var item_cat = btn.dataset.item_cat;
+            var prod_class = btn.dataset.prod_class;
+            $('#bin_table').find('tr.tablerow.bin_location').each(function (i, el) {
+                var name = this;
+                var bin_itemcat = name.dataset.item_cat;
+                var bin_prodclass = name.dataset.prod_class;
+                if (item_cat === bin_itemcat){
+                    if (prod_class === bin_prodclass){
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                }else {
+                    $(this).hide();
+                }
+            });
+
+            toastr.info('Part with Item Number ' + item_number + ' is selected. Please choose a Warehouse Bin.');
+
+        });
+        $( "#bin_table" ).on("click", ".btn.btn-primary.bin_location", function () {
+            var btn = this;
+            var bin_location = btn.dataset.bin_location;
+            var bin_id = btn.dataset.binid;
+            $('#name2').val(bin_location);
+            $('#name2').data('binid',bin_id);
+            console.log(bin_location);
+            $('#item_table').find('tr.tablerow.bin_item').each(function (i, el) {
+                var name = this;
+                var item_binlocation = name.dataset.bin_location;
+                console.log(item_binlocation);
+                if (bin_location === item_binlocation){
+                    $(this).show();
+                }else {
+                    $(this).hide();
+                }
+            });
+
+            toastr.info('Warehouse Bin ' + bin_location + ' is selected for part '+$('#name1').val());
+
+        });
+
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'Gen_PA');
+            goBack.focus();
+            window.close();
+        });
+
+        
+        $(".btn.btn-success.btn-lg").on("click", function () {
+            var item_num = $('#name1').val();
+            var bin_location = $('#name2').val();
+            var counter = $('#name4').val();
+            var refnum = $('#name5').val();
+            
+            var bin_locationid = $('#name2').data('binid');
+            
+            var recquan = $('#reclobby-' + counter + '-recquan').val();
+            var schedquan = $('#reclobby-' + counter + '-schedquan').val();
+            var planschedquan = $('#name3').val();
+            var totalsched = parseInt(schedquan) + parseInt(planschedquan);
+            if ( !(recquan < totalsched) ){
+                $('#reclobby-'+counter+"-schedquan").val(totalsched);
+                window.opener.cloneMore('form', item_num, planschedquan, bin_location, refnum, bin_locationid);
+            }else{
+                alert("Please enter a put away quantity cummulatively less than the received/available quantity");
+            }
+
+            toastr.success('Part ' + item_num + ' is scheduled for Put Away at '+bin_location);
+            
+        });
+
+        $("#purch_items").DataTable(
+            {"columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#bin_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+        $("#item_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+
+    });
+
+
+</script>
+{% endblock javascripts %}
