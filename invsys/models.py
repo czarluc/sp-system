@@ -28,8 +28,6 @@ class Assembly(models.Model):
     def __str__(self):
         return self.user.username
 
-"""
-
 #MASTER TABLES
 class ItemCat(models.Model):
     item_cat = models.CharField(max_length=100, default=False)
@@ -241,8 +239,6 @@ class Work_Order_Item_List(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.work_order_number, self.item_number)
-
-
 
 #RECEIVING PROCESS
 class Purchase_Order(models.Model):
@@ -1388,5 +1384,3 @@ class Events(models.Model):
 
     def __str__(self):
         return self.name
-
-"""
