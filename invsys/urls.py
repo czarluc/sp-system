@@ -62,8 +62,6 @@ urlpatterns = [
         path('ViewPendingWO/', warehouse.ViewPendingWO, name='ViewPendingWO'),
         path('GenerateCompIssuanceSchedule/', warehouse.GenerateCompIssuanceSchedule, name='GenerateCompIssuanceSchedule'),
         path('GenerateCompIssuanceSchedule/SelectWO', warehouse.GenerateCompIssuanceSchedule_SelectWO, name='GenerateCompIssuanceSchedule_SelectWO'),
-        path('FinishCompIssuance/', warehouse.FinishCompIssuance, name='FinishCompIssuance'),
-        path('FinishCompIssuance/SelectCompIssuanceSched/', warehouse.FinishCompIssuance_SelectCompIssuanceSched, name='FinishCompIssuance_SelectCompIssuanceSched'),
         path('ViewCompIssuanceSummary/', warehouse.ViewCompIssuanceSummary, name='ViewCompIssuanceSummary'),
         #--Shipping
         path('ReceiveProduct/', warehouse.ReceiveProduct, name='ReceiveProduct'),
@@ -155,8 +153,8 @@ urlpatterns = [
     path('assembly/', include(([
         path('', assembly.AssemblyHome, name='assembly_home'),
         #--Component Issuance
-        path('FinishCompIssuance/', warehouse.FinishCompIssuance, name='FinishCompIssuance'),
-        path('FinishCompIssuance/SelectCompIssuanceSched/', warehouse.FinishCompIssuance_SelectCompIssuanceSched, name='FinishCompIssuance_SelectCompIssuanceSched'),
+        path('FinishCompIssuance/', assembly.FinishCompIssuance, name='FinishCompIssuance'),
+        path('FinishCompIssuance/SelectCompIssuanceSched/', assembly.FinishCompIssuance_SelectCompIssuanceSched, name='FinishCompIssuance_SelectCompIssuanceSched'),
         #--Assembly Updates
         path('FinishAssembly/', assembly.FinishAssembly, name='FinishAssembly'),
         path('FinishAssembly/SelectProdSched/', assembly.FinishAssembly_SelectProdSched, name='FinishAssembly_SelectProdSched'),

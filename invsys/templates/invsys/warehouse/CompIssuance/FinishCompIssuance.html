@@ -27,8 +27,8 @@
 {% endblock stylesheets %}
 
 {% block content %}
-	
-	<h2> Finish Component Issuance </h2>
+    
+    <h2> Finish Component Issuance </h2>
     <br>
     <form class="form-horizontal" method="POST" action="">
         {% csrf_token %}
@@ -53,7 +53,7 @@
                                     </div>
                                 </div>
                                 <div class="col-3">
-                		            <button class="btn btn-success add-compissuesched"><i class="fas fa-file-medical"></i></button>
+                                    <button class="btn btn-success add-compissuesched"><i class="fas fa-file-medical"></i></button>
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group">
@@ -694,7 +694,7 @@
     }
 
     $(document).on('click', '.add-compissuesched', function(e){
-        var newwin = window.open("{% url 'warehouse:FinishCompIssuance_SelectCompIssuanceSched' %}");
+        var newwin = window.open("{% url 'assembly:FinishCompIssuance_SelectCompIssuanceSched' %}");
         return false;
     });
 
