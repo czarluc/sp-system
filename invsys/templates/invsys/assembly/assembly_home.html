@@ -11,71 +11,56 @@
 
 <h1>Assembly</h1>
 
-    <div class="card">
-      <div class="card-header card-header-tabs card-header-primary">
-        <h4 class="card-title">Shipping:</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <h4 class="card-title">Issuance Accuracy</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="issuance_acc_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card card-chart">
+            <div class="card-header card-header-danger">
+              <h4 class="card-title">Work Orders Status</h4>
             </div>
+            <div class="card-body">
+              <canvas id="issuance_acc_chrt"></canvas>
+              <form action="">
+                {% csrf_token %}
+              <a href="#"> See more </a>
+              </form>
           </div>
+        </div>
+      </div>
 
-          <div class="col-md-6">
+      <div class="col-md-6">
+        <div class="card card-chart">
+            <div class="card-header card-header-success">
+              <h4 class="card-title">Assembly Timeliness</h4>
+            </div>
+            <div class="card-body">
+              <canvas id="ass_time_chrt"></canvas>
+              <form action="">
+                {% csrf_token %}
+              <a href="#"> See more </a>
+              </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row">
+    	<div class="col-md-3">
+    	</div>
+    	<div class="col-md-6">
             <div class="card card-chart">
                 <div class="card-header card-header-success">
-                  <h4 class="card-title">Assembly Timeliness</h4>
+                  <h4 class="card-title">Production Volume</h4>
                 </div>
                 <div class="card-body">
-                  <canvas id="ass_time_chrt"></canvas>
+                  <canvas id="prod_vol_chrt"></canvas>
                   <form action="">
                     {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
                   <a href="#"> See more </a>
                   </form>
               </div>
             </div>
-          </div>
-
-        </div>
-        <div class="row">
-
-        	<div class="col-md-6">
-	            <div class="card card-chart">
-	                <div class="card-header card-header-success">
-	                  <h4 class="card-title">Production Volume</h4>
-	                </div>
-	                <div class="card-body">
-	                  <canvas id="prod_vol_chrt"></canvas>
-	                  <form action="">
-	                    {% csrf_token %}
-	                  From: <input type="date" id="from_date">
-	                  To: <input type="date" id="to_date">
-	                  <button class="btn btn-success add-form-row ponum">Filter</button>
-	                  <a href="#"> See more </a>
-	                  </form>
-	              </div>
-	            </div>
-          	</div>
-
-        </div>
-      </div>
+      	</div>
     </div>
 
 {% endblock content %}
@@ -84,131 +69,84 @@
 {% block javascripts %}
 <script>
 	$(document).ready(function(){
-	var ctx = $("#sample-chart");
-	var myChart = new Chart(ctx);
-	var defaultData = []
-	var labels = [];
+	
+	var ctx_issuance_acc = $("#issuance_acc_chrt");
+	var myChart1 = new Chart(ctx_issuance_acc);
 
-	$.ajax({
-	  method: "GET",
-	  url: "{% url 'warehouse:Dashboard_get_data' %}",
-	  success: function(data){
-	      labels = data.labels;
-	      defaultData = data.default;
+	var ship_acc_labels = ['Scheduled','Issued','Assembled','Coupled','Tested','Received'];
+	var ship_acc_data = [1,3,8,3,2,5];
 
-	      ctx = $("#sample-chart");
+	ctx_issuance_acc = $("#issuance_acc_chrt");
 
-	      myChart = new Chart(ctx, {
-	          type: 'bar',
-	          data: {
-	              labels: labels,
-	              datasets: [{
-	                  label: 'Purchase Orders Created',
-	                  data: defaultData,
-	                  backgroundColor: '#80cee1',
-	                  borderWidth: 1
-	              }]
-	          },
-	          options: {
-	              scales: {
-	                  yAxes: [{
-	                      ticks: {
-	                          beginAtZero:true
-	                      }
-	                  }],
-	                  xAxes: [{
-	                      type: 'time',
-	                      time: {
-	                      unit: 'day',
-	                      unitStepSize: 70,
-	                      displayFormats: {
-	                         'day': 'MMM DD'
-	                      }
-	                      }
-	                  }],
-	              },
-	              responsive: true,
-	                legend: {
-	                  position: 'bottom',
-	                },
-	          }
-	      });
-
-	  },
-	  error: function(error_data){
-	      console.log("error")
-	      console.log(error_data)
-	  }
-	});
-
-	$(document).on('click', '.add-form-row.ponum', function(e){
-	$.ajax({
-	    method: "POST",
-	    url: "{% url 'warehouse:Dashboard_update_data' %}",
-	    data: {'from': $("#from_date").val(),
-	          'to': $("#to_date").val(),
-	          'csrfmiddlewaretoken': '{{ csrf_token }}'},
-
-	    success: function(data){
-	        labels = data.labels;
-	        defaultData = data.default;
-
-	        console.log(labels);
-	        console.log(defaultData);
-	        updateChart(labels,defaultData);
-	    },
-	    error: function(error_data){
-	        alert("error");
-	        console.log(error_data);
-	    }
-	});
-
-	function updateChart(labels, defaultData){
-
-	  myChart.data.labels = labels;
-	  myChart.data.datasets[0].data = defaultData;
-
-	  myChart.update();
+	myChart1 = new Chart(ctx_issuance_acc, {
+	type: 'pie',
+	data: {
+	  labels: ship_acc_labels,
+	  datasets: [{
+	    backgroundColor: [
+	      "#f7f7f7",
+	      "#2ecc71",
+	      "#f0ad4e",
+	      "#5bc0de",
+	      "#292b2c",
+	      "#e74c3c",
+	    ],
+	    data: ship_acc_data
+	  }]
 	}
-
-
-	return false;
 	});
 
-	var ctx_ship_acc = $("#ship_acc_chrt");
-	var myChart = new Chart(ctx);
+	var ctx_ass_time = $("#ass_time_chrt");
+	var myChart2 = new Chart(ctx_ass_time);
 
-	var ship_acc_labels = [];
-	var ship_acc_data = [];
+	var ship_acc_labels = ['On Time','Delayed'];
+	var ship_acc_data = [3,8];
 
-	$.ajax({
-	  method: "GET",
-	  url: "{% url 'warehouse:Dashboard_get_ship_acc' %}",
-	  success: function(data){
-	      ship_acc_labels = data.labels;
-	      ship_acc_data = data.default;
+	ctx_ass_time = $("#ass_time_chrt");
 
-	      ctx = $("#sample-chart");
+	myChart2 = new Chart(ctx_ass_time, {
+	type: 'pie',
+	data: {
+	  labels: ship_acc_labels,
+	  datasets: [{
+	    backgroundColor: [
+	      "#2ecc71",
+	      "#e74c3c",
+	    ],
+	    data: ship_acc_data
+	  }]
+	}
+	});
 
-	      myChart = new Chart(ctx, {
-	        type: 'pie',
-	        data: {
-	          labels: ship_acc_labels,
-	          datasets: [{
-	            backgroundColor: [
-	              "#2ecc71",
-	              "#e74c3c",
-	            ],
-	            data: ship_acc_data
-	          }]
-	        }
-	      });
+	var ctx_prod_vol = $("#prod_vol_chrt");
+	var myChart3 = new Chart(ctx_prod_vol);
 
-	  },
-	  error: function(error_data){
-	      console.log("error")
-	      console.log(error_data)
-	  }
+	var ship_acc_labels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+	var ship_acc_data = [1,3,8,3,0,0];
+
+	ctx_prod_vol = $("#prod_vol_chrt");
+
+	myChart3 = new Chart(ctx_prod_vol, {
+	type: 'bar',
+	data: {
+	  labels: ship_acc_labels,
+	  datasets: [{
+	    backgroundColor: [
+	      "#9932CC",
+	      "#2ecc71",
+	      "#f0ad4e",
+	      "#5bc0de",
+	      "#292b2c",
+	      "#e74c3c",
+	    ],
+	    data: ship_acc_data
+	  }]
+	},
+	options: {
+        legend: {
+            display: false
+         },
+    }
 	});
 
 	});

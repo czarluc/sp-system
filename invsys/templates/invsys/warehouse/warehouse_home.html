@@ -6,8 +6,9 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
-	<h1> Warehouse </h1>
-    <div class="card">
+  <h1> Warehouse </h1>
+
+    <div class="card" id="card_sample">
       <div class="card-header card-header-tabs card-header-info">
         <h4 class="card-title">Sample:</h4>
       </div>
@@ -35,242 +36,140 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Receiving:</h4>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card card-chart">
+            <div class="card-header card-header-info">
+              <h4 class="card-title">Inbound Shipments Status</h4>
+            </div>
+            <div class="card-body">
+              <canvas id="ship_acc_chrt"></canvas>
+              <form action="">
+                {% csrf_token %}
+              <a href="#"> See more </a>
+              </form>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <h4 class="card-title">Shipment Accuracy</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="ship_acc_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
-          </div>
 
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-success">
-                  <h4 class="card-title">Shipment Timeliness</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="ship_time_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
+      <div class="col-md-6">
+        <div class="card card-chart">
+            <div class="card-header card-header-success">
+              <h4 class="card-title">Purchase Orders Status</h4>
             </div>
+            <div class="card-body">
+              <canvas id="ship_time_chrt"></canvas>
+              <form action="">
+                {% csrf_token %}
+              <a href="#"> See more </a>
+              </form>
           </div>
+        </div>
+      </div>
+  </div>
 
+  <div class="row">
+    <div class="col-md-6">
+        <div class="card card-chart">
+          <div class="card-header card-header-info">
+            <h4 class="card-title">Put Away Status:</h4>
+          </div>
+          <div class="card-body">
+            <canvas id="pa_acc_chrt"></canvas>
+            <form action="">
+              {% csrf_token %}
+            <a href="#"> See more </a>
+            </form>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Put Away:</h4>
+    <div class="col-md-6">
+      <div class="card card-chart">
+          <div class="card-header card-header-success">
+            <h4 class="card-title">Component Issuance Status:</h4>
+          </div>
+          <div class="card-body">
+            <canvas id="storage_acc_chrt"></canvas>
+            <form action="">
+              {% csrf_token %}
+            <a href="#"> See more </a>
+            </form>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <h4 class="card-title">Put Away Accuracy</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="pa_acc_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
-          </div>
+    </div>
+  </div>
 
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-success">
-                  <h4 class="card-title">Put Away Timeliness</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="pa_time_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
+  <div class="row">
+    <div class="col-md-6">
+        <div class="card card-chart">
+          <div class="card-header card-header-info">
+            <h4 class="card-title">Part Request Status:</h4>
           </div>
-
+          <div class="card-body">
+            <canvas id="part_req_chrt"></canvas>
+            <form action="">
+              {% csrf_token %}
+            <a href="#"> See more </a>
+            </form>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Storage:</h4>
+    <div class="col-md-6">
+      <div class="card card-chart">
+          <div class="card-header card-header-success">
+            <h4 class="card-title">Part Return Status:</h4>
+          </div>
+          <div class="card-body">
+            <canvas id="part_ret_chrt"></canvas>
+            <form action="">
+            <a href="#"> See more </a>
+            </form>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <h4 class="card-title">Storage Accuracy</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="storage_acc_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
-          </div>
+    </div>
+  </div>
 
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-success">
-                  <h4 class="card-title">Storage Utilization</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="storage_util_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
+  <div class="row">
+    <div class="col-md-6">
+        <div class="card card-chart">
+          <div class="card-header card-header-info">
+            <h4 class="card-title">Finished Products Status:</h4>
           </div>
-
+          <div class="card-body">
+            <canvas id="prod_rec_chrt"></canvas>
+            <form action="">
+            <a href="#"> See more </a>
+            </form>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Component Issuance:</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <h4 class="card-title">Issuance Accuracy</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="issuance_acc_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
+    <div class="col-md-6">
+      <div class="card card-chart">
+          <div class="card-header card-header-success">
+            <h4 class="card-title">Product Shipping Status:</h4>
           </div>
-
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-success">
-                  <h4 class="card-title">Issuance Productivity</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="issuance_prod_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
-          </div>
-
+          <div class="card-body">
+            <canvas id="prod_ship_chrt"></canvas>
+            <form action="">
+            <a href="#"> See more </a>
+            </form>
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Shipping:</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <h4 class="card-title">Shipping:</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="pa_acc_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-success">
-                  <h4 class="card-title">Put Away Timeliness</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="pa_time_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date">
-                  To: <input type="date" id="to_date">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
+  </div>
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script>
-		$(document).ready(function(){
+    $(document).ready(function(){
+
+      $("#card_sample").hide();
+
       var ctx = $("#sample-chart");
       var myChart = new Chart(ctx);
       var defaultData = []
@@ -360,42 +259,196 @@
       });
 
       var ctx_ship_acc = $("#ship_acc_chrt");
-      var myChart2 = new Chart(ctx);
+      var myChart2 = new Chart(ctx_ship_acc);
       
-      var ship_acc_labels = [];
-      var ship_acc_data = [];
+      var ship_acc_labels = ['Inbound','Validated'];
+      var ship_acc_data = [5,4];
 
-      $.ajax({
-          method: "GET",
-          url: "{% url 'warehouse:Dashboard_get_ship_acc' %}",
-          success: function(data){
-              ship_acc_labels = data.labels;
-              ship_acc_data = data.default;
+      ctx_ship_acc = $("#ship_acc_chrt");
 
-              ctx = $("#ship_acc_chrt");
-
-              myChart2 = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                  labels: ship_acc_labels,
-                  datasets: [{
-                    backgroundColor: [
-                      "#2ecc71",
-                      "#e74c3c",
-                    ],
-                    data: ship_acc_data
-                  }]
-                }
-              });
-
-          },
-          error: function(error_data){
-              console.log("error")
-              console.log(error_data)
-          }
+      myChart2 = new Chart(ctx_ship_acc, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+            ],
+            data: ship_acc_data
+          }]
+        }
       });
 
-		});
+      var ctx_ship_time = $("#ship_time_chrt");
+      var myChart3 = new Chart(ctx_ship_time);
+      
+      var ship_acc_labels = ['Pending','Cleared','VDR'];
+      var ship_acc_data = [3,5,4];
 
-	</script>
+      ctx_ship_time = $("#ship_time_chrt");
+
+      myChart3 = new Chart(ctx_ship_time, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+              "#f0ad4e",
+            ],
+            data: ship_acc_data
+          }]
+        }
+      });
+
+      var ctx_pa_acc = $("#pa_acc_chrt");
+      var myChart4 = new Chart(ctx_pa_acc);
+      
+      var ship_acc_labels = ['Pending','Scheduled'];
+      var ship_acc_data = [0,3];
+
+      ctx_pa_acc = $("#pa_acc_chrt");
+
+      myChart4 = new Chart(ctx_pa_acc, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+            ],
+            data: ship_acc_data
+          }]
+        }
+      });
+
+      var ctx_storage_acc = $("#storage_acc_chrt");
+      var myChart5 = new Chart(ctx_storage_acc);
+      
+      var ship_acc_labels = ['Scheduled','Issued'];
+      var ship_acc_data = [0,5];
+
+      ctx_storage_acc = $("#storage_acc_chrt");
+
+      myChart5 = new Chart(ctx_storage_acc, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+            ],
+            data: ship_acc_data
+          }]
+        }
+      });
+
+      var ctx_part_req = $("#part_req_chrt");
+      var myChart6 = new Chart(ctx_part_req);
+      
+      var ship_acc_labels = ['Pending','Scheduled','Issued'];
+      var ship_acc_data = [0,5,5];
+
+      ctx_part_req = $("#part_req_chrt");
+
+      myChart6 = new Chart(ctx_part_req, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+              "#f0ad4e",
+            ],
+            data: ship_acc_data
+          }]
+        }
+      });
+
+      var ctx_part_ret = $("#part_ret_chrt");
+      var myChart7 = new Chart(ctx_part_ret);
+      
+      var ship_acc_labels = ['Pending','Scheduled','Issued'];
+      var ship_acc_data = [0,3,8];
+
+      ctx_part_ret = $("#part_ret_chrt");
+
+      myChart7 = new Chart(ctx_part_ret, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+              "#f0ad4e",
+            ],
+            data: ship_acc_data
+          }]
+        }
+      });
+
+      var ctx_prod_rec = $("#prod_rec_chrt");
+      var myChart8 = new Chart(ctx_prod_rec);
+      
+      var ship_acc_labels = ['Pending','Received'];
+      var ship_acc_data = [1,3];
+
+      ctx_prod_rec = $("#prod_rec_chrt");
+
+      myChart8 = new Chart(ctx_prod_rec, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+              "#f0ad4e",
+            ],
+            data: ship_acc_data
+          }]
+        }
+      });
+      
+      var ctx_prod_ship = $("#prod_ship_chrt");
+      var myChart9 = new Chart(ctx_prod_ship);
+      
+      var ship_acc_labels = ['Pending','Shipped'];
+      var ship_acc_data = [4,8];
+
+      ctx_prod_ship = $("#prod_ship_chrt");
+
+      myChart9 = new Chart(ctx_prod_ship, {
+        type: 'pie',
+        data: {
+          labels: ship_acc_labels,
+          datasets: [{
+            backgroundColor: [
+              "#e74c3c",
+              "#2ecc71",
+              "#f0ad4e",
+            ],
+            data: ship_acc_data
+          }]
+        }
+      });
+
+
+      
+      
+      
+      
+
+      
+
+
+    });
+
+  </script>
 {% endblock javascripts %}
