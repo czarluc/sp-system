@@ -1448,7 +1448,6 @@ def AddWOAssembly_List(prodsched, date_received):
     wo_assembly.full_clean()
     wo_assembly.save()
 @login_required
-@warehouse_required
 def FinishCompIssuance_SelectCompIssuanceSched(request):
     template_name = 'invsys/warehouse/CompIssuance/FinishCompIssuance_SelectCompIssuanceSched.html'
     wo_issuancesched = WO_Issuance_Schedule.objects.filter(cleared=False).values(
