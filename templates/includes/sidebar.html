@@ -1,3 +1,4 @@
+    {% load static %}
     <div class="sidebar" data-color="purple" data-background-color="white" data-image="/static/assets/img/sidebar-1.jpg">
       {% if user.is_authenticated and user.is_warehouse %}
       <div class="logo">
@@ -11,12 +12,11 @@
         <ul class="nav">
           <li class="nav-item {% if 'index' == segment %} active {% endif %}">
             <a class="nav-link" href="{% url 'warehouse:warehouse_home' %}">
-              <i class="material-icons">dashboard</i>
-              <p>Dashboard</p>
+              <img src="{% static 'invsys/Navbar/Main/Dashboard.png' %}" width="30" height="30" class="d-inline-block align-top">   Dashboard</a>
             </a>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop1" class="nav-link"><i class="material-icons">accessibility</i>Incoming Shipment<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop1" class="nav-link"><img src="{% static 'invsys/Navbar/Main/InShipment.png' %}" width="30" height="30" class="d-inline-block align-top">   Incoming Shipment<span class="caret"></span></a>
                 <ul id="drop1" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:InboundShipment' %}">Inbound Shipment</a>
@@ -44,7 +44,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop2" class="nav-link"> Put Away<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop2" class="nav-link"> <img src="{% static 'invsys/Navbar/Main/PutAway.png' %}" width="30" height="30" class="d-inline-block align-top">   Put Away<span class="caret"></span></a>
                 <ul id="drop2" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:GeneratePutAwaySchedule' %}">Generate Put Away Schedule</a>
@@ -60,7 +60,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop3" class="nav-link"> Component Issuance<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop3" class="nav-link"><img src="{% static 'invsys/Navbar/Main/CompIssue.png' %}" width="30" height="30" class="d-inline-block align-top">   Component Issuance<span class="caret"></span></a>
                 <ul id="drop3" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewPendingWO' %}">View Pending Work Orders</a>
@@ -80,7 +80,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop4" class="nav-link"> Shipping<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop4" class="nav-link"><img src="{% static 'invsys/Navbar/Main/OutShipment.png' %}" width="30" height="30" class="d-inline-block align-top">   Shipping<span class="caret"></span></a>
                 <ul id="drop4" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ReceiveProduct' %}">Receive Product</a>
@@ -92,7 +92,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop6" class="nav-link">Inventory Review<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop6" class="nav-link"><img src="{% static 'invsys/Navbar/Main/InvReview.png' %}" width="30" height="30" class="d-inline-block align-top">   Inventory Review<span class="caret"></span></a>
                 <ul id="drop6" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:GenerateCCSchedule' %}" class="dropdown-item">Generate Cycle Count List</a>
@@ -108,7 +108,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop7" class="nav-link">Part Request Issuance<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop7" class="nav-link"><img src="{% static 'invsys/Navbar/Main/PartRequest.png' %}" width="30" height="30" class="d-inline-block align-top">   Part Request Issuance<span class="caret"></span></a>
                 <ul id="drop7" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:GeneratePartRequestSchedule' %}">Generate Part Request Issuance Schedule</a>
@@ -124,7 +124,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop8" class="nav-link">Component Return<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop8" class="nav-link"><img src="{% static 'invsys/Navbar/Main/PartReturn.png' %}" width="30" height="30" class="d-inline-block align-top">   Component Return<span class="caret"></span></a>
                 <ul id="drop8" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:GenerateCompReturnSchedule' %}">Generate Component Return Schedule</a>
@@ -140,7 +140,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop9" class="nav-link">Warehouse Update<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop9" class="nav-link"><img src="{% static 'invsys/Navbar/Main/WhseUpdate.png' %}" width="30" height="30" class="d-inline-block align-top">   Warehouse Update<span class="caret"></span></a>
                 <ul id="drop9" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:WarehouseAdjustments' %}">Warehouse Adjustments</a>
@@ -168,7 +168,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop10" class="nav-link">Warehouse Locations<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop10" class="nav-link"><img src="{% static 'invsys/Navbar/Main/WhseLoc.png' %}" width="30" height="30" class="d-inline-block align-top">   Warehouse Locations<span class="caret"></span></a>
                 <ul id="drop10" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:CheckInboundLobby' %}">Inbound Lobby</a>
@@ -200,7 +200,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop11" class="nav-link">View Inventory<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop11" class="nav-link"><img src="{% static 'invsys/Navbar/Main/ViewInv.png' %}" width="30" height="30" class="d-inline-block align-top">View Inventory<span class="caret"></span></a>
                 <ul id="drop11" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:CheckItem' %}">Items</a>
@@ -220,7 +220,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#nope" data-toggle="collapse" data-target="#drop5" class="nav-link"> Inventory Master<span class="caret"></span></a>
+            <a href="#nope" data-toggle="collapse" data-target="#drop5" class="nav-link"><img src="{% static 'invsys/Navbar/Main/InvMaster.png' %}" width="30" height="30" class="d-inline-block align-top">   Inventory Master<span class="caret"></span></a>
                 <ul id="drop5" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:whse_add_item' %}">Add Item</a>
@@ -246,12 +246,11 @@
         <ul class="nav">
           <li class="nav-item {% if 'index' == segment %} active {% endif %}">
             <a class="nav-link" href="/">
-              <i class="material-icons">dashboard</i>
-              <p>Dashboard</p>
+              <img src="{% static 'invsys/Navbar/Main/Dashboard.png' %}" width="30" height="30" class="d-inline-block align-top">   Dashboard</a>
             </a>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#" data-toggle="collapse" data-target="#drop1" class="nav-link"><i class="material-icons">accessibility</i>Work-Order<span class="caret"></span></a>
+            <a href="#" data-toggle="collapse" data-target="#drop1" class="nav-link"><img src="{% static 'invsys/Navbar/Main/WorkOrder.png' %}" width="30" height="30" class="d-inline-block align-top">   Work-Order<span class="caret"></span></a>
                 <ul id="drop1" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'planner:CreateWO' %}">Create Work-Order</a>
@@ -267,7 +266,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#" data-toggle="collapse" data-target="#drop2" class="nav-link">View Available Inventory<span class="caret"></span></a>
+            <a href="#" data-toggle="collapse" data-target="#drop2" class="nav-link"><img src="{% static 'invsys/Navbar/Main/Parts.png' %}" width="30" height="30" class="d-inline-block align-top">   View Available Inventory<span class="caret"></span></a>
                 <ul id="drop2" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'planner:CheckPart' %}">Check Items</a>
@@ -288,13 +287,11 @@
       <div class="sidebar-wrapper">
         <ul class="nav">
           <li class="nav-item {% if 'index' == segment %} active {% endif %}">
-            <a class="nav-link" href="/">
-              <i class="material-icons">dashboard</i>
-              <p>Dashboard</p>
+            <a class="nav-link" href="/"><img src="{% static 'invsys/Navbar/Main/Dashboard.png' %}" width="30" height="30" class="d-inline-block align-top">   Dashboard</a>
             </a>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#" data-toggle="collapse" data-target="#drop1" class="nav-link"><i class="material-icons">accessibility</i>Work-Order<span class="caret"></span></a>
+            <a href="#" data-toggle="collapse" data-target="#drop1" class="nav-link"><img src="{% static 'invsys/Navbar/Main/WorkOrder.png' %}" width="30" height="30" class="d-inline-block align-top">   Work-Order<span class="caret"></span></a>
                 <ul id="drop1" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'assembly:FinishAssembly' %}">Finish Assembly</a>
@@ -314,7 +311,7 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
-            <a href="#" data-toggle="collapse" data-target="#drop2" class="nav-link">Shrinkage<span class="caret"></span></a>
+            <a href="#" data-toggle="collapse" data-target="#drop2" class="nav-link"><img src="{% static 'invsys/Navbar/Main/Shrinkage.png' %}" width="30" height="30" class="d-inline-block align-top">   Shrinkage<span class="caret"></span></a>
                 <ul id="drop2" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'assembly:ReportShrinkage' %}">Report Shrinkage</a>
