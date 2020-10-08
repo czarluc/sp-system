@@ -154,6 +154,9 @@ urlpatterns = [
 
     path('assembly/', include(([
         path('', assembly.AssemblyHome, name='assembly_home'),
+        #--Component Issuance
+        path('FinishCompIssuance/', warehouse.FinishCompIssuance, name='FinishCompIssuance'),
+        path('FinishCompIssuance/SelectCompIssuanceSched/', warehouse.FinishCompIssuance_SelectCompIssuanceSched, name='FinishCompIssuance_SelectCompIssuanceSched'),
         #--Assembly Updates
         path('FinishAssembly/', assembly.FinishAssembly, name='FinishAssembly'),
         path('FinishAssembly/SelectProdSched/', assembly.FinishAssembly_SelectProdSched, name='FinishAssembly_SelectProdSched'),

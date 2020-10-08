@@ -71,10 +71,6 @@
                     </li>
                     
                     <li>
-                      <a class="nav-link" href="{% url 'warehouse:FinishCompIssuance' %}">Finish Component Issuance</a>
-                    </li>
-                    
-                    <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewCompIssuanceSummary' %}">Component Issuance Summary</a>
                     </li>
                 </ul>
@@ -288,7 +284,14 @@
         <ul class="nav">
           <li class="nav-item {% if 'index' == segment %} active {% endif %}">
             <a class="nav-link" href="/"><img src="{% static 'invsys/Navbar/Main/Dashboard.png' %}" width="30" height="30" class="d-inline-block align-top">   Dashboard</a>
-            </a>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop3" class="nav-link"><img src="{% static 'invsys/Navbar/Main/CompIssue.png' %}" width="30" height="30" class="d-inline-block align-top">   Component Issuance<span class="caret"></span></a>
+                <ul id="drop3" class="collapse" data-parent="#sideNavParent">                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:FinishCompIssuance' %}">Verify Component Issuance</a>
+                    </li>
+                </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
             <a href="#" data-toggle="collapse" data-target="#drop1" class="nav-link"><img src="{% static 'invsys/Navbar/Main/WorkOrder.png' %}" width="30" height="30" class="d-inline-block align-top">   Work-Order<span class="caret"></span></a>

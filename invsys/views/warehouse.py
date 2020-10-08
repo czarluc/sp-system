@@ -1291,7 +1291,6 @@ def GenerateCompIssuanceSchedule_SelectWO(request):
 
 #--Finish Component Issuance--
 @login_required
-@warehouse_required
 def FinishCompIssuance(request):
     template_name = 'invsys/warehouse/CompIssuance/FinishCompIssuance.html'
     if request.method == 'GET':
