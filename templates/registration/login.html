@@ -10,28 +10,54 @@
 {% block content %}
 
 {% load crispy_forms_tags %}
-  {% if form.non_field_errors %}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      {% for error in form.non_field_errors %}
-        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p>
-      {% endfor %}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
+
+
+<div class="container mt--8 pb-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+
+          <div class="card">
+            <div class="card-body px-lg-5 py-lg-5">
+              <div class="row justify-content-center">
+                <h2>Log in</h2>
+              </div>
+              <div class="text-center text-muted mb-4">
+
+                {% if form.non_field_errors %}
+                  {% for error in form.non_field_errors %}
+                    <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p{%>
+                  {% endfor %}
+                {% else %}
+                  <p>
+                    Use default credentials for:
+                    <br/>
+                    whse user: testwhse / password123145
+                    <br/>
+                    production planner user: testplanner / password123145
+                    <br/>
+                    assembler user: testassembler / password123145
+                    <br/>
+                    OR <a href="{% url 'signup' %}" >create your own user</a>
+                  </p>
+                {% endif %}
+
+              </div>
+
+                
+                  <form method="post" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                    {{ form.username|as_crispy_field }}
+                    {{ form.password|as_crispy_field }}
+                    <button type="submit" class="btn btn-primary">Log in</button>
+                  </form>
+
+            </div>      
+
+        </div>
+      </div>
     </div>
-  {% endif %}
-  <div class="row">
-    <div class="col-lg-4 col-md-6 col-sm-8 col-12">
-      <h2>Log in</h2>
-      <form method="post" novalidate>
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}">
-        {{ form.username|as_crispy_field }}
-        {{ form.password|as_crispy_field }}
-        <button type="submit" class="btn btn-primary">Log in</button>
-      </form>
-    </div>
-  </div>
+    
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
