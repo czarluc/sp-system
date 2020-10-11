@@ -420,9 +420,7 @@
 
             var conditionRow = $('#part_table tr.tablerow:not(:last)');
             conditionRow.find('.btn.add-form-row')
-            .removeClass('btn-success').addClass('btn-danger')
-            .removeClass('add-form-row').addClass('remove-form-row')
-            .html('<i class="fa fa-trash"></i>');
+            .hide();
 
             conditionRow.find('.btn.edit-form-row')
             .show();
@@ -473,9 +471,7 @@
 
             var conditionRow = $('#part_table tr.tablerow:not(:last)');
             conditionRow.find('.btn.add-form-row')
-            .removeClass('btn-success').addClass('btn-danger')
-            .removeClass('add-form-row').addClass('remove-form-row')
-            .html('<i class="fa fa-trash"></i>');
+            .hide();
 
             conditionRow.find('.btn.edit-form-row')
             .show();

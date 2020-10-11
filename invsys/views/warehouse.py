@@ -536,7 +536,7 @@ def checkPO_VDR(shipment_po):
                 po.save()
                 print("PO NOT CLEARED")
                 for items in shipment_items: #RECORD ONLY ITEMS RECEIVED TODAY--CHECK IN SHIPMENT ITEMS
-                    if items.date_received.strftime("%Y-%m-%d") == date_today:
+                    if items.date_validated.strftime("%Y-%m-%d") == date_today:
                         print("ITEM RECEIVED TODAY")
                         AddShipmentTransac(items.shipment_po.shipment_num, items.item_number, items.item_quantity)
                         if checkExistingVDRLobby(items.shipment_po.po_num.po_number, items.item_number): #Increment Received Parts

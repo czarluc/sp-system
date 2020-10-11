@@ -134,7 +134,7 @@
                                         <td><input type="text" name="formsetitem-0-date_validated" class="form-control" id="id_formsetitem-0-date_validated" readonly form_tag = False></td>
                                         <td><input type="text" name="formsetitem-0-start_time_validation" class="form-control" id="id_formsetitem-0-start_time_validation" readonly form_tag = False></td>
                                         <td><input type="text" name="formsetitem-0-end_time_validation" class="form-control" id="id_formsetitem-0-end_time_validation" readonly form_tag = False></td>
-                                    	<td><input type="text" name="formsetitem-0-validation_time" class="form-control" id="id_formsetitem-0-validation_time" readonly form_tag = False></td>
+                                        <td><input type="text" name="formsetitem-0-validation_time" class="form-control" id="id_formsetitem-0-validation_time" readonly form_tag = False></td>
                                         <td><input type="text" name="formsetitem-0-item_number" class="form-control" id="id_formsetitem-0-item_number" readonly form_tag = False></td>
                                         <td><input type="text" name="formsetitem-0-item_quantity" class="form-control" id="id_formsetitem-0-item_quantity"  readonly form_tag = False></td>
                                         <td><input type="text" name="formsetitem-0-notes" class="form-control" id="id_formsetitem-0-notes"  readonly form_tag = False></td>
@@ -419,9 +419,7 @@
 
         var conditionRow = $('#part_table tr.tablerow:not(:last)');
         conditionRow.find('.btn.add-form-row')
-        .removeClass('btn-success').addClass('btn-danger')
-        .removeClass('add-form-row').addClass('remove-form-row')
-        .html('<i class="fa fa-trash"></i>');        
+        .hide();       
 
         dosummary('formsetsum', ship_po, item_num, purchasedquan, 0);
 
@@ -488,9 +486,7 @@
 
         var conditionRow = $('#part_table tr.tablerow:not(:last)');
         conditionRow.find('.btn.add-form-row')
-        .removeClass('btn-success').addClass('btn-danger')
-        .removeClass('add-form-row').addClass('remove-form-row')
-        .html('<i class="fa fa-trash"></i>');
+        .hide();
 
         return false;
     }
