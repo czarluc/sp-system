@@ -297,9 +297,12 @@
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
             <a href="#nope" data-toggle="collapse" data-target="#drop3" class="nav-link"><img src="{% static 'invsys/Navbar/Main/CompIssue.png' %}" width="30" height="30" class="d-inline-block align-top">   Component Issuance<span class="caret"></span></a>
-                <ul id="drop3" class="collapse" data-parent="#sideNavParent">                    
+                <ul id="drop3" class="collapse" data-parent="#sideNavParent">       
                     <li>
                       <a class="nav-link" href="{% url 'assembly:FinishCompIssuance' %}">Verify Component Issuance</a>
+                    </li>
+                    <li>
+                      <a class="nav-link" href="{% url 'assembly:ViewCompIssuanceSummary' %}">View Component Issuance Summary</a>
                     </li>
                 </ul>
           </li>

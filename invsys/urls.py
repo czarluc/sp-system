@@ -158,6 +158,7 @@ urlpatterns = [
         #--Component Issuance
         path('FinishCompIssuance/', assembly.FinishCompIssuance, name='FinishCompIssuance'),
         path('FinishCompIssuance/SelectCompIssuanceSched/', assembly.FinishCompIssuance_SelectCompIssuanceSched, name='FinishCompIssuance_SelectCompIssuanceSched'),
+        path('ViewCompIssuanceSummary/', assembly.ViewCompIssuanceSummary, name='ViewCompIssuanceSummary'),
         #--Assembly Updates
         path('FinishAssembly/', assembly.FinishAssembly, name='FinishAssembly'),
         path('FinishAssembly/SelectProdSched/', assembly.FinishAssembly_SelectProdSched, name='FinishAssembly_SelectProdSched'),

@@ -225,6 +225,68 @@ def FinishCompIssuance_SelectCompIssuanceSched(request):
 
     return render(request, template_name,{'wo_issuancesched':wo_issuancesched,'wo_issuelist':wo_issuelist,'wo_itemissuelist':wo_itemissuelist})
 
+
+@login_required
+@assembly_required
+def ViewCompIssuanceSummary(request):
+    prod_sched_list = WO_Production_Schedule.objects.filter(issued=True, received=False).values(
+        'id',
+        'work_order_number__work_order_number',
+        'quantity',
+        'date_required',
+        'status',)
+    
+    wo_filter = []
+    for prodsched in prod_sched_list:
+        wo_filter.append(prodsched.get("work_order_number__work_order_number"))
+    
+    prodsched_filter = []
+    for prodsched in prod_sched_list:
+        prodsched_filter.append(prodsched.get("id"))
+    
+    wo_list = Work_Order.objects.filter(work_order_number__in=wo_filter).values(
+        'work_order_number',
+        'prod_number__prod_number',
+        'prod_number__prod_desc',
+        'prod_number__uom',
+        'prod_number__prod_type',
+        'prod_number__prod_class',
+        'prod_number__barcode',
+        'prod_number__price',)
+    
+    issuance_list = WO_Issuance_List.objects.filter(prod_sched__in=prodsched_filter).values(
+        'schedule_num__schedule_num',
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'prod_sched__date_required',
+        'date_issued',
+        'issued_by',
+        'verified_by',
+        'cleared',
+        'issues',
+        'notes',)
+
+    schednum_list = []
+    for issuance in issuance_list:
+        schednum_list.append(issuance.get('schedule_num__schedule_num'))
+
+    issuance_sum_query = WO_Issuance_Summary.objects.filter(schedule_num__schedule_num__in=schednum_list).values(
+        'schedule_num__schedule_num',
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'item_num__item_number',
+        'item_num__item_desc',
+        'totalreq_quan',
+        'totalrec_quan',
+        'discrepancy_quantity',
+        'status',)
+
+    return render(request, 'invsys/assembly/CompIssuance/ViewCompIssuanceSummary.html', 
+        {'wo_set':wo_list,
+        'issuance_set':issuance_list,
+        'issuance_sum_set':issuance_sum_query,})
+
+
 #--Assembly Updates
 @login_required
 @assembly_required
