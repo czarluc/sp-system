@@ -538,6 +538,8 @@ def ViewPendingWO(request):
         'coupling_set':coupling_list,
         'testing_set':testing_list,})
 
+
+#--SHRINKAGE
 @login_required
 @assembly_required
 def ReportShrinkage(request):
@@ -704,6 +706,39 @@ def ViewShrinkageSummary(request):
         'report_num__date_reported',)
 
     return render(request, template_name, {'shrnkge_set':shrnkge_query })
+
+
+#PART REQUEST ISSUANCE
+@login_required
+@assembly_required
+def ViewPartReqSummary(request):
+    template_name = 'invsys/assembly/PartRequest/ViewPartReqSummary.html'
+    
+    req_sched_list = Request_Schedule.objects.all().values(
+        'schedule_num',
+        'date_scheduled',
+        'cleared',
+        'issues',
+        'notes',)
+    
+    req_sum_list = Request_Summary.objects.all().values(
+        'schedule_num__schedule_num',
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'totalreq_quan',
+        'totalrec_quan',
+        'discrepancy_quantity',
+        'status',
+        'date_received',
+        'bin_location__bin_location',
+        'ass_location__name',)
+
+    return render(request, template_name, 
+        {'req_sched_set':req_sched_list,
+        'req_sum_set':req_sum_list,})
+
 
 #ISSUANCE ACCURACY
 def Dashboard_get_issuance_acc(request):

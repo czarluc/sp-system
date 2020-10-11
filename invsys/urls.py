@@ -175,6 +175,11 @@ urlpatterns = [
         path('ReportShrinkage/SelectProdSched/', assembly.ReportShrinkage_SelectProdSched, name='ReportShrinkage_SelectProdSched'),
         re_path(r'^ReportShrinkage/(?P<pk>[0-9]+)/SelectItem/', assembly.ReportShrinkage_SelectItem, name='ReportShrinkage_SelectItem'),
         path('ViewShrinkageSummary/', assembly.ViewShrinkageSummary, name='ViewShrinkageSummary'),
+
+        #--PartRequestIssuance
+        path('FinishPartReqIssuance/', warehouse.FinishPartReqIssuance, name='FinishPartReqIssuance'),
+        path('FinishPartReqIssuance/SelectPartReqSched/', warehouse.FinishPartReqIssuance_SelectPartReqSched, name='FinishPartReqIssuance_SelectPartReqSched'),
+        path('ViewPartReqSummary/', assembly.ViewPartReqSummary, name='ViewPartReqSummary'),
         
         #ISSUANCE ACCURACY
         re_path(r'^Dashboard_get_issuance_acc/$', assembly.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
