@@ -699,6 +699,7 @@ def ResolvePO_Function(request):
             resolve_po.save()
 
             Resolve_CheckPO(resolve_po.po_num)
+            DeleteRecLobbyBin()
         else:
             print("resolvepo_form.errors")
             print(resolvepo_form.errors)
@@ -777,6 +778,13 @@ def ResolvePO_SelectPO(request):
         'recship_items_set':recship_items_query,
         'recship_sum_set':recship_sum_query})
 
+
+def DeleteRecLobbyBin():
+    reclobbyset = Receiving_Lobby.objects.order_by('received_quantity')
+    for reclobby in reclobbyset:
+        if reclobby.received_quantity == 0:
+            reclobby.delete()
+            
 #--View Accomplished Shipments--
 @login_required
 @warehouse_required
@@ -828,6 +836,7 @@ def ViewShipmentSummary(request):
         'ponum_item_set':ponum_item_list, 
         'ship_item_set':ship_item_list,
         'ship_summary_set':ship_summary_list})
+
 
 
 #Put Away
@@ -1265,6 +1274,7 @@ def DeleteWhseItemBin():
     for whsebin in whseitemset:
         if whsebin.quantity == 0:
             whsebin.delete()
+
 @login_required
 @warehouse_required
 def GenerateCompIssuanceSchedule_SelectWO(request):
