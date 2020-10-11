@@ -45,6 +45,12 @@
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewOpenPO' %}">View Open PO</a>
                     </li>
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewClosedPO' %}">View Closed PO</a>
+                    </li>
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewResolvedPO' %}">View Resolved PO</a>
+                    </li>
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 

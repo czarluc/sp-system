@@ -679,7 +679,7 @@ def ContinueReceiveShipment_SelectPO(request):
 #Resolve PO
 @login_required
 @warehouse_required
-def ResolvePO(request):
+def ResolvePO_Function(request):
     template_name = 'invsys/warehouse/Receiving/ResolvePO.html'
     if request.method == 'GET':
 
@@ -2902,8 +2902,130 @@ def ViewOpenPO(request):
 
     return render(request, template_name, {'openpo_set':openpo_list })
 
-def getOpenPO_Balance(purch_quan, tot_rec_quan):
-    pur
+#--VIEW CLOSED PO---
+@login_required
+@warehouse_required
+def ViewClosedPO(request):
+    template_name ='invsys/warehouse/Receiving/ViewClosedPO.html'
+
+    po_rec_query = Purchase_Order.objects.filter(cleared=True).values(
+        'po_number',
+        'purchase_date',
+        'notes',
+        'issues',)
+
+    po_list = []
+    for po in po_rec_query:
+        po_list.append(po.get('po_number'))
+
+    ship_po_query = Shipment_PO.objects.filter(po_num__po_number__in=po_list).values(
+        'id',
+        'po_num__po_number')
+
+    ship_po_list = []
+    for ship_po in ship_po_query:
+        ship_po_list.append(ship_po.get('id'))
+
+    ship_sum_query = Shipment_Summary.objects.filter(shipment_po__id__in=ship_po_list).values(
+        'shipment_po__po_num__supplier',
+        'shipment_po__po_num__purchase_date',
+        'shipment_po__po_num__po_number',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'purchased_quantity',
+        'total_received_quantity',)
+
+
+    closedpo_list = []
+    for ship_sum in ship_sum_query:
+        details={}
+        po_num = 0
+        purch_quan = 0
+        tot_rec_quan = 0
+        for i in ship_sum:
+            if i == 'shipment_po__po_num__supplier':
+                details['supplier'] = ship_sum[i]
+            elif i == 'shipment_po__po_num__purchase_date':
+                details['purch_date'] = ship_sum[i]
+            elif i == 'shipment_po__po_num__po_number':
+                po_num = ship_sum[i]
+                details['po_num'] = ship_sum[i]
+            elif i == 'item_number__item_number':
+                details['item_number'] = ship_sum[i]
+            elif i == 'item_number__item_desc':
+                details['item_desc'] = ship_sum[i]
+            elif i == 'purchased_quantity':
+                purch_quan = ship_sum[i]
+                details['purch_quan'] = ship_sum[i]
+            elif i == 'total_received_quantity':
+                tot_rec_quan = ship_sum[i]
+                details['tot_rec_quan'] = ship_sum[i]
+        details['balance'] = int(purch_quan) - int(tot_rec_quan)
+        latest_ship_query = Receive_Shipment_Item.objects.filter(shipment_po__po_num__po_number=po_num).order_by('-date_validated').values(
+            'date_validated').first()        
+        details['date_shipped'] = latest_ship_query.get('date_validated')
+        closedpo_list.append(details)
+
+    return render(request, template_name, {'closedpo_set':closedpo_list })
+
+#--VIEW RESOLVED PO---
+@login_required
+@warehouse_required
+def ViewResolvedPO(request):
+    template_name ='invsys/warehouse/Receiving/ViewResolvedPO.html'
+
+    po_resolve_query = ResolvePO.objects.filter().values(
+        'po_num__po_number',
+        'date_resolved',
+        'notes',)
+
+    po_resolve_list = []
+    for po in po_resolve_query:
+        po_resolve_list.append(po.get('po_num__po_number'))
+
+    ship_sum_query = Shipment_Summary.objects.filter(shipment_po__po_num__po_number__in=po_resolve_list).values(
+        'shipment_po__po_num__supplier',
+        'shipment_po__po_num__purchase_date',
+        'shipment_po__po_num__po_number',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'purchased_quantity',
+        'total_received_quantity',)
+
+
+    resolvedpo_list = []
+    for ship_sum in ship_sum_query:
+        details={}
+        po_num = 0
+        purch_quan = 0
+        tot_rec_quan = 0
+        for i in ship_sum:
+            if i == 'shipment_po__po_num__supplier':
+                details['supplier'] = ship_sum[i]
+            elif i == 'shipment_po__po_num__purchase_date':
+                details['purch_date'] = ship_sum[i]
+            elif i == 'shipment_po__po_num__po_number':
+                po_num = ship_sum[i]
+                details['po_num'] = ship_sum[i]
+            elif i == 'item_number__item_number':
+                details['item_number'] = ship_sum[i]
+            elif i == 'item_number__item_desc':
+                details['item_desc'] = ship_sum[i]
+            elif i == 'purchased_quantity':
+                purch_quan = ship_sum[i]
+                details['purch_quan'] = ship_sum[i]
+            elif i == 'total_received_quantity':
+                tot_rec_quan = ship_sum[i]
+                details['tot_rec_quan'] = ship_sum[i]
+        details['balance'] = int(purch_quan) - int(tot_rec_quan)
+        latest_ship_query = Receive_Shipment_Item.objects.filter(shipment_po__po_num__po_number=po_num).order_by('-date_validated').values(
+            'date_validated').first()        
+        details['date_shipped'] = latest_ship_query.get('date_validated')
+        resolvedpo_list.append(details)
+
+    return render(request, template_name, {'resolvedpo_set':resolvedpo_list })
+
+
 
 #--WAREHOUSE ADJUSTMENTS--
 @login_required
