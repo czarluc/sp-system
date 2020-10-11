@@ -1,19 +1,165 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Open PO {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-
+<style>
+</style>
 {% endblock stylesheets %}
 
 {% block content %}
 
-Generate Cycle Count Schedule
+<h2>View Item Transactions</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Item Master:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="item_master">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">UOM</th>
+                        <th scope="col">Item Category</th>
+                        <th scope="col">Product Class</th>
+                        <th scope="col">Barcode</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Orderpoint</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in item_master_set %}
+                    <tr class="tablerow" id="sched-{{forloop.counter}}">
+                        <td><button type="button" class="btn btn-primary" data-item_num="{{ instance.item_number }}">{{ instance.item_number }}</button></td>
+                        <td>{{ instance.item_desc }}</td>
+                        <td>{{ instance.uom__uom }}</td>
+                        <td>{{ instance.item_cat__item_cat }}</td>
+                        <td>{{ instance.prod_class__prod_class }}</td>
+                        <td>{{ instance.barcode }}</td>
+                        <td>{{ instance.price }}</td>
+                        <td>{{ instance.notes }}</td>
+                        <td>{{ instance.orderpoint }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Item Transactions:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="trans_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Reference Number</th>
+                        <th scope="col">Transaction Type</th>
+                        <th scope="col">Transaction Date</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Item Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in itemtrans_set %}
+                    <tr class="tablerow" data-item_num="{{ instance.item_number }}" id="ponum-{{forloop.counter}}">
+
+                        <td>{{ instance.reference_number }}</td>
+                        <td>{{ instance.transaction_type }}</td>
+                        <td>{{ instance.transaction_date|date:'d-m-Y' }}</td>
+                        <td>{{ instance.transaction_location }}</td>
+                        <td>{{ instance.item_number }}</td>
+                        <td>{{ instance.item_quantity }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script>
+$(document).ready(function() {
+	$.fn.dataTable.moment( 'DD-MM-YYY' );
 
+	var table1 = $('#item_master').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect item_master'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect.item_master").html("<select id="+ "'select_item'" + "class='browser-default custom-select'"+"><option>Item Number</option><option>Item Description</option><option>UOM</option><option>Item Category</option><option>Product Class</option><option>Barcode</option><option>Price</option><option>Notes</option><option>Orderpoint</option></select>");
+
+    $('#item_master_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_item').selectedIndex;
+      table1.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select_item').change(function() {
+      table1.columns().search('').draw();
+    });
+
+    var table = $('#trans_table').DataTable({
+    	paging: false, info: false,
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect trans'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    columns: ':visible',
+                    rows: ':visible' 
+                }
+            }, 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Reference Number</option><option>Transaction Type</option><option>Transaction Date</option><option>Location</option><option>Item Number</option><>Item Quantity</option></select>");
+
+    $('#trans_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_trans').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select_trans').change(function() {
+      table.columns().search('').draw();
+    });
+
+    $('#trans_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $( "#item_master" ).on("click", ".btn.btn-primary",function () {
+        var btn = this;
+        var item_num = btn.dataset.item_num;
+        $('#trans_table').find('tr.tablerow').each(function (i, el) {
+            var name = this;
+            var trans_item_num = name.dataset.item_num;
+            if (item_num === trans_item_num){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+        });
+
+    });
+
+});
+ </script>
 {% endblock javascripts %}

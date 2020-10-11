@@ -3883,45 +3883,559 @@ def CheckProduct(request):
 def ViewItemTransactions(request):
     template_name = 'invsys/warehouse/ViewInventory/ViewItemTransactions.html'
 
+    item_query = Item.objects.all().values(
+        'item_number',
+        'item_desc',
+        'uom__uom',
+        'item_cat__item_cat',
+        'prod_class__prod_class',
+        'barcode',
+        'price',
+        'notes',
+        'orderpoint',
+        'image')
+
+    itemtrans_list = []
+
     #RECEIVING TRANSACTIONS
-    recship_trans = Shipment_Transaction.objects.all()
-    reclobby_trans = RecLobby_Transaction.objects.all()
-    vdrlobby_trans = VDRLobby_Transaction.objects.all()
-    vdrtorec_trans = VDR_To_Receiving_Transaction.objects.all()
+    recship_trans = Shipment_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    reclobby_trans = RecLobby_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    vdrlobby_trans = VDRLobby_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    vdrtorec_trans = VDR_To_Receiving_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+
+    #RECEIVING 
+    for recship in recship_trans:
+        details={}
+        for i in recship:
+            if i == 'reference_number':
+                details['reference_number'] = recship[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = recship[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = recship[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = recship[i]
+            elif i == 'item_number':
+                details['item_number'] = recship[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = recship[i]
+        itemtrans_list.append(details)
+    for reclobby in reclobby_trans:
+        details={}
+        for i in reclobby:
+            if i == 'reference_number':
+                details['reference_number'] = reclobby[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = reclobby[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = reclobby[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = reclobby[i]
+            elif i == 'item_number':
+                details['item_number'] = reclobby[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = reclobby[i]
+        itemtrans_list.append(details)
+    for vdrlobby in vdrlobby_trans:
+        details={}
+        for i in vdrlobby:
+            if i == 'reference_number':
+                details['reference_number'] = vdrlobby[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = vdrlobby[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = vdrlobby[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = vdrlobby[i]
+            elif i == 'item_number':
+                details['item_number'] = vdrlobby[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = vdrlobby[i]
+        itemtrans_list.append(details)
+    for vdrtorec in vdrtorec_trans:
+        details={}
+        for i in vdrtorec:
+            if i == 'reference_number':
+                details['reference_number'] = vdrtorec[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = vdrtorec[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = vdrtorec[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = vdrtorec[i]
+            elif i == 'item_number':
+                details['item_number'] = vdrtorec[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = vdrtorec[i]
+        itemtrans_list.append(details)
 
     #PUT AWAY TRANSACTIONS
-    pa_sum_trans = Put_Away_Finish_Transaction.objects.all()
-    pa_sched_trans = Put_Away_Schedule_Transaction.objects.all()
+    pa_sched_trans = Put_Away_Schedule_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    pa_sum_trans = Put_Away_Finish_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+
+    #PUT AWAY
+    for pa_sched in pa_sched_trans:
+        details={}
+        for i in pa_sched:
+            if i == 'reference_number':
+                details['reference_number'] = pa_sched[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = pa_sched[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = pa_sched[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = pa_sched[i]
+            elif i == 'item_number':
+                details['item_number'] = pa_sched[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = pa_sched[i]
+        itemtrans_list.append(details)
+    for pa_sum in pa_sum_trans:
+        details={}
+        for i in pa_sum:
+            if i == 'reference_number':
+                details['reference_number'] = pa_sum[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = pa_sum[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = pa_sum[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = pa_sum[i]
+            elif i == 'item_number':
+                details['item_number'] = pa_sum[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = pa_sum[i]
+        itemtrans_list.append(details)
 
     #WO ISSUANCE TRANSACTIONS
-    woissuance_sched_trans = WO_Allocation_Transaction.objects.all()
-    woissuance_sum_trans = WO_Issuance_Finish_Transaction.objects.all()
-    woissuance_disc_trans = WO_Issuance_Disc_Transaction.objects.all()
+    woissuance_sched_trans = WO_Allocation_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    woissuance_sum_trans = WO_Issuance_Finish_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    woissuance_disc_trans = WO_Issuance_Disc_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+
+    #WO ISSUANCE
+    for woissuance_sched in woissuance_sched_trans:
+        details={}
+        for i in woissuance_sched:
+            if i == 'reference_number':
+                details['reference_number'] = woissuance_sched[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = woissuance_sched[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = woissuance_sched[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = woissuance_sched[i]
+            elif i == 'item_number':
+                details['item_number'] = woissuance_sched[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = woissuance_sched[i]
+        itemtrans_list.append(details)
+    for woissuance_sum in woissuance_sum_trans:
+        details={}
+        for i in woissuance_sum:
+            if i == 'reference_number':
+                details['reference_number'] = woissuance_sum[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = woissuance_sum[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = woissuance_sum[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = woissuance_sum[i]
+            elif i == 'item_number':
+                details['item_number'] = woissuance_sum[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = woissuance_sum[i]
+        itemtrans_list.append(details)
+    for woissuance_disc in woissuance_disc_trans:
+        details={}
+        for i in woissuance_disc:
+            if i == 'reference_number':
+                details['reference_number'] = woissuance_disc[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = woissuance_disc[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = woissuance_disc[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = woissuance_disc[i]
+            elif i == 'item_number':
+                details['item_number'] = woissuance_disc[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = woissuance_disc[i]
+        itemtrans_list.append(details)
 
     #PRODUCT CONVERSION TRANSACTIONS
-    itemtoprod_trans = RecProduct_Item_Transaction.objects.all()
+    itemtoprod_trans = RecProduct_Item_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+
+    #PRODUCT CONVERSION
+    for itemtoprod in itemtoprod_trans:
+        details={}
+        for i in itemtoprod:
+            if i == 'reference_number':
+                details['reference_number'] = itemtoprod[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = itemtoprod[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = itemtoprod[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = itemtoprod[i]
+            elif i == 'item_number':
+                details['item_number'] = itemtoprod[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = itemtoprod[i]
+        itemtrans_list.append(details)
 
     #SHRINKAGE TRANSACTION
-    shrnk_report_trans = Shrinkage_Ass_Report_Transaction.objects.all()
-    shrnk_item_trans = Shrinkage_Ass_Item_Transaction.objects.all()
+    shrnk_report_trans = Shrinkage_Ass_Report_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    shrnk_item_trans = Shrinkage_Ass_Item_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+
+    #SHRINKAGE
+    for shrnk_report in shrnk_report_trans:
+        details={}
+        for i in shrnk_report:
+            if i == 'reference_number':
+                details['reference_number'] = shrnk_report[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = shrnk_report[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = shrnk_report[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = shrnk_report[i]
+            elif i == 'item_number':
+                details['item_number'] = shrnk_report[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = shrnk_report[i]
+        itemtrans_list.append(details)
+    for shrnk_item in shrnk_item_trans:
+        details={}
+        for i in shrnk_item:
+            if i == 'reference_number':
+                details['reference_number'] = shrnk_item[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = shrnk_item[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = shrnk_item[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = shrnk_item[i]
+            elif i == 'item_number':
+                details['item_number'] = shrnk_item[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = shrnk_item[i]
+        itemtrans_list.append(details)
 
     #PART REQUEST TRANSACTION
-    partreq_sched_trans = Request_Schedule_Transaction.objects.all()
-    partreq_sum_trans = Request_Finish_Transaction.objects.all()
-    partreq_disc_trans = Request_DiscSummary_Transaction.objects.all()
+    partreq_sched_trans = Request_Schedule_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    partreq_sum_trans = Request_Finish_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    partreq_disc_trans = Request_DiscSummary_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+
+    #PART REQUEST
+    for partreq_sched in partreq_sched_trans:
+        details={}
+        for i in partreq_sched:
+            if i == 'reference_number':
+                details['reference_number'] = partreq_sched[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = partreq_sched[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = partreq_sched[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = partreq_sched[i]
+            elif i == 'item_number':
+                details['item_number'] = partreq_sched[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = partreq_sched[i]
+        itemtrans_list.append(details)
+    for partreq_sum in partreq_sum_trans:
+        details={}
+        for i in partreq_sum:
+            if i == 'reference_number':
+                details['reference_number'] = partreq_sum[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = partreq_sum[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = partreq_sum[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = partreq_sum[i]
+            elif i == 'item_number':
+                details['item_number'] = partreq_sum[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = partreq_sum[i]
+        itemtrans_list.append(details)
+    for partreq_disc in partreq_disc_trans:
+        details={}
+        for i in partreq_disc:
+            if i == 'reference_number':
+                details['reference_number'] = partreq_disc[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = partreq_disc[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = partreq_disc[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = partreq_disc[i]
+            elif i == 'item_number':
+                details['item_number'] = partreq_disc[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = partreq_disc[i]
+        itemtrans_list.append(details)
+
+    #COMPONENT RETURN TRANSACTION
+    compret_sched_trans = ComponentReturn_Schedule_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    compret_sum_trans = ComponentReturn_Summary_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
 
     #COMPONENT RETURN
-    compret_sched_trans = ComponentReturn_Schedule_Transaction.objects.all()
-    compret_sum_trans = ComponentReturn_Summary_Transaction.objects.all()
+    for compret_sched in compret_sched_trans:
+        details={}
+        for i in compret_sched:
+            if i == 'reference_number':
+                details['reference_number'] = compret_sched[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = compret_sched[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = compret_sched[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = compret_sched[i]
+            elif i == 'item_number':
+                details['item_number'] = compret_sched[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = compret_sched[i]
+        itemtrans_list.append(details)
+    for compret_sum in compret_sum_trans:
+        details={}
+        for i in compret_sum:
+            if i == 'reference_number':
+                details['reference_number'] = compret_sum[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = compret_sum[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = compret_sum[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = compret_sum[i]
+            elif i == 'item_number':
+                details['item_number'] = compret_sum[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = compret_sum[i]
+        itemtrans_list.append(details)
+
+    #WHSE UPDATE TRANSACTIONS
+    dmmr_trans = DMMR_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    dfmr_trans = DFMR_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    sa_sub_trans = SA_Subt_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    sa_add_trans = SA_Add_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
+    dism_item_trans = Dismantle_Item_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'item_number',
+        'item_quantity',)
 
     #WHSE UPDATE
-    dmmr_trans = DMMR_Transaction.objects.all()
-    dfmr_trans = DFMR_Transaction.objects.all()
-    sa_sub_trans = SA_Subt_Transaction.objects.all()
-    sa_add_trans = SA_Add_Transaction.objects.all()
-    dism_item_trans = Dismantle_Item_Transaction.objects.all()
+    for dmmr in dmmr_trans:
+        details={}
+        for i in dmmr:
+            if i == 'reference_number':
+                details['reference_number'] = dmmr[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = dmmr[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = dmmr[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = dmmr[i]
+            elif i == 'item_number':
+                details['item_number'] = dmmr[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = dmmr[i]
+        itemtrans_list.append(details)
+    for dfmr in dfmr_trans:
+        details={}
+        for i in dfmr:
+            if i == 'reference_number':
+                details['reference_number'] = dfmr[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = dfmr[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = dfmr[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = dfmr[i]
+            elif i == 'item_number':
+                details['item_number'] = dfmr[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = dfmr[i]
+        itemtrans_list.append(details)
+    for sa_sub in sa_sub_trans:
+        details={}
+        for i in sa_sub:
+            if i == 'reference_number':
+                details['reference_number'] = sa_sub[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = sa_sub[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = sa_sub[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = sa_sub[i]
+            elif i == 'item_number':
+                details['item_number'] = sa_sub[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = sa_sub[i]
+        itemtrans_list.append(details)
+    for sa_add in sa_add_trans:
+        details={}
+        for i in sa_add:
+            if i == 'reference_number':
+                details['reference_number'] = sa_add[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = sa_add[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = sa_add[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = sa_add[i]
+            elif i == 'item_number':
+                details['item_number'] = sa_add[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = sa_add[i]
+        itemtrans_list.append(details)
+    for dism_item in dism_item_trans:
+        details={}
+        for i in dism_item:
+            if i == 'reference_number':
+                details['reference_number'] = dism_item[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = dism_item[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = dism_item[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = dism_item[i]
+            elif i == 'item_number':
+                details['item_number'] = dism_item[i]
+            elif i == 'item_quantity':
+                details['item_quantity'] = dism_item[i]
+        itemtrans_list.append(details)
 
-    return render(request, template_name, {})
+    return render(request, template_name, {'item_master_set':item_query, "itemtrans_set":itemtrans_list})
 
 @login_required
 @warehouse_required
