@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %} Shrinkage Summary {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>View Shrinkage Summary</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Shrinkage Summaries:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered sm" id="inbound_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Report Number</th>
+                        <th scope="col">WO Num</th>
+                        <th scope="col">Prod Sched</th>
+                        <th scope="col">Shrinkage Item</th>
+                        <th scope="col">Shrinkage Description</th>
+                        <th scope="col">Shrinkage Quantity</th>
+                        <th scope="col">Shrinkage Type</th>
+                        <th scope="col">Replacement Item</th>
+                        <th scope="col">Replacement Description</th>
+                        <th scope="col">Replacement Quantity</th>
+                        <th scope="col">Scheduled</th>
+                        <th scope="col">Assembly Line</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Date Reported</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in shrnkge_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}">
+
+                        <td>{{ instance.report_num__report_num }}</td>
+                        <td>{{ instance.report_num__prod_sched__work_order_number }}</td>
+                        <td>{{ instance.report_num__prod_sched__id }}</td>
+                        <td>{{ instance.report_num__item_number__item_number }}</td>
+                        <td>{{ instance.report_num__item_number__item_desc }}</td>
+                        <td>{{ instance.report_num__quantity }}</td>
+                        <td>{{ instance.report_num__shrinkage_type__shrinkage_type }}</td>
+                        <td>{{ instance.item_number__item_number }}</td>
+                        <td>{{ instance.item_number__item_desc }}</td>
+                        <td>{{ instance.quantity }}</td>
+                        <td>{{ instance.scheduled }}</td>
+                        <td>{{ instance.ass_location__name }}</td>
+                        <td>{{ instance.report_num__reason }}</td>
+                        <td>{{ instance.report_num__date_reported }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    var table = $('#inbound_table').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>Report Number</option><option>WO Num</option><option>Prod Sched</option><option>Shrinkage Item</option><option>Shrinkage Description</option><>Shrinkage Quantity</option><option>Shrinkage Type</option><option>Replacement Item</option><option>Replacement Description</option><option>Replacement Quantity</option><option>Scheduled</option><option>Assembly Line</option><option>Reason</option><option>Date Reported</option></select>");
+
+    $('#inbound_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+});
+ </script>
+{% endblock javascripts %}

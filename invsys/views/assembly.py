@@ -682,7 +682,29 @@ def ReportShrinkage_SelectItem(request, pk=None):
 
     return render(request, template_name,{'ass_item':ass_item})
         
-        
+@login_required
+@assembly_required
+def ViewShrinkageSummary(request):
+    template_name = 'invsys/assembly/AssemblyShrinkage/ViewShrinkageSummary.html'
+
+    shrnkge_query = Shrinkage_Ass_Item.objects.all().values(
+        'report_num__report_num',
+        'report_num__prod_sched__work_order_number',
+        'report_num__prod_sched__id',        
+        'report_num__item_number__item_number',
+        'report_num__item_number__item_desc',
+        'report_num__quantity',
+        'report_num__shrinkage_type__shrinkage_type',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'quantity',
+        'scheduled',
+        'ass_location__name',
+        'report_num__reason',
+        'report_num__date_reported',)
+
+    return render(request, template_name, {'shrnkge_set':shrnkge_query })
+
 #ISSUANCE ACCURACY
 def Dashboard_get_issuance_acc(request):
 

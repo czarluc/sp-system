@@ -155,10 +155,12 @@ urlpatterns = [
 
     path('assembly/', include(([
         path('', assembly.AssemblyHome, name='assembly_home'),
+        
         #--Component Issuance
         path('FinishCompIssuance/', assembly.FinishCompIssuance, name='FinishCompIssuance'),
         path('FinishCompIssuance/SelectCompIssuanceSched/', assembly.FinishCompIssuance_SelectCompIssuanceSched, name='FinishCompIssuance_SelectCompIssuanceSched'),
         path('ViewCompIssuanceSummary/', assembly.ViewCompIssuanceSummary, name='ViewCompIssuanceSummary'),
+        
         #--Assembly Updates
         path('FinishAssembly/', assembly.FinishAssembly, name='FinishAssembly'),
         path('FinishAssembly/SelectProdSched/', assembly.FinishAssembly_SelectProdSched, name='FinishAssembly_SelectProdSched'),
@@ -167,17 +169,21 @@ urlpatterns = [
         path('FinishTesting/', assembly.FinishTesting, name='FinishTesting'),
         path('FinishTesting/SelectProdSched/', assembly.FinishTesting_SelectProdSched, name='FinishTesting_SelectProdSched'),
         path('ViewPendingWO/', assembly.ViewPendingWO, name='ViewPendingWO'),
+        
         #--Shrinkage Parts
         path('ReportShrinkage/', assembly.ReportShrinkage, name='ReportShrinkage'),
         path('ReportShrinkage/SelectProdSched/', assembly.ReportShrinkage_SelectProdSched, name='ReportShrinkage_SelectProdSched'),
         re_path(r'^ReportShrinkage/(?P<pk>[0-9]+)/SelectItem/', assembly.ReportShrinkage_SelectItem, name='ReportShrinkage_SelectItem'),
+        path('ViewShrinkageSummary/', assembly.ViewShrinkageSummary, name='ViewShrinkageSummary'),
         
         #ISSUANCE ACCURACY
         re_path(r'^Dashboard_get_issuance_acc/$', assembly.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
         re_path(r'^Dashboard_update_issuance_acc/$', assembly.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
+        
         #ASSEMBLY TIMELINESS
         re_path(r'^Dashboard_get_ass_time/$', assembly.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
         re_path(r'^Dashboard_update_ass_time/$', assembly.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
+        
         #PRODUCTION VOLUME
         re_path(r'^Dashboard_get_prod_vol/$', assembly.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
         re_path(r'^Dashboard_update_prod_vol/$', assembly.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
