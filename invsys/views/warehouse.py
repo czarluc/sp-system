@@ -4442,24 +4442,165 @@ def ViewItemTransactions(request):
 def ViewProductTransactions(request):
     template_name = 'invsys/warehouse/ViewInventory/ViewProductTransactions.html'
 
+    prod_query = Product.objects.all().values(
+        'prod_number',
+        'prod_desc',
+        'uom__uom',
+        'prod_type',
+        'prod_class__prod_class',
+        'barcode',
+        'price',
+        'notes',
+        'image',)
+
+    prodtrans_list = []
+
     #NEW PRODUCT TRANSACTIONS
-    newprod_trans = RecProduct_Product_Transaction.objects.all()
-    prod_shiplobby_trans = RecProduct_ProductToShipLobby_Transaction.objects.all()
-    prod_whse_trans = RecProduct_ProductToWhse_Transaction.objects.all()
+    newprod_trans = RecProduct_Product_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'prod_number',
+        'prod_quantity',)
+    prod_shiplobby_trans = RecProduct_ProductToShipLobby_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'prod_number',
+        'prod_quantity',)
+    prod_whse_trans = RecProduct_ProductToWhse_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'prod_number',
+        'prod_quantity',)
+
+    for newprod in newprod_trans:
+        details={}
+        for i in newprod:
+            if i == 'reference_number':
+                details['reference_number'] = newprod[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = newprod[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = newprod[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = newprod[i]
+            elif i == 'prod_number':
+                details['prod_number'] = newprod[i]
+            elif i == 'prod_quantity':
+                details['prod_quantity'] = newprod[i]
+        prodtrans_list.append(details)
+    for prod_shiplobby in prod_shiplobby_trans:
+        details={}
+        for i in prod_shiplobby:
+            if i == 'reference_number':
+                details['reference_number'] = prod_shiplobby[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = prod_shiplobby[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = prod_shiplobby[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = prod_shiplobby[i]
+            elif i == 'prod_number':
+                details['prod_number'] = prod_shiplobby[i]
+            elif i == 'prod_quantity':
+                details['prod_quantity'] = prod_shiplobby[i]
+        prodtrans_list.append(details)
+    for prod_whse in prod_whse_trans:
+        details={}
+        for i in prod_whse:
+            if i == 'reference_number':
+                details['reference_number'] = prod_whse[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = prod_whse[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = prod_whse[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = prod_whse[i]
+            elif i == 'prod_number':
+                details['prod_number'] = prod_whse[i]
+            elif i == 'prod_quantity':
+                details['prod_quantity'] = prod_whse[i]
+        prodtrans_list.append(details)
 
     #STORAGE OF PRODUCT TRANSACTION
-    shipout_trans = Shipping_Outbound_Transaction.objects.all()
-    whsetoshiplobby_trans = Shipping_WhseProduct_Transaction.objects.all()
+    shipout_trans = Shipping_Outbound_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'prod_number',
+        'prod_quantity',)
+    whsetoshiplobby_trans = Shipping_WhseProduct_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'prod_number',
+        'prod_quantity',)
+
+    for shipout in shipout_trans:
+        details={}
+        for i in shipout:
+            if i == 'reference_number':
+                details['reference_number'] = shipout[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = shipout[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = shipout[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = shipout[i]
+            elif i == 'prod_number':
+                details['prod_number'] = shipout[i]
+            elif i == 'prod_quantity':
+                details['prod_quantity'] = shipout[i]
+        prodtrans_list.append(details)
+    for whsetoshiplobby in whsetoshiplobby_trans:
+        details={}
+        for i in whsetoshiplobby:
+            if i == 'reference_number':
+                details['reference_number'] = whsetoshiplobby[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = whsetoshiplobby[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = whsetoshiplobby[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = whsetoshiplobby[i]
+            elif i == 'prod_number':
+                details['prod_number'] = whsetoshiplobby[i]
+            elif i == 'prod_quantity':
+                details['prod_quantity'] = whsetoshiplobby[i]
+        prodtrans_list.append(details)
 
     #WHSE UPDATE
-    dism_prod_trans = Dismantle_Product_Transaction.objects.all()
+    dism_prod_trans = Dismantle_Product_Transaction.objects.filter().values(
+        'reference_number',
+        'transaction_type',
+        'transaction_date',
+        'transaction_location',
+        'prod_number',
+        'prod_quantity',)
 
-    return render(request, template_name, {
-        'newprod_trans':newprod_trans,
-        'prod_shiplobby_trans':prod_shiplobby_trans,
-        'prod_whse_trans':prod_whse_trans,
-        'shipout_trans':shipout_trans,
-        'whsetoshiplobby_trans':whsetoshiplobby_trans,
-        'dism_prod_trans':dism_prod_trans
-        })
+    for dism_prod in dism_prod_trans:
+        details={}
+        for i in dism_prod:
+            if i == 'reference_number':
+                details['reference_number'] = dism_prod[i]
+            elif i == 'transaction_type':
+                details['transaction_type'] = dism_prod[i]
+            elif i == 'transaction_date':
+                details['transaction_date'] = dism_prod[i]
+            elif i == 'transaction_location':
+                details['transaction_location'] = dism_prod[i]
+            elif i == 'prod_number':
+                details['prod_number'] = dism_prod[i]
+            elif i == 'prod_quantity':
+                details['prod_quantity'] = dism_prod[i]
+        prodtrans_list.append(details)
+
+    return render(request, template_name, {'prod_set':prod_query, "prodtrans_set":prodtrans_list})
 
