@@ -1722,7 +1722,6 @@ def GeneratePartRequestSchedule_SelectItem(request):
 def FinishPartReqIssuance(request):
     template_name = 'invsys/warehouse/PartRequest/FinishPartReqIssuance.html'
     if request.method == 'GET':
-        partreq_recitem = PartReq_Issuance_RecItemFormset(queryset=Request_RecItem.objects.none(), prefix='formsetitem')
         partreq_summary = PartReq_Issuance_SummaryFormset(queryset=Request_Summary.objects.none(), prefix='formsetsummary')
         
         partreq_issuance_list = Request_Item.objects.filter(cleared=False).values(
@@ -1734,25 +1733,15 @@ def FinishPartReqIssuance(request):
             'location_from__bin_location',
             'location_to__id',
             'location_to__name',)
-        return render(request, template_name, {'partreq_recitem':partreq_recitem,'partreq_summary':partreq_summary,'partreq_issuance_list':partreq_issuance_list})
+        return render(request, template_name, {'partreq_summary':partreq_summary,'partreq_issuance_list':partreq_issuance_list})
     elif request.method == 'POST' :
-
-        partreq_recitemformset = PartReq_Issuance_RecItemFormset(request.POST , request.FILES, prefix='formsetitem')
+        
         partreq_summaryformset = PartReq_Issuance_SummaryFormset(request.POST , request.FILES, prefix='formsetsummary')
 
-        if partreq_recitemformset.is_valid() and partreq_summaryformset.is_valid():
+        if partreq_summaryformset.is_valid():
             partreqissuesched = Request_Schedule.objects.get(schedule_num=request.POST.get('partreqissuesched',''))
-            date_received = '01/01/2020'
-
-            counter = 1
-            for reci_item in partreq_recitemformset:
-                if counter < len(partreq_recitemformset): 
-                    partreq_recitem = reci_item.save(commit=False)
-                    partreq_recitem.schedule_num = partreqissuesched
-                    date_received = partreq_recitem.date_received
-                    partreq_recitem.save()
-                    SubtractBinStock_FinishPartReqIssuance(partreq_recitem)
-                    counter += 1
+            now = datetime.now().replace(tzinfo=pytz.utc)
+            date_received = now
 
             counter = 1    
             for summary_item in partreq_summaryformset:
@@ -1761,16 +1750,26 @@ def FinishPartReqIssuance(request):
                     partreq_summary.schedule_num = partreqissuesched
                     partreq_summary.date_received = date_received
                     partreq_summary.save()
+
+                    partreq_recitem = Request_RecItem.objects.create(
+                        schedule_num=partreq_summary.schedule_num,
+                        prod_sched=partreq_summary.prod_sched,
+                        item_number=partreq_summary.item_number,
+                        rec_quantity=partreq_summary.totalrec_quan,
+                        date_received=partreq_summary.date_received,
+                        notes="None",
+                        bin_location=partreq_summary.bin_location,
+                        ass_location=partreq_summary.ass_location,)
+                    partreq_recitem.save()
+                    SubtractBinStock_FinishPartReqIssuance(partreq_recitem)
+
                     AnalyzeIssuance_PartReq(partreq_summary)
                     UpdateReqItems_PartReq(partreq_summary)
                     counter += 1
             
             CheckPartReq_IssuanceSchedule(partreqissuesched)
             DeleteWhseItemBin()
-
         else:
-            print("partreq_recitem.errors")
-            print(partreq_recitem.errors)
             print("partreq_summary.errors")
             print(partreq_summary.errors)
 
