@@ -142,10 +142,19 @@ def AddtoAssembly_Transac(itemnum, reqQuan, prodsched):
     ass_item_transac.full_clean()
     ass_item_transac.save()
 def AddAssemblyDiscItem(itemnum, discQuan, prodsched):
+    prod_sched = WO_Production_Schedule.objects.get(id=prodsched)
+    wo_num = Work_Order.objects.get(work_order_number=prod_sched.work_order_number)
+    prod_num = Product.objects.get(prod_number=wo_num.prod_number)
+    prod_class = ProdClass.objects.get(prod_class=prod_num.prod_class)
+    assline_assignment = Assembly_Line_Assignment.objects.get(prod_class=prod_class)
+    ass_line = assline_assignment.assemblyline
+
+    item_quantity = abs(int(discQuan))
+ 
     ass_item = Assembly_Discrepancy.objects.create(
-        assemblyline='1',
+        assemblyline=ass_line,
         item_number=itemnum,
-        quantity=discQuan,
+        quantity=item_quantity,
         status="Waiting for Return",
         reference_number=prodsched)
     ass_item.full_clean()

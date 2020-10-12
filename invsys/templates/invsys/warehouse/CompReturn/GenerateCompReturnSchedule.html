@@ -25,14 +25,14 @@
             <div class="form-row align-items-center">
                 <div class="col-3">
                     <div class="form-group">
-                    	<label for="id_schedule_num">Scheduled Number:</label>
-                    	<input type="text" name="schedule_num" class="form-control" required="" readonly id="id_schedule_num" value="{{scheduleid}}">
+                        <label for="id_schedule_num">Scheduled Number:</label>
+                        <input type="text" name="schedule_num" class="form-control" required="" readonly id="id_schedule_num" value="{{scheduleid}}">
                     </div>
                 </div>
                 <div class="col-3">
                     <div class="form-group">
-                    	<label for="id_date_scheduled">Scheduled Date:</label>
-                    	<input type="text" name="date_scheduled" class="form-control" required="" readonly id="id_date_scheduled">
+                        <label for="id_date_scheduled">Scheduled Date:</label>
+                        <input type="text" name="date_scheduled" class="form-control" required="" readonly id="id_date_scheduled">
                     </div>
                 </div>
             </div>
@@ -48,12 +48,12 @@
                 <table class="table items table-hover table-striped w-auto mx-auto" id="part_table">
                     <thead class="thead-dark">
                         <tr class="tablehead">
-                        	<th scope="col">Production Schedule ID</th>
+                            <th scope="col">Production Schedule ID</th>
                             <th scope="col">Item Number</th>
                             <th scope="col">Quantity</th>
                             <th scope="col">Location From ID</th>
                             <th scope="col">Location From</th>
-                            <th scope="col">Report ID</th>
+                            <th scope="col">Assembly ID</th>
                             <th scope="col">Delete</th>
                         </tr>
                     </thead>
@@ -113,7 +113,7 @@
         if (el.name) el.name = el.name.replace(id_regex, replacement);
     }
 
-    function cloneMore(prefix, prod_sched, item_num, item_quan, ass_id, ass_line) { //selector - .form-row:last | prefix - form
+    function cloneMore(prefix, prod_sched, item_num, item_quan, ass_id, ass_line, assdisc_id) { //selector - .form-row:last | prefix - form
         var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
         var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
         var currentnum = total - 1
@@ -134,8 +134,11 @@
                 } else if(counter === 3){
                     $(this).val(ass_id);
                     counter++;
-                } else {
+                } else if(counter === 4){
                     $(this).val(ass_line);
+                    counter++;
+                } else {
+                    $(this).val(assdisc_id);
                     counter++;
                 }
             }

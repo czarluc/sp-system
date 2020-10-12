@@ -49,6 +49,7 @@
                     <div class="form-group">
                         <label>Assembly Line:</label>
                         <input type ="text" class="form-control" id="name6" readonly/>
+                        <input type ="hidden" class="form-control" id="assdisc_id" readonly/>
                     </div>
                 </div>
             </div>
@@ -79,7 +80,7 @@
                     {% for instance in assdisc_items %}
                         <tr class="tablerow" id="wo-{{forloop.counter}}">
                             <td>{{ instance.assemblyline__name }}</td>
-                            <td><button type="button" class="btn btn-primary wo" data-ass_id="{{instance.assemblyline__id}}" data-ass_line="{{instance.assemblyline__name}}" data-item_num="{{instance.item_number__item_number}}" data-quantity="{{ instance.quantity }}" data-prod_sched="{{ instance.reference_number }}">{{ instance.item_number__item_number }}</button></td>
+                            <td><button type="button" class="btn btn-primary wo" data-ass_id="{{instance.assemblyline__id}}" data-ass_line="{{instance.assemblyline__name}}" data-item_num="{{instance.item_number__item_number}}" data-quantity="{{ instance.quantity }}" data-prod_sched="{{ instance.reference_number }}" data-assdisc_id="{{ instance.id }}">{{ instance.item_number__item_number }}</button></td>
                             <td>{{ instance.quantity }}</td>
                             <td>{{ instance.reference_number }}</td>
                         </tr>
@@ -100,46 +101,11 @@
 
         $("#wo_table").DataTable();
 
-        document.getElementById('label_reqdate').innerHTML = 'Hello World!';
-
         $('#cmbAssLine').change(function() {
             if ($(this).val() === '2') {
                 alert("GISO Assembly");
             }
         });
-
-
-        /*
-        $( "#datepicker" ).datepicker({
-            onSelect: function(dateText, inst) { 
-                document.getElementById('label_reqdate').innerHTML = dateText;
-                getWO()
-            }
-        });
-
-        function getWO(){
-            $('#wo_table').find('tr.tablerow').each(function (i, el) {
-                var rowelm = this;
-                var date_req = rowelm.dataset.date_req;
-                var date_sel = document.getElementById('label_reqdate').innerHTML
-
-                if(date_sel === date_req){
-                    $(this).show();
-                }else{
-                    $(this).hide();
-                }
-
-                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-                    $(this).hide();
-                });
-
-            });
-        }
-        
-        $('#wo_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
-        });
-        */
 
         $( ".btn.btn-primary.wo" ).on("click", function () {
             var btn = this;
@@ -149,12 +115,14 @@
             var item_num = btn.dataset.item_num;
             var quantity = btn.dataset.quantity;
             var prod_sched = btn.dataset.prod_sched;
+            var assdisc_id = btn.dataset.assdisc_id;
 
             $('#name1').val(prod_sched);
             $('#name3').val(item_num); 
             $('#name4').val(quantity); 
             $('#name5').val(ass_id); 
-            $('#name6').val(ass_line); 
+            $('#name6').val(ass_line);
+            $('#assdisc_id').val(assdisc_id);
 
         });
         
@@ -165,10 +133,11 @@
             var quantity = $('#name4').val();
             var ass_id = $('#name5').val();
             var ass_line = $('#name6').val();
+            var assdisc_id = $('#assdisc_id').val();
 
             alert(item_num+" has been selected for issuance with a quantity of "+quantity);   
 
-            window.opener.cloneMore('form', prod_sched, item_num, quantity, ass_id, ass_line)
+            window.opener.cloneMore('form', prod_sched, item_num, quantity, ass_id, ass_line, assdisc_id)
 
 
         });

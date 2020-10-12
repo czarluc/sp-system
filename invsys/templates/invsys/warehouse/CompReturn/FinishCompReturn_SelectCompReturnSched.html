@@ -43,7 +43,7 @@
 
     <div class="form-row align-top">
         <div class="col-lg-4">
-            <div class="card">
+            <div class="card" id="comp_return_card">
                 <div class="card-header card-header-tabs card-header-info">
                     <h4 class="card-title">Component Return Schedules:</h4>
                 </div>
@@ -95,8 +95,8 @@
 
                             {% for reqpart in compreturn_item_list %}
                             <div class="row form-row">
-                                <tr class="tablerow item_table" data-schednum="{{ reqpart.schedule_num__schedule_num }}">
-                                    <td>{{reqpart.prod_sched__id}}></td>
+                                <tr class="tablerow item_table" data-schednum="{{ reqpart.schedule_num__schedule_num }}" data-prodsched="{{reqpart.prod_sched__id}}" data-item_num="{{reqpart.item_number__item_number}}" data-item_quan="{{reqpart.quantity}}" data-ass_id="{{reqpart.location_from__id}}" data-ass_line="{{reqpart.location_from__name}}">
+                                    <td>{{reqpart.prod_sched__id}}</td>
                                     <td>{{reqpart.item_number__item_number}}</td>
                                     <td>{{reqpart.quantity}}</td>
                                     <td>{{reqpart.location_from__id}}</td>
@@ -116,8 +116,33 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-<script>          
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+    $(window).on('load', function() {
+        document.getElementById("comp_return_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });      
+
     $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
 
         $('#item_table').find('tr.tablerow.item_table').each(function (i, el) {
             $(this).hide();
@@ -141,6 +166,8 @@
                     $(this).hide();
                 }
             });
+
+            toastr.info('Component Reuturn Schedule ' + schednum + " is selected.");
         });
                     
         $(".btn.btn-success.btn-lg").on("click", function () {
@@ -149,9 +176,28 @@
 
             $(window.opener.document).find('#compreturnissuesched').val(schednum);
             $(window.opener.document).find('#date_sched').val(datesched);
-            window.opener.showreqitem(schednum);
-            
             alert("Component Issuance Schedule "+ schednum + " is selected.");
+
+            $('#item_table').find('tr.tablerow.item_table').each(function (i, el) {
+                if ($(this).is(":visible")){
+                    
+                    var itemrow = this;
+                    var prodsched = itemrow.dataset.prodsched;
+                    var item_num = itemrow.dataset.item_num;
+                    var item_quan = itemrow.dataset.item_quan;
+                    var ass_id = itemrow.dataset.ass_id;
+                    var ass_line = itemrow.dataset.ass_line;
+
+                    window.opener.cloneMore('formsetsummary', prodsched, item_num, item_quan, ass_id, ass_line);
+                }
+            });
+
+            toastr.success('Component Return Schedule ' + schednum + " is selected for verification.");
+
+            var goBack = window.open('', 'Fin_CompReturn');
+            goBack.focus();
+            window.close();
+
         });
 
 

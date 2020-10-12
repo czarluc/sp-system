@@ -1972,12 +1972,12 @@ def AddCompReturnSched_Transac(ass_line, item_num, prod_sched, item_quan):
 def GenerateCompReturnSchedule_SelectItem(request):
     template_name = 'invsys/warehouse/CompReturn/GenerateCompReturnSchedule_SelectItem.html'
     assdisc_items = Assembly_Discrepancy.objects.filter(status="Waiting for Return").values(
+        'id',
         'assemblyline__id',
         'assemblyline__name',
         'item_number__item_number',
         'quantity',
         'reference_number',)
-    print(assdisc_items)
     return render(request, template_name, {'assdisc_items': assdisc_items})
 #--Finish Component Return--
 @login_required
@@ -2000,32 +2000,35 @@ def FinishCompReturn(request):
     
     elif request.method == 'POST' :
 
-        compreturn_recitemformset = CompReturn_RecItemFormset(request.POST , request.FILES, prefix='formsetitem')
         compreturn_summaryformset = CompReturn_SummaryFormset(request.POST , request.FILES, prefix='formsetsummary')
 
-        if compreturn_recitemformset.is_valid() and compreturn_summaryformset.is_valid():
+        if compreturn_summaryformset.is_valid():
             compreturn_schedule = ComponentReturn_Schedule.objects.get(schedule_num=request.POST.get('compreturnissuesched',''))
-            date_received = '01/01/2020'
-
-
-            counter = 1
-            for reci_item in compreturn_recitemformset:
-                if counter < len(compreturn_recitemformset): 
-                    compreturn_recitem = reci_item.save(commit=False)
-                    compreturn_recitem.schedule_num = compreturn_schedule
-                    date_received = compreturn_recitem.date_received
-                    compreturn_recitem.save()
-                    SubtractAssDisc_FinishCompReturn(compreturn_recitem)
-                    AddtoCompReturnSummaryTransac(compreturn_recitem.prod_sched.id, compreturn_recitem.item_number, compreturn_recitem.quantity)
-                    counter += 1
+            now = datetime.now().replace(tzinfo=pytz.utc)
+            date_received = now
 
             counter = 1    
             for summary_item in compreturn_summaryformset:
                 if counter < len(compreturn_summaryformset):
+
                     partreq_summary = summary_item.save(commit=False)
                     partreq_summary.schedule_num = compreturn_schedule
                     partreq_summary.date_received = date_received
                     partreq_summary.save()
+
+                    compreturn_recitem = ComponentReturn_RecItem.objects.create(
+                        schedule_num=compreturn_schedule,
+                        prod_sched=partreq_summary.prod_sched,
+                        item_number=partreq_summary.item_number,
+                        quantity=partreq_summary.totalrec_quan,
+                        date_received=partreq_summary.date_received,
+                        notes="None",
+                        ass_location=partreq_summary.ass_location,)
+                    compreturn_recitem.save()
+
+                    SubtractAssDisc_FinishCompReturn(compreturn_recitem)
+                    AddtoCompReturnSummaryTransac(compreturn_recitem.prod_sched.id, compreturn_recitem.item_number, compreturn_recitem.quantity)
+                    
                     AddtoReceivingLobby_CompReturn(partreq_summary.prod_sched.id, partreq_summary.item_number, partreq_summary.totalrec_quan)
                     UpdateReqItems_CompReturn(partreq_summary)
                     counter += 1
@@ -3574,6 +3577,7 @@ def CheckReceivingLobby(request):
     po_query = Purchase_Order.objects.all()
 
     reclobby_list = []
+
     for po in po_query:
         for ref in rec_lobby_query:
             if po.po_number == ref.get('reference_number'):
@@ -3581,6 +3585,18 @@ def CheckReceivingLobby(request):
                 for i in ref:
                     details[i] = ref[i]
                 details['type'] = 'Purchase Order'
+                reclobby_list.append(details)
+
+    woprodsched_query = WO_Production_Schedule.objects.all()
+
+    for woprodsched in woprodsched_query:
+        for ref in rec_lobby_query:
+            if int(woprodsched.id) == int(ref.get('reference_number')):
+                print("TRUE")
+                details={}
+                for i in ref:
+                    details[i] = ref[i]
+                details['type'] = 'Item from Product'
                 reclobby_list.append(details)
 
     return render(request, template_name, {

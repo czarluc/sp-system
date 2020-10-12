@@ -243,6 +243,12 @@
 
             toastr.info('Part with Item Number ' + item_number + ' is selected. Please choose a Warehouse Bin.');
 
+            $("#whse_card").show();
+
+            document.getElementById("whse_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+            $("#pa_card").hide();
+
         });
         $( "#bin_table" ).on("click", ".btn.btn-primary.bin_location", function () {
             var btn = this;
@@ -293,6 +299,13 @@
             }
 
             toastr.success('Part ' + item_num + ' is scheduled for Put Away at '+bin_location);
+
+            $("#pa_card").show();
+
+            document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+            $("#whse_card").hide();
+
             
         });
 

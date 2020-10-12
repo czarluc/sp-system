@@ -762,7 +762,6 @@ class Shipping_Lobby(models.Model):
         verbose_name_plural = "Shipping Lobbies"
     def __str__(self):
         return str(self.id)
-
 class Shipping_Outbound(models.Model):
     wo_num = models.ForeignKey(Work_Order, default='1', blank=True, null=True, on_delete=models.CASCADE)
     ship_out_num = models.CharField(max_length=200, default='',blank=True, null=True)
@@ -773,7 +772,6 @@ class Shipping_Outbound(models.Model):
         verbose_name_plural = "Shipping Outbounds"
     def __str__(self):
         return '%s %s' % (str(self.id), str(self.wo_num))
-
 class Shipping_Outbound_Transaction(models.Model):
     reference_number = models.CharField(max_length=200, default='')
     transaction_type = models.CharField(max_length=200, default='')
@@ -876,7 +874,7 @@ class Request_Item(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     location_from = models.ForeignKey(Warehouse, default='1', blank=True, null=True, on_delete=models.CASCADE)
     location_to = models.ForeignKey(AssemblyLine, default='1', blank=True, null=True, on_delete=models.CASCADE)
-    refnum = models.CharField(max_length=200, default='')
+    refnum = models.CharField(max_length=200, default='', blank=True, null=True)
     cleared = models.BooleanField(default=False)
     class Meta: 
         verbose_name = "Request Item"
@@ -1171,7 +1169,6 @@ class DMMR_Transaction(models.Model):
         verbose_name_plural = "DMMR Transactions"
     def __str__(self):
         return '%s %s' % (str(self.reference_number), str(self.item_number))
-
 
 
 #DEFECTIVE MATERIALS
