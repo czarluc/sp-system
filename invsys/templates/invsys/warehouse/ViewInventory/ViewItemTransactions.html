@@ -95,9 +95,9 @@
 <script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
 <script>
 $(document).ready(function() {
-	$.fn.dataTable.moment( 'DD-MM-YYY' );
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
 
-	var table1 = $('#item_master').DataTable({
+    var table1 = $('#item_master').DataTable({
         dom: "<'row'<'col-lg-6'B>>" +
         "<'row'<'col-md-4'l><'col-md-4'<'customselect item_master'>><'col-md-4'f>>" +
         "<'row'<'col-md-12'rtip>>",
@@ -116,7 +116,7 @@ $(document).ready(function() {
     });
 
     var table = $('#trans_table').DataTable({
-    	paging: false, info: false,
+        paging: false, info: false,
         dom: "<'row'<'col-lg-6'B>>" +
         "<'row'<'col-md-4'l><'col-md-4'<'customselect trans'>><'col-md-4'f>>" +
         "<'row'<'col-md-12'rtip>>",
@@ -130,7 +130,7 @@ $(document).ready(function() {
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
-    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Reference Number</option><option>Transaction Type</option><option>Transaction Date</option><option>Location</option><option>Item Number</option><>Item Quantity</option></select>");
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Reference Number</option><option>Transaction Type</option><option>Transaction Date</option><option>Location</option><option>Item Number</option><option>Item Quantity</option></select>");
 
     $('#trans_table_filter label input').unbind().bind('keyup', function() {
       var colIndex = document.querySelector('#select_trans').selectedIndex;

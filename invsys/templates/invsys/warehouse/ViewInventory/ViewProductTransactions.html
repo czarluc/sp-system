@@ -127,7 +127,7 @@ $(document).ready(function() {
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
-    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Reference Number</option><option>Transaction Type</option><option>Transaction Date</option><option>Location</option><option>Item Number</option><>Item Quantity</option></select>");
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Reference Number</option><option>Transaction Type</option><option>Transaction Date</option><option>Location</option><option>Product Number</option><option>Product Quantity</option></select>");
 
     $('#trans_table_filter label input').unbind().bind('keyup', function() {
       var colIndex = document.querySelector('#select_trans').selectedIndex;
