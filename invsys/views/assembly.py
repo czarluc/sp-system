@@ -307,7 +307,8 @@ def FinishAssembly(request):
         return render(request, template_name, {'wo_assembly':wo_assemblyform,'user':request.user})
 
     elif request.method == 'POST' :
-        wo_assemblyform = WO_AssemblyForm(request.POST)
+        wo_assemblyform = WO_AssemblyForm(request.POST, request.FILES)
+
         if wo_assemblyform.is_valid():
             wo_assemblyform = wo_assemblyform.save(commit=False)
 
@@ -317,6 +318,7 @@ def FinishAssembly(request):
             wo_assembly.verified_by = wo_assemblyform.verified_by
             wo_assembly.notes = wo_assemblyform.notes
             wo_assembly.cleared = True
+            wo_assembly.image = request.FILES["image"]
             wo_assembly.save()
 
             prod_sched = WO_Production_Schedule.objects.get(id=wo_assemblyform.prod_sched.id)
@@ -364,7 +366,7 @@ def FinishCoupling(request):
         return render(request, template_name, {'wo_coupling':wo_couplingform,'user':request.user})
 
     elif request.method == 'POST' :
-        wo_couplingform = WO_CouplingForm(request.POST)
+        wo_couplingform = WO_CouplingForm(request.POST, request.FILES)
         if wo_couplingform.is_valid():
             wo_couplingform = wo_couplingform.save(commit=False)
 
@@ -374,6 +376,7 @@ def FinishCoupling(request):
             wo_coupling.verified_by = wo_couplingform.verified_by
             wo_coupling.notes = wo_couplingform.notes
             wo_coupling.cleared = True
+            wo_coupling.image = request.FILES["image"]
             wo_coupling.save()
 
             prod_sched = WO_Production_Schedule.objects.get(id=wo_couplingform.prod_sched.id)
@@ -421,7 +424,7 @@ def FinishTesting(request):
         return render(request, template_name, {'wo_testing':wo_testingform,'user':request.user})
 
     elif request.method == 'POST' :
-        wo_testingform = WO_TestingForm(request.POST)
+        wo_testingform = WO_TestingForm(request.POST, request.FILES)
         if wo_testingform.is_valid():
             wo_testingform = wo_testingform.save(commit=False)
 
@@ -431,6 +434,7 @@ def FinishTesting(request):
             wo_testing.verified_by = wo_testingform.verified_by
             wo_testing.notes = wo_testingform.notes
             wo_testing.cleared = True
+            wo_testing.image = request.FILES["image"]
             wo_testing.save()
 
             prod_sched = WO_Production_Schedule.objects.get(id=wo_testingform.prod_sched.id)

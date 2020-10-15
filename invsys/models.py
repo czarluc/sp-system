@@ -597,6 +597,14 @@ class WO_Issuance_List(models.Model):
     date_issued = models.DateField(auto_now_add=False, blank=True, null=True)
     verified_by = models.CharField(max_length=200, default='test')
     notes = models.CharField(max_length=200, default='test')
+    image = models.ImageField(upload_to='wo_issuance/',
+        null=True,
+        blank=True,
+        width_field="width_field",
+        height_field="height_field")
+    width_field = models.IntegerField(default=0,null=True, blank=True)
+    height_field = models.IntegerField(default=0,null=True, blank=True)
+
     class Meta: 
         verbose_name = "WO Issuance List"
         verbose_name_plural = "WO Issuance Lists"
@@ -649,6 +657,14 @@ class WO_Assembly(models.Model):
     verified_by =models.CharField(max_length=200, default='', blank=True, null=True)
     notes = models.CharField(max_length=200, default='', blank=True, null=True)
     cleared = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='wo_assembly/',
+        null=True,
+        blank=True,
+        width_field="width_field",
+        height_field="height_field")
+    width_field = models.IntegerField(default=0,null=True, blank=True)
+    height_field = models.IntegerField(default=0,null=True, blank=True)
+    
     class Meta: 
         verbose_name = "WO Assembly"
         verbose_name_plural = "WO Assemblies"
@@ -662,6 +678,14 @@ class WO_Coupling(models.Model):
     verified_by =models.CharField(max_length=200, default='', blank=True, null=True)
     notes = models.CharField(max_length=200, default='', blank=True, null=True)
     cleared = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='wo_coupling/',
+        null=True,
+        blank=True,
+        width_field="width_field",
+        height_field="height_field")
+    width_field = models.IntegerField(default=0,null=True, blank=True)
+    height_field = models.IntegerField(default=0,null=True, blank=True)
+
     class Meta: 
         verbose_name = "WO Coupling"
         verbose_name_plural = "WO Couplings"
@@ -675,6 +699,14 @@ class WO_Testing(models.Model):
     verified_by =models.CharField(max_length=200, default='', blank=True, null=True)
     notes = models.CharField(max_length=200, default='', blank=True, null=True)
     cleared = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='wo_testing/',
+        null=True,
+        blank=True,
+        width_field="width_field",
+        height_field="height_field")
+    width_field = models.IntegerField(default=0,null=True, blank=True)
+    height_field = models.IntegerField(default=0,null=True, blank=True)
+
     class Meta: 
         verbose_name = "WO Testing"
         verbose_name_plural = "WO Testings"
@@ -693,6 +725,14 @@ class WO_Finished(models.Model):
     checked_by = models.CharField(max_length=200, default='', blank=True, null=True)
     notes = models.CharField(max_length=200, default='', blank=True, null=True)
     cleared = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='wo_finished/',
+        null=True,
+        blank=True,
+        width_field="width_field",
+        height_field="height_field")
+    width_field = models.IntegerField(default=0,null=True, blank=True)
+    height_field = models.IntegerField(default=0,null=True, blank=True)
+
     class Meta: 
         verbose_name = "WO Finished"
         verbose_name_plural = "WO Finisheds"

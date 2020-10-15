@@ -56,6 +56,10 @@
         line-height: 0;
         border-radius: 50%;
     }
+    .img-thumbnail{
+        width: 200px;
+        height: 200px;
+    }
     input[type='checkbox'][readonly]{
         pointer-events: none;
     }
@@ -64,7 +68,7 @@
 
 {% block content %}
 <h2> View Work Order Summary </h2>
-	<div class="card">
+    <div class="card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Work Orders:</h4>
         </div>
@@ -260,7 +264,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-4">
+                            <div class="col-1">
                                 <div class="form-group">
                                     <label for="id_work_order_number">Issues</label>
                                     <input type="checkbox" class="form-control" id="stp2_issues" readonly>
@@ -271,7 +275,10 @@
                                     <label for="id_work_order_number">Cleared</label>
                                     <input type="checkbox" class="form-control" id="stp2_cleared" readonly>
                                 </div>
-                            </div>                            
+                            </div>
+                            <div class="col-4" id="div_stp2_image">
+                                
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-12">
@@ -328,6 +335,9 @@
                                     <label for="id_work_order_number">Cleared</label>
                                     <input type="checkbox" class="form-control" id="stp3_cleared" readonly>
                                 </div>
+                            </div>
+                            <div class="col-4" id="div_stp3_image">
+                                
                             </div>
                         </div>
                         <div class="row">
@@ -386,6 +396,9 @@
                                     <input type="checkbox" class="form-control" id="stp4_cleared" readonly>
                                 </div>
                             </div>
+                            <div class="col-4" id="div_stp4_image">
+                                
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-12">
@@ -442,6 +455,9 @@
                                     <label for="id_work_order_number">Cleared</label>
                                     <input type="checkbox" class="form-control" id="stp5_cleared" readonly>
                                 </div>
+                            </div>
+                            <div class="col-4" id="div_stp5_image">
+                                
                             </div>
                         </div>
                         <div class="row">
@@ -525,6 +541,11 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-4" id="div_stp6_image">
+                                
+                        </div>
+
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group">
@@ -685,6 +706,7 @@ $(document).ready(function() {
                     $("#stp2_issues").val(item.issues);
                     if(item.cleared === true){$("#stp2_cleared").prop('checked', true);}
                     $("#stp2_notes").val(item.notes);
+                    $('#div_stp2_image').append("<img id='stp2_image' class='img-thumbnail' src=/media/" + item.image + " />");
                 }else{
                     $("#stp1_header").html("Scheduled-Finished");
                     $("#stp2_header").html("Issued-Ongoing");
@@ -706,6 +728,9 @@ $(document).ready(function() {
                     $("#stp3_date_assembled").val(item.date_assembled);
                     if(item.cleared === true){$("#stp3_cleared").prop('checked', true);}
                     $("#stp3_notes").val(item.notes);
+                    console.log(item.image);                   
+                    
+                    $('#div_stp3_image').append("<img id='stp3_image' class='img-thumbnail' src=/media/" + item.image + " />");
                 }else{
                     $("#stp3_header").html("Assembled-Ongoing");
                 }
@@ -725,6 +750,7 @@ $(document).ready(function() {
                     $("#stp4_date_coupled").val(item.date_coupled);
                     if(item.cleared === true){$("#stp4_cleared").prop('checked', true);}
                     $("#stp4_notes").val(item.notes);
+                    $('#div_stp4_image').append("<img id='stp4_image' class='img-thumbnail' src=/media/" + item.image + " />");
                 }else{
                     $("#stp4_header").html("Coupled-Ongoing");
                 }
@@ -744,6 +770,7 @@ $(document).ready(function() {
                     $("#stp5_date_tested").val(item.date_tested);
                     if(item.cleared === true){$("#stp5_cleared").prop('checked', true);}
                     $("#stp5_notes").val(item.notes);
+                    $('#div_stp5_image').append("<img id='stp5_image' class='img-thumbnail' src=/media/" + item.image + " />");
                 }else{
                     $("#stp5_header").html("Tested-Ongoing");
                 }
@@ -767,6 +794,7 @@ $(document).ready(function() {
                     if(item.wrnty_card === true){$("#stp6_wrnty_card").prop('checked', true);}
                     if(item.packaging === true){$("#stp6_packaging").prop('checked', true);}
                     $("#stp6_notes").val(item.notes);
+                    $('#div_stp6_image').append("<img id='stp6_image' class='img-thumbnail' src=/media/" + item.image + " />");
                 }else{
                     $("#stp6_header").html("Received-Ongoing");
                 }
@@ -785,24 +813,28 @@ $(document).ready(function() {
         $("#stp2_issues").val("");
         $("#stp2_cleared").prop('checked', false);
         $("#stp2_notes").val("");
+        $("#stp2_image").remove();
         $("#stp3_assembled_by").val("");
         $("#stp3_date_received").val("");
         $("#stp3_verified_by").val("");
         $("#stp3_date_assembled").val("");
         $("#stp3_cleared").prop('checked', false);
         $("#stp3_notes").val("");
+        $("#stp3_image").remove();
         $("#stp4_coupled_by").val("");
         $("#stp4_date_received").val("");
         $("#stp4_verified_by").val("");
         $("#stp4_date_coupled").val("");
         $("#stp4_cleared").prop('checked', false);
         $("#stp4_notes").val("");
+        $("#stp4_image").remove();
         $("#stp5_tested_by").val("");
         $("#stp5_date_received").val("");
         $("#stp5_verified_by").val("");
         $("#stp5_date_tested").val("");
         $("#stp5_cleared").prop('checked', false);
         $("#stp5_notes").val("");
+        $("#stp5_image").remove();
         $("#stp6_checked_by").val("");
         $("#stp6_date_received").val("");
         $("#stp6_date_out").val("");
@@ -813,6 +845,7 @@ $(document).ready(function() {
         $("#stp6_wrnty_card").prop('checked', false);
         $("#stp6_packaging").prop('checked', false);
         $("#stp6_notes").val("");
+        $("#stp6_image").remove();
 
         navListItems.each(function( index ) {
             $(this).attr('disabled', 'disabled');

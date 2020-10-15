@@ -272,7 +272,8 @@ def ViewWO_getDetails(request):
         'issued_by',
         'date_issued',
         'verified_by',
-        'notes',)
+        'notes',
+        'image',)
     
     assembly_list = WO_Assembly.objects.filter(prod_sched=prod_sched).values(
         'prod_sched__id',
@@ -281,7 +282,8 @@ def ViewWO_getDetails(request):
         'date_assembled',
         'verified_by',
         'notes',
-        'cleared',)
+        'cleared',
+        'image',)
     
     coupling_list = WO_Coupling.objects.filter(prod_sched=prod_sched).values(
         'prod_sched__id',
@@ -290,7 +292,8 @@ def ViewWO_getDetails(request):
         'date_coupled',
         'verified_by',
         'notes',
-        'cleared',)
+        'cleared',
+        'image',)
     
     testing_list = WO_Testing.objects.filter(prod_sched=prod_sched).values(
         'prod_sched__id',
@@ -299,7 +302,8 @@ def ViewWO_getDetails(request):
         'date_tested',
         'verified_by',
         'notes',
-        'cleared',)
+        'cleared',
+        'image',)
 
     finished_list = WO_Finished.objects.filter(prod_sched=prod_sched).values(
         'prod_sched__id',
@@ -313,7 +317,8 @@ def ViewWO_getDetails(request):
         'date_out',
         'checked_by',
         'notes',
-        'cleared')
+        'cleared',
+        'image',)
 
     schedule_query = []
     issuance_query = []

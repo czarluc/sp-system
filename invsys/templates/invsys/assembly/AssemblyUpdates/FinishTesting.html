@@ -8,6 +8,14 @@
     input:not([name="notes"]) { 
     text-align: center; 
     }
+    #preview{
+        width: 200px;
+        height: 200px;
+    }
+    #camera--view{
+        width: 200px;
+        height: 200px;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -15,7 +23,7 @@
 
 <h2> Finish Work Order Testing </h2>
     <br>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="">
         {% csrf_token %}
 
     <div class="card">
@@ -31,7 +39,7 @@
                     </div>
                 </div>
                 <div class="col-lg-1">
-		            <button class="btn btn-success add-wo_assembly">+</button>
+                    <button class="btn btn-success add-wo_assembly">+</button>
                 </div>
 
                 <div class="col-lg-4">
@@ -107,6 +115,29 @@
                 </div>
             </div>
             <div class="form-row align-items-center">
+                <div class="col-6">
+                    <label for="id_image">Image:</label>
+                    <input type="file" name="image" accept="image/*" id="id_image" class="form-control">
+                </div>
+                <h4> or </h4>
+                <div class="col-2">
+                    <button id="camera--take" class="btn btn-block btn-info">Take a picture</button>
+                </div>
+                <div class="col-2">
+                    <button id="camera--trigger" class="btn btn-block btn-warning">Capture</button>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <img id="preview" class="img-thumbnail">
+                <!-- Camera sensor -->
+                <canvas id="camera--sensor"></canvas>
+                <!-- Camera view -->
+                <video id="camera--view" autoplay playsinline></video>
+                <!-- Camera output -->
+                <img src="//:0" alt="" id="camera--output">
+                <!-- Camera trigger -->
+            </div>
+            <div class="form-row align-items-center">
                 <div class="col-12">
                     <div class="form-group">
                         <label for="id_customer">Notes:</label>
@@ -130,11 +161,99 @@
 <script type="text/javascript">
     $(document).ready(function(){
         window.name = "Fin_Test";
-    	var d = new Date($.now());
-		var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
-		$('#id_date_tested').val(currentdate);
+        var d = new Date($.now());
+        var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+        $('#id_date_tested').val(currentdate);
+
+
+        $('#id_image').change(function(e) {
+            readURL(this);
+        });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function (e) {
+                    $('#preview').attr('src', e.target.result);
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Set constraints for the video stream
+        var constraints = { video: { facingMode: "user" }, audio: false };
+        var localstream;
+        // Define constants
+        const cameraView = document.querySelector("#camera--view"),
+            cameraOutput = document.querySelector("#camera--output"),
+            cameraSensor = document.querySelector("#camera--sensor"),
+            cameraTrigger = document.querySelector("#camera--trigger")
+        // Access the device camera and stream to cameraView
+        function cameraStart() {
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then(function(stream) {
+                track = stream.getTracks()[0];
+                cameraView.srcObject = stream;
+            })
+            .catch(function(error) {
+                console.error("Oops. Something is broken.", error);
+            });
+        }
+        function cameraStop() {
+            cameraView.pause();
+            cameraView.src = "";
+            cameraView.srcObject.getTracks()[0].stop();
+        }
+        // Take a picture when cameraTrigger is tapped
+        cameraTrigger.onclick = function() {
+            cameraSensor.width = cameraView.videoWidth;
+            cameraSensor.height = cameraView.videoHeight;
+            cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
+            cameraOutput.src = cameraSensor.toDataURL("image/*");
+            cameraOutput.classList.add("taken");
+
+            $("#camera--sensor").hide();
+            $("#camera--view").hide();
+            $("#camera--output").hide();
+
+            var file = 0; 
+
+            fetch(cameraOutput.src)
+            .then(res => res.blob())
+            .then(blob => {                
+                const dT = new ClipboardEvent('').clipboardData || new DataTransfer();
+                dT.items.add(new File([blob], 'assembly_update.png', blob));
+                console.log(dT);
+                $('#id_image').prop('files', dT.files);
+                readURL(document.querySelector('#id_image'));
+            });            
+
+            cameraStop();
+            $('#camera--take').show();
+            $('#camera--trigger').hide();
+            return false;
+        };
+
+        $('#camera--trigger').hide();
+        $("#camera--sensor").hide();
+        $("#camera--view").hide();
+        $("#camera--output").hide();
+
+        $(document).on('click', '#camera--take', function(e){
+            $("#camera--view").show();
+            cameraStart(); // Start the video stream when the button is clicked
+            $('#camera--take').hide();
+            $('#camera--trigger').show();
+        });
+
+
 
         });
+
+
 
     $(document).on('click', '.add-wo_assembly', function(e){
         var newwin = window.open("{% url 'assembly:FinishTesting_SelectProdSched' %}");
