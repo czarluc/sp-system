@@ -17,12 +17,12 @@
 {% endblock stylesheets %}
 
 {% block content %}
-    <h2>Select a PO Number</h1>
+    <h2>Select a Purchase Order</h1>
     <br>
 
     <div class="card" id="select_card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Purchase Order to Receive:</h4>
+            <h4 class="card-title">Purchase Order to Validate:</h4>
         </div>
         <div class="card-body">
 
@@ -102,7 +102,7 @@
         <div class="col-lg-4">
             <div class="card" id="po_card">
                 <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">Purchase Order to Receive:</h4>
+                    <h4 class="card-title">Purchase Orders from Shipment:</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive"> <!--PO Num Table-->
@@ -130,7 +130,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">Purchase Order Items to Receive:</h4>
+                    <h4 class="card-title">Purchased Items to Receive:</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive"> <!--PO Num Table-->
@@ -166,7 +166,8 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css" integrity="sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
 <script>
 
     $(window).on('load', function() {
@@ -236,7 +237,7 @@
                 }
             });
 
-            toastr.success('Purchase Order ' + $('#po_num').val() + ' is selected from Shipment '+$('#ship_po').val());
+            toastr.success('Purchase Order ' + $('#po_num').val() + ' is selected from Shipment '+ $('#ship_num').val());
 
         });
 
@@ -286,17 +287,19 @@
                 }
             });
 
+            toastr.info('Purchase Order ' + po_num + ' is selected. Please confirm.');
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
         });
         
-        toastr.info('Purchase Order ' + po_num + ' is selected. Please confirm.');
-
-        document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+        
 
     });
 
-    $("#po_table").DataTable({
+    $("#po_table").DataTable({paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-    $("#item_table").DataTable({paging: false, 
+    $("#item_table").DataTable({paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
 </script>
 {% endblock javascripts %}

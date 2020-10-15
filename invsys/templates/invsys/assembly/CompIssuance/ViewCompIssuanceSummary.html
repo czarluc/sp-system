@@ -8,19 +8,20 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css" integrity="sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==" crossorigin="anonymous" />
 {% endblock stylesheets %}
 
 {% block content %}
 <h2> View Work Order Summary </h2>
 
-	<div class="card">
+    <div class="card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Work Order:</h4>
         </div>
         <div class="card-body">
-            <div class="table-responsive"> <!--Shrnk Items-->
+            <div class="table-responsive"> <!--Work Orders-->
                 <table class="table table-hover table-striped table-bordered nowrap" id="wo_table">
-                    <thead class="thead-light">
+                    <thead class="thead-dark">
                         <tr>
                             <th scope="col">Work Order Number</th>
                             <th scope="col">Product Number</th>
@@ -38,7 +39,7 @@
                             <td>{{ instance.prod_number__prod_desc }}</td>
                             <td>{{ instance.prod_number__uom }}</td>
                             <td>{{ instance.prod_number__prod_type }}</td>
-                        	<td>{{ instance.prod_number__prod_class }}</td>
+                            <td>{{ instance.prod_number__prod_class }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -68,7 +69,7 @@
                     </thead>
                     <tbody>
                     {% for instance in issuance_set %}
-                        <tr class="tablerow" id="req-{{forloop.counter}}" data-issuancesched="{{instance.schedule_num__schedule_num}}" data-wonum="{{instance.work_order_number__work_order_number}}" data-prodsched="{{instance.prod_sched__id}}"  id="issuance-{{forloop.counter}}-sched">
+                        <tr class="tablerow" id="req-{{forloop.counter}}" data-issuancesched="{{instance.schedule_num__schedule_num}}" data-wo_num="{{instance.prod_sched__work_order_number__work_order_number}}" data-prodsched="{{instance.prod_sched__id}}"  id="issuance-{{forloop.counter}}-sched">
                             <td>{{ instance.prod_sched__id }}</td>
                             <td>{{ instance.prod_sched__date_required }}</td>
                             <td>{{ instance.date_issued }}</td>
@@ -92,10 +93,8 @@
         <div class="card-body">
             <div class="table-responsive"> <!--Shrnk Items-->
                 <table class="table table-hover table-striped table-bordered nowrap" id="assembly_table">
-                    <thead class="thead-light">
+                    <thead class="thead-dark">
                         <tr>
-                            <th scope="col">Schedule Number</th>
-                            <th scope="col">Work Order Number</th>
                             <th scope="col">Production Schedule</th>
                             <th scope="col">Item Number</th>
                             <th scope="col">Item Description</th>
@@ -107,9 +106,7 @@
                     </thead>
                     <tbody>
                     {% for instance in issuance_sum_set %}
-                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-issuancesched="{{instance.schedule_num__schedule_num}}" data-prodsched="{{instance.prod_sched__id}}">
-                            <td>{{ instance.schedule_num__schedule_num }}</td>
-                            <td>{{ instance.prod_sched__work_order_number__work_order_number }}</td>
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-issuancesched="{{instance.schedule_num__schedule_num}}" data-wo_num="{{instance.prod_sched__work_order_number__work_order_number}}" data-prodsched="{{instance.prod_sched__id}}">
                             <td>{{ instance.prod_sched__id }}</td>
                             <td>{{ instance.item_num__item_number }}</td>
                             <td>{{ instance.item_num__item_desc }}</td>
@@ -143,53 +140,128 @@
 <script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function() {
-	var table = $('#wo_table').DataTable({
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-    });
- 
-    table.buttons().container()
-        .appendTo( '#wo_table_wrapper .col-md-6:eq(0)' );
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
 
-    var table2 = $('#prodsched_table').DataTable({
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    var table = $('#wo_table').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect wo_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table2.buttons().container()
-        .appendTo( '#prodsched_tablee_wrapper .col-md-6:eq(0)' );
 
-    var table3 = $('#issuance_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-    });
- 
-    table3.buttons().container()
-        .appendTo( '#issuance_table_wrapper .col-md-6:eq(0)' );
+    $("div.customselect.wo_table").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>Work Order Number</option><option>Product Number</option><option>Product Description</option><option>UOM</option><option>Product Type</option><option>Product Class</option></select>");
 
-    var table4 = $('#assembly_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    $('#wo_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex = document.querySelector('#select').selectedIndex;
+        table.column(colIndex).search($(this).val()).draw();
+        console.log(colIndex);
+        console.log($(this).val());
     });
- 
-    table4.buttons().container()
-        .appendTo( '#assembly_table_wrapper .col-md-6:eq(0)' );
 
-    var table5 = $('#coupling_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    $('#select').change(function() {
+        table.columns().search('').draw();
     });
- 
-    table5.buttons().container()
-        .appendTo( '#coupling_table_wrapper .col-md-6:eq(0)' );
 
-    var table6 = $('#testing_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    var table2 = $('#issuance_table').DataTable({
+        paging: false,
+        info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect issuance_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table6.buttons().container()
-        .appendTo( '#testing_table_wrapper .col-md-6:eq(0)' );
+
+    $("div.customselect.issuance_table").html("<select id="+ "'select2'" + "class='browser-default custom-select'"+"><option>Production Schedule</option><option>Date Required</option><option>Date Issued</option><option>Issued By</option><option>Verified By</option><option>Cleared</option><option>Issues</option><option>Notes</option></select>");
+
+    $('#issuance_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex2 = document.querySelector('#select2').selectedIndex;
+        table2.column(colIndex2).search($(this).val()).draw();
+    });
+
+    $('#select2').change(function() {
+        table2.columns().search('').draw();
+    });
+
+
+    var table3 = $('#assembly_table').DataTable({
+        paging: false,
+        info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect assembly_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect.assembly_table").html("<select id="+ "'select3'" + "class='browser-default custom-select'"+"><option>Item Number</option><option>Item Description</option><option>Required Quantity</option><option>Received Quantity</option><option>Discrepancy</option><option>Status</option></select>");
+
+    $('#assembly_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex3 = document.querySelector('#select3').selectedIndex;
+        table3.column(colIndex3).search($(this).val()).draw();
+    });
+
+    $('#select3').change(function() {
+        table3.columns().search('').draw();
+    });
+
+
+    $('#issuance_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#assembly_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $( "#wo_table" ).on("click", ".btn.btn-primary",function () {
+        var btn = this;
+        var wo_num = btn.dataset.wo_num;
+
+        toastr.info('Work Order Number ' + wo_num + " is selected.");
+        
+        $('#issuance_table').find('tr.tablerow').each(function (i, el) {
+            var issuancesched = this;
+            var issuancesched_wo_num = issuancesched.dataset.wo_num;
+            if (wo_num === issuancesched_wo_num){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+        });
+
+        $('#assembly_table').find('tr.tablerow').each(function (i, el) {
+            var issuanceitem = this;
+            var issuanceitem_wo_num = issuanceitem.dataset.wo_num;
+            if (wo_num === issuanceitem_wo_num){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+        });
+
+    });
 
 } );
  </script>

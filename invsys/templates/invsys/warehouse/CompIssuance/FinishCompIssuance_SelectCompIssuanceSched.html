@@ -17,100 +17,96 @@
 {% endblock stylesheets %}
 
 {% block content %}
-    <div class="card" id="select_card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Select a Component Issuance Schedule:</h4>
-        </div>
-        <div class="card-body">
-            <div class="form-row align-top">
-                <div class="col-5">
+<h2>Select a Component Issuance Schedule</h2>
 
-                    <div class="card">
-                        <div class="card-header card-header-tabs card-header-info">
-                            <h4 class="card-title">Select a Component Issuance Schedule:</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-row align-items-center">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label>Component Issuance Schedule Number:</label>
-                                        <input type ="text" class="form-control" id="txt_sched_num" readonly/>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                        <div class="form-group">
-                                            <label>Date Scheduled:</label>
-                                            <input type ="text" class="form-control" id="txt_date_sched" readonly/>
-                                        </div>
-                                </div>
-                            </div>
-                            <div class="form-row align-items-center">
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label>Notes:</label>
-                                        <input type ="text" class="form-control" id="txt_notes" readonly/>
-                                    </div>
-                                </div>
-                            </div>
+<div class="form-row align-top">
+    <div class="col-5">
+
+        <div class="card" id="select_card">
+            <div class="card-header card-header-tabs card-header-info">
+                <h4 class="card-title">Select a Component Issuance Schedule:</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-row align-items-center">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Component Issuance Schedule Number:</label>
+                            <input type ="text" class="form-control" id="txt_sched_num" readonly/>
                         </div>
                     </div>
-                    <div class="form-row align-items-center">
-                        <div class="col-lg-1.5">
-                            <button type="button" id="selectbtn" class="btn btn-warehouse btn-m">Select</button>
+                    <div class="col-6">
+                            <div class="form-group">
+                                <label>Date Scheduled:</label>
+                                <input type ="text" class="form-control" id="txt_date_sched" readonly/>
+                            </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Notes:</label>
+                            <input type ="text" class="form-control" id="txt_notes" readonly/>
                         </div>
                     </div>
                 </div>
-                <div class="col-7">
-
-                    <div class="card">
-                        <div class="card-header card-header-tabs card-header-info">
-                            <h4 class="card-title">Selected Production Schedule Details:</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-row align-items-center">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label>Product Schedule ID:</label>
-                                        <input type ="text" class="form-control" id="txt_prod_sched" readonly/>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label>Work Order Number:</label>
-                                        <input type ="text" class="form-control" id="txt_wo_num" readonly/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row align-items-center">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label>Product Number:</label>
-                                        <input type ="text" class="form-control" id="txt_prod_num" readonly/>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label>Product Class:</label>
-                                        <input type ="text" class="form-control" id="txt_prod_class" readonly/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row align-items-center">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                    <label>Scheduled Quantity:</label>
-                                    <input type ="text" class="form-control" id="txt_quan" readonly/>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </div>
+                <div class="form-row align-items-center">
+                    <div class="col-lg-1.5">
+                        <button type="button" id="selectbtn" class="btn btn-success btn-m">Select</button>
                     </div>
-
                 </div>
             </div>
         </div>
+        
     </div>
+    <div class="col-7">
+
+        <div class="card">
+            <div class="card-header card-header-tabs card-header-info">
+                <h4 class="card-title">Selected Production Schedule Details:</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-row align-items-center">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Product Schedule ID:</label>
+                            <input type ="text" class="form-control" id="txt_prod_sched" readonly/>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Work Order Number:</label>
+                            <input type ="text" class="form-control" id="txt_wo_num" readonly/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Product Number:</label>
+                            <input type ="text" class="form-control" id="txt_prod_num" readonly/>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Product Class:</label>
+                            <input type ="text" class="form-control" id="txt_prod_class" readonly/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center">
+                    <div class="col-6">
+                        <div class="form-group">
+                        <label>Scheduled Quantity:</label>
+                        <input type ="text" class="form-control" id="txt_quan" readonly/>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+</div>
     
 
     <div class="card" id="issuance_card">
@@ -310,7 +306,7 @@
 
         });
                     
-        $(".btn.btn-warehouse").on("click", function () {
+        $(".btn.btn-success").on("click", function () {
             var schednum = $('#txt_sched_num').val();
             var datesched = $('#txt_date_sched').val();
             var notes = $("#txt_notes").val();

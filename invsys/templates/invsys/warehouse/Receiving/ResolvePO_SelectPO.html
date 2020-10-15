@@ -16,83 +16,134 @@
 </style>
 {% endblock stylesheets %}
 
-{% block content %} 
-HELLO
-    <h2>Select a PO Number</h2>
-    <br>
+{% block content %}
 
-    <div class="card" id="select_card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Purchase Order to Receive:</h4>
-        </div>
-        <div class="card-body">
+<h2>Select a PO Number</h2>
 
-            <div class="form-row align-items-center">
-                <div class="col-3">
-                    <div class="form-group">
-                        <label>Purchase Order Number</label>
-                        <input type ="text" class="form-control" id="po_num" readonly/>
-                    </div>
+<div class="card" id="select_card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Purchase Order to Resolve:</h4>
+    </div>
+    <div class="card-body">
+
+        <div class="form-row align-items-center">
+            <div class="col-3">
+                <div class="form-group">
+                    <label>Purchase Order Number</label>
+                    <input type ="text" class="form-control" id="po_num" readonly/>
                 </div>
             </div>
-            <div class="form-row align-items-center">
-                <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg btn-success">Select</button>
-            </div>
+        </div>
+        <div class="form-row align-items-center">
+            <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg btn-success">Select</button>
         </div>
     </div>
+</div>
 
-    <div class="card" id="po_card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">VDR Purchase Orders:</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive"><!--PO Num Table-->
-                <table class="table table-hover table-striped w-auto" id="po_table">
-                    <thead class="thead-light">
-                        <tr>
-                            <th scope="col">PO Number</th>
-                            <th scope="col">Purchase Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for instance in po_num_set %}
-                        <tr class="tablerow" data-ship_num="{{instance.shipment_num__shipment_num}}">
-                            <td><button type="button" class="btn btn-primary po" data-ponum="{{ instance.po_number }}" data-supplier="{{ instance.supplier }}">{{ instance.po_number }}</button></td>
-                            <td>{{ instance.purchase_date }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table> 
-            </div>
+<div class="card" id="po_card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">VDR Purchase Orders:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"><!--PO Num Table-->
+            <table class="table table-hover table-striped w-auto" id="po_table">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">PO Number</th>
+                        <th scope="col">Purchase Date</th>
+                        <th scope="col">Supplier</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in ponum_set %}
+                    <tr class="tablerow">
+                        <td><button type="button" class="btn btn-primary po" data-ponum="{{ instance.po_number }}">{{ instance.po_number }}</button></td>
+                        <td>{{ instance.purchase_date }}</td>
+                        <td>{{ instance.supplier }}</td>
+                        <td>{{ instance.notes }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
         </div>
     </div>
+</div>
 
 
-    <div class="form-row align-top">
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Shipments:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--PO Num Table-->
+            <table class="table table-hover table-striped w-auto" id="ship_table">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Shipment Number</th>
+                        <th scope="col">DR#</th>
+                        <th scope="col">RR#</th>
+                        <th scope="col">Invoice#</th>
+                        <th scope="col">Trucking</th>
+                        <th scope="col">Shipment Category</th>
+                        <th scope="col">Container#</th>
+                        <th scope="col">Container Type</th>
+                        <th scope="col">AWL/BL</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Date DR</th>
+                        <th scope="col">Date Whse</th>
+                        <th scope="col">Shipment Cleared</th>
+                        <th scope="col">Shipment Validated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in shipment_set %}
+                    <tr class="tablerow" data-po_num="{{ instance.po_num__po_number }}">
+                        <td>{{ instance.shipment_num__shipment_num }}</td>
+                        <td>{{ instance.shipment_num__dr_num }}</td>
+                        <td>{{ instance.shipment_num__rr_num }}</td>
+                        <td>{{ instance.shipment_num__invoice_num }}</td>
+                        <td>{{ instance.shipment_num__ship_trucking }}</td>
+                        <td>{{ instance.shipment_num__ship_category }}</td>
+                        <td>{{ instance.shipment_num__container_num }}</td>
+                        <td>{{ instance.shipment_num__container_type }}</td>
+                        <td>{{ instance.shipment_num__awl_bl }}</td>
+                        <td>{{ instance.shipment_num__notes }}</td>
+                        <td>{{ instance.shipment_num__date_dr }}</td>
+                        <td>{{ instance.shipment_num__date_warehouse }}</td>
+                        <td>{{ instance.shipment_num__cleared }}</td>
+                        <td>{{ instance.validated }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-4">
+
         <div class="card">
             <div class="card-header card-header-tabs card-header-info">
-                <h4 class="card-title">Purchase Order Items to Receive:</h4>
+                <h4 class="card-title">Purchased Items:</h4>
             </div>
             <div class="card-body">
-                <div class="table-responsive"> <!--PO Num Table-->
-                    <table class="table table-hover table-striped w-auto" id="item_table">
-                        <thead class="thead-dark">
+                <div class="table-responsive"> <!--Purchased Items-->
+                    <table class="table table-hover table-striped table-bordered" id="po_item_table">
+                        <thead class="thead-light">
                             <tr>
-                                <th scope="col">PO Number</th>
                                 <th scope="col">Item Number</th>
-                                <th scope="col">Purchased Quantity</th>
-                                <th scope="col">Item Description</th>
-                                <th scope="col">Unit of Measure</th>
+                                <th scope="col">Quantity</th>
                             </tr>
                         </thead>
                         <tbody>
-                        {% for instance in poitemset %}
-                            <tr class="tablerow" data-ponum="{{ instance.po_number__po_number }}" data-item_num="{{ instance.item_number__item_number }}" data-purch_quan="{{ instance.item_quantity }}">
-                                <td>{{ instance.po_number__po_number }}</td>
+                        {% for instance in ponum_item_set %}
+                            <tr class="tablerow" id="po_item-{{forloop.counter}}" data-po_num="{{instance.po_number__po_number}}" >
                                 <td>{{ instance.item_number__item_number }}</td>
                                 <td>{{ instance.item_quantity }}</td>
-                                <td>{{ instance.item_number__item_desc }}</td>
-                                <td>{{ instance.item_number__uom__uom }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -100,89 +151,89 @@ HELLO
                 </div>
             </div>
         </div>
+
     </div>
+    <div class="col-8">
 
-    <div class="card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Received Shipment Item:</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped w-auto" id="shipitem_table">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">Shipment PO Number</th>
-                            <th scope="col">PO Number</th>
-                            <th scope="col">Date Validated</th>
-                            <th scope="col">Start Time Validation</th>
-                            <th scope="col">End Time Validation</th>
-                            <th scope="col">Validation Time</th>
-                            <th scope="col">Item Number</th>
-                            <th scope="col">Item Quantity</th>
-                            <th scope="col">Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for instance in recship_items_set %}
-                        <tr class="tablerow" id="shipitem-{{forloop.counter}}" data-ship_po="{{ instance.shipment_po__id }}" data-po_num="{{ instance.shipment_po__po_num__po_number }}" data-date_val="{{ instance.date_validated|date:'Y-m-d' }}" data-start_time="{{ instance.start_time_validation|time:'H:i:s' }}" data-end_time="{{ instance.end_time_validation|time:'H:i:s' }}" data-val_time="{{ instance.validation_time }}" data-item_num="{{ instance.item_number__item_number }}" data-item_quan="{{ instance.item_quantity }}" data-notes="{{ instance.notes }}">
-
-                            <td>{{ instance.shipment_po__id }}</td>
-                            <td>{{ instance.shipment_po__po_num__po_number }}</td>
-                            <td>{{ instance.date_validated|date:'Y-m-d' }}</td>
-                            <td>{{ instance.start_time_validation|time:'H:i:s' }}</td>
-                            <td>{{ instance.end_time_validation|time:'H:i:s' }}</td>
-                            <td>{{ instance.validation_time }}</td>
-                            <td>{{ instance.item_number__item_number }}</td>
-                            <td>{{ instance.item_quantity }}</td>
-                            <td>{{ instance.notes }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table> 
+        <div class="card">
+            <div class="card-header card-header-tabs card-header-info">
+                <h4 class="card-title">Validated Shipment Item:</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive"> <!--Shrnk Items-->
+                    <table class="table table-hover table-striped table-bordered" id="ship_item_table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Shipment Number</th>
+                                <th scope="col">Date Validated</th>
+                                <th scope="col">Start Time</th>
+                                <th scope="col">End Time</th>
+                                <th scope="col">Validation Time</th>
+                                <th scope="col">Item Number</th>
+                                <th scope="col">Item Description</th>
+                                <th scope="col">Received Quantity</th>
+                                <th scope="col">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for instance in ship_item_set %}
+                            <tr class="tablerow" id="sum-{{forloop.counter}}" data-po_num="{{instance.shipment_po__po_num__po_number}}" >
+                                <td>{{ instance.shipment_po__shipment_num__shipment_num }}</td>
+                                <td>{{ instance.date_validated }}</td>
+                                <td>{{ instance.start_time_validation }}</td>
+                                <td>{{ instance.end_time_validation }}</td>
+                                <td>{{ instance.validation_time }}</td>
+                                <td>{{ instance.item_number__item_number }}</td>
+                                <td>{{ instance.item_number__item_desc }}</td>
+                                <td>{{ instance.item_quantity }}</td>
+                                <td>{{ instance.notes }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table> 
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Received Shipment Summary:</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped w-auto" id="shipsum_table">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">Shipment PO Number</th>
-                            <th scope="col">PO Number</th>
-                            <th scope="col">Item Number</th>
-                            <th scope="col">Purchased Quantity</th>
-                            <th scope="col">Total Received Quantity</th>
-                            <th scope="col">Discrepancy</th>
-                            <th scope="col">Discrepancy Quantity</th>
-                            <th scope="col">Issue</th>
-                            <th scope="col">Received</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for instance in recship_sum_set %}
-                        <tr class="tablerow" id="shipsum-{{forloop.counter}}" data-ship_po="{{ instance.shipment_po__id }}" data-po_num="{{ instance.shipment_po__po_num__po_number }}" data-item_num="{{ instance.item_number__item_number }}" data-pur_quan="{{ instance.purchased_quantity }}" data-tot_req="{{ instance.total_received_quantity }}" data-disc="{{ instance.discrepancy }}" data-disc_quan="{{ instance.discrepancy_quantity }}" data-issue="{{ instance.issue }}" data-received="{{ instance.received }}">
-                            <td>{{ instance.shipment_po__id }}</td>
-                            <td>{{ instance.shipment_po__po_num__po_number }}</td>
-                            <td>{{ instance.item_number__item_number }}</td>
-                            <td>{{ instance.purchased_quantity }}</td>
-                            <td>{{ instance.total_received_quantity }}</td>
-                            <td>{{ instance.discrepancy }}</td>
-                            <td>{{ instance.discrepancy_quantity }}</td>
-                            <td>{{ instance.issue }}</td>
-                            <td>{{ instance.received }}</td>
-                            
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table> 
-            </div>
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Current Purchase Summary:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="ship_sum_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">Purchased Quantity</th>
+                        <th scope="col">Received Quantity</th>
+                        <th scope="col">Balance</th>
+                        <th scope="col">Date Last Shipped</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in ship_summary_set %}
+                    <tr class="tablerow" id="sum-{{forloop.counter}}" data-po_num="{{instance.po_num}}" data-item_num="{{instance.item_number}}" data-req_quan="{{instance.purch_quan}}" data-rec_quan="{{instance.tot_rec_quan}}" data-balance="{{instance.balance}}" data-date_shipped="{{instance.date_shipped}}" >
+
+                        <td>{{ instance.item_number }}</td>
+                        <td>{{ instance.item_desc }}</td>
+                        <td>{{ instance.purch_quan }}</td>
+                        <td>{{ instance.tot_rec_quan }}</td>
+                        <td>{{ instance.balance }}</td>
+                        <td>{{ instance.date_shipped }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
         </div>
     </div>
+</div>
 
     
 
@@ -221,88 +272,41 @@ HELLO
             };
         };
 
-        $('#item_table').find('tr.tablerow').each(function (i, el) {
+        $('#ship_table').find('tr.tablerow').each(function (i, el) {
             $(this).hide();
         });
 
-        $('#shipitem_table').find('tr.tablerow').each(function (i, el) {
+        $('#po_item_table').find('tr.tablerow').each(function (i, el) {
             $(this).hide();
         });
 
-        $('#shipsum_table').find('tr.tablerow').each(function (i, el) {
+        $('#ship_item_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
             $(this).hide();
         });
 
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
             $(window.opener.document).find('#id_po_num').val($('#po_num').val()); //PO Number
-            $(window.opener.document).find('#shipment_po').val($('#ship_po').val()); //Shipment PO
-            $(window.opener.document).find('#id_shipment').val($('#ship_num').val()); //Ship Num
-            var ship_po_id = $('#ship_po').val();
-            var rec_items = [];
 
-            $('#shipitem_table').find('tr.tablerow').each(function (i, el) {
-                if ($(this).is(":visible")){
-                    var shipitem_row = this;
-                    var ship_po = shipitem_row.dataset.ship_po;
-                    var date_val = shipitem_row.dataset.date_val;
-                    var start_time = shipitem_row.dataset.start_time;
-                    var end_time = shipitem_row.dataset.end_time;
-                    var val_time = shipitem_row.dataset.val_time;
-                    var item_num = shipitem_row.dataset.item_num;
-                    var item_quan = shipitem_row.dataset.item_quan;
-                    var notes = shipitem_row.dataset.notes;
-
-                    window.opener.insert_shipitem('formsetitem', ship_po, date_val, start_time, end_time, val_time, item_num, item_quan, notes);
-                }
-            });
-
-            $('#shipsum_table').find('tr.tablerow').each(function (i, el) {
-                if ($(this).is(":visible")){
-                    var shipitem_row = this;
-                    var ship_po = shipitem_row.dataset.ship_po;
-                    var item_num = shipitem_row.dataset.item_num;
-                    var pur_quan = shipitem_row.dataset.pur_quan;
-                    var tot_req = shipitem_row.dataset.tot_req;
-                    var disc = shipitem_row.dataset.disc;
-                    var disc_quan = shipitem_row.dataset.disc_quan;
-                    var issue = shipitem_row.dataset.issue;
-                    var received = shipitem_row.dataset.received;
-                    
-                    rec_items.push(new Array(item_num,disc));
-
-                    window.opener.insert_shipsum('formsetsum', ship_po, item_num, pur_quan, tot_req, disc, disc_quan, issue, received);
-                }
-            });
-
-            var d = new Date($.now());
-            var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
-            var startime = Math.ceil((Date.now()-Math.floor(Date.now()/1000/60/60/24)*24*60*60*1000)/1000);
 
             window.opener.deletereqitem();
 
-            $('#item_table').find('tr.tablerow').each(function (i, el) {
+            $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
                 if ($(this).is(":visible")){
+
                     var shipitem_row = this;
                     var item_num = shipitem_row.dataset.item_num;
-                    var purch_quan = shipitem_row.dataset.purch_quan;
-                    
-                    var received = checkifreceived(item_num,rec_items);
+                    var item_quan = shipitem_row.dataset.req_quan;
+                    var rec_quan = shipitem_row.dataset.rec_quan;
+                    var balance = shipitem_row.dataset.balance;
+                    var date_shipped = shipitem_row.dataset.date_shipped;
 
-                    window.opener.showreqitem(item_num,purch_quan);
-
-                    if(received === true){
-                        var discrepancy = checkifdisc(item_num,rec_items);
-                        if( discrepancy === true ){
-                            window.opener.insert_shipitem_new('formsetitem', ship_po_id, currentdate, secondsToTime(startime), item_num, purch_quan);
-                        }
-                    }else{
-                        window.opener.insert_shipitem_new('formsetitem', ship_po_id, currentdate, secondsToTime(startime), item_num, purch_quan);
-                    }
-                    
+                    window.opener.showreqitem(item_num, item_quan, rec_quan, balance, date_shipped);
                 }
             });
-
-            $(window.opener.document).find('#val_start').val(secondsToTime(startime));
 
             toastr.success('Purchase Order ' + $('#po_num').val() + " is selected.");
 
@@ -312,63 +316,13 @@ HELLO
 
         });
 
-        function checkifreceived(item_num,rec_items){
-            for(var i=0; i < rec_items.length; i++) {
-                if(String(rec_items[i][0]) === String(item_num) ){
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function checkifdisc(item_num,rec_items){
-            for(var i=0; i < rec_items.length; i++) {
-                if(String(rec_items[i][0]) === String(item_num) ){
-                    if(rec_items[i][1] === "True"){
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        
-
-        function secondsToTime(secs) {
-            var hours = Math.floor(secs / (60 * 60));
-            var divisor_for_minutes = secs % (60 * 60);
-            var minutes = Math.floor(divisor_for_minutes / 60);
-            var divisor_for_seconds = divisor_for_minutes % 60;
-            var seconds = Math.ceil(divisor_for_seconds);
-            return hours+":"+minutes+":"+seconds;
-        }
-
-        $( "#ship_table" ).on("click", ".btn.btn-primary.ship",function () {
-            var btn = this;
-            var ship_num = btn.dataset.ship;
-            $('#ship_num').val(ship_num);
-
-            $('#po_table').find('tr.tablerow').each(function (i, el) {
-                var name = this;
-                var shipnum_po = name.dataset.ship_num;
-
-                if(ship_num === shipnum_po){
-                    $(this).show(); 
-                }else{
-                    $(this).hide();
-                }
-            }); 
-        });
-
         $( "#po_table" ).on("click", ".btn.btn-primary", function () {
             var po_num = this.dataset.ponum;
-            var ship_po_id = this.dataset.ship_po_id;
             $("#po_num").val(po_num);
-            $("#ship_po").val(ship_po_id);
             
-            $('#item_table').find('tr.tablerow').each(function (i, el) {
+            $('#ship_table').find('tr.tablerow').each(function (i, el) {
                 var name = this;
-                var item_po_num = name.dataset.ponum;
+                var item_po_num = name.dataset.po_num;
                 if (po_num === item_po_num){
                     $(this).show();
                 }else {
@@ -376,7 +330,7 @@ HELLO
                 }
             });
 
-            $('#shipitem_table').find('tr.tablerow').each(function (i, el) {
+            $('#po_item_table').find('tr.tablerow').each(function (i, el) {
                 var shipitem_row = this;
                 var shipitem_ponum = shipitem_row.dataset.po_num;
 
@@ -387,7 +341,18 @@ HELLO
                 }
             });
 
-            $('#shipsum_table').find('tr.tablerow').each(function (i, el) {
+            $('#ship_item_table').find('tr.tablerow').each(function (i, el) {
+                var shipsum_row = this;
+                var shipsum_ponum = shipsum_row.dataset.po_num;
+
+                if (po_num === shipsum_ponum){
+                    $(this).show();                                            
+                }else {
+                    $(this).hide();
+                }
+            });
+
+            $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
                 var shipsum_row = this;
                 var shipsum_ponum = shipsum_row.dataset.po_num;
 
@@ -402,15 +367,16 @@ HELLO
 
         });
 
+
         $("#po_table").DataTable({
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-        $("#item_table").DataTable({searching: false, paging: false, info: false,
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
         $("#ship_table").DataTable({searching: false, paging: false, info: false,
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-        $("#shipitem_table").DataTable({searching: false, paging: false, info: false,
+        $("#po_item_table").DataTable({searching: false, paging: false, info: false,
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-        $("#shipsum_table").DataTable({searching: false, paging: false, info: false,
+        $("#ship_item_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+        $("#ship_sum_table").DataTable({searching: false, paging: false, info: false,
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
     
     });

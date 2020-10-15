@@ -21,7 +21,13 @@
         display: none;
     }
     .table-striped tbody tr.highlight td { 
-    background-color: #f3fafe;
+    background-color: #87CEFA;
+    }
+    .table-striped tbody tr.noissue td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.issue td { 
+    background-color: #d9534f;
     }
 </style>
 {% endblock stylesheets %}
@@ -29,84 +35,77 @@
 {% block content %}
     
     <h2> Finish Component Issuance </h2>
-    <br>
     <form class="form-horizontal" method="POST" action="">
         {% csrf_token %}
 
-    <div class="card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Component Issuance Schedule Details:</h4>
-        </div>
-        <div class="card-body">
-            <div class="form-row align-top">
-                <div class="col-lg-5">
-                    <div class="card">
-                        <div class="card-header card-header-tabs card-header-info">
-                            <h4 class="card-title">Component Issuance Schedule Details:</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-row align-items-center">
-                                <div class="col-5">
-                                    <div class="form-group">
-                                        <label for="id_work_order_number">Component Issuance Schedule Number:</label>
-                                        <input type="text" name="compissuesched" class="form-control" maxlength="200" required="" id="compissuesched" readonly>
-                                    </div>
-                                </div>
-                                <div class="col-3">
-                                    <button class="btn btn-success add-compissuesched"><i class="fas fa-file-medical"></i></button>
-                                </div>
-                                <div class="col-4">
-                                    <div class="form-group">
-                                    <label for="id_customer">Date Scheduled:</label>
-                                    <input type="text" name="date_sched" maxlength="200" class="form-control" required="" id="date_sched" readonly>
-                                   </div>
-                                </div>
+
+    <div class="form-row align-top">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Component Issuance Schedule Details:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row align-items-center">
+                        <div class="col-5">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Component Issuance Schedule Number:</label>
+                                <input type="text" name="compissuesched" class="form-control" maxlength="200" required="" id="compissuesched" readonly>
                             </div>
+                        </div>
+                        <div class="col-3">
+                            <button class="btn btn-success add-compissuesched"><i class="fas fa-file-medical"></i></button>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                            <label for="id_customer">Date Scheduled:</label>
+                            <input type="text" name="date_sched" maxlength="200" class="form-control" required="" id="date_sched" readonly>
+                           </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-7">
-                    <div class="card">
-                        <div class="card-header card-header-tabs card-header-info">
-                            <h4 class="card-title">Work Order Details:</h4>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Work Order Details:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row align-items-center">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="id_customer">Production Schedule:</label>
+                                <input type="text" name="prodsched" maxlength="200" class="form-control" required="" id="prodsched" readonly>
+                           </div>
                         </div>
-                        <div class="card-body">
-                            <div class="form-row align-items-center">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="id_customer">Production Schedule:</label>
-                                        <input type="text" name="prodsched" maxlength="200" class="form-control" required="" id="prodsched" readonly>
-                                   </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                    <label for="id_work_order_number">Work Order Number:</label>
-                                    <input type="text" name="wonum" class="form-control" maxlength="200" required="" id="wonum" readonly>
-                                   </div>
-                                </div>
-                            </div>
-                            <div class="form-row align-items-center">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                    <label for="id_customer">Product Number:</label>
-                                    <input type="text" name="prodnum" maxlength="200" class="form-control" required="" id="prodnum" readonly>
-                                   </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                    <label for="id_work_order_number">Product Class:</label>
-                                    <input type="text" name="prodclass" class="form-control" maxlength="200" required="" id="prodclass" readonly>
-                                   </div>
-                                </div>
-                            </div>
-                            <div class="form-row align-items-center">
-                                <div class="col-6">
-                                    <div class="form-group">
-                                    <label for="id_customer">Scheduled Quantity:</label>
-                                    <input type="text" name="prodschedquan" maxlength="200" class="form-control" required="" id="prodschedquan" readonly>
-                                   </div>
-                                </div>
-                            </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                            <label for="id_work_order_number">Work Order Number:</label>
+                            <input type="text" name="wonum" class="form-control" maxlength="200" required="" id="wonum" readonly>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-6">
+                            <div class="form-group">
+                            <label for="id_customer">Product Number:</label>
+                            <input type="text" name="prodnum" maxlength="200" class="form-control" required="" id="prodnum" readonly>
+                           </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                            <label for="id_work_order_number">Product Class:</label>
+                            <input type="text" name="prodclass" class="form-control" maxlength="200" required="" id="prodclass" readonly>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-6">
+                            <div class="form-group">
+                            <label for="id_customer">Scheduled Quantity:</label>
+                            <input type="text" name="prodschedquan" maxlength="200" class="form-control" required="" id="prodschedquan" readonly>
+                           </div>
                         </div>
                     </div>
                 </div>
@@ -114,13 +113,9 @@
         </div>
     </div>
 
+
     
 
-    <div class="card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Required Bill of Materials:</h4>
-        </div>
-        <div class="card-body">
             <div class="form-row align-top">
                 <div class="col-lg-4">
                     <div class="card">
@@ -200,8 +195,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>   
 
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
@@ -245,14 +238,15 @@
                     </tbody>
                 </table>
             </div>
+            <div class="form-row align-items-center">
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-block btn-success">Finish</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="form-row align-items-center">
-        <div class="col-lg-2">
-            <button type="submit" class="btn btn-block btn-success">Finish</button>
-        </div>
-    </div>
+
 
 </form>
 {% endblock content %}
@@ -446,18 +440,23 @@
                     var totalreq_quan = parseInt($('#'+id_spliced+counter+"-totalreq_quan").val());
                     totalrec_quan = getTot_rec(itemnum);
 
+                    $("#"+id).attr('class', "tablerow sum");
+
                     var status = '' 
                     var disc = false;
                     var discQuan = totalreq_quan - totalrec_quan;
                     if(discQuan === 0){ //Non-issue
                         disc = false;
                         status = 'Non-Issue';
+                        $("#"+id).attr('class', "tablerow sum noissue");
                     }else if (discQuan > 0){//Short-Shipped
                         disc = true;
                         status = 'Short-Shipped';
+                        $("#"+id).attr('class', "tablerow sum issue");
                     }else {//Over-Shipped
                          disc = true;
                         status = 'Over-Shipped';
+                        $("#"+id).attr('class', "tablerow sum issue");
                     }
                     $('#'+id_spliced+counter+"-totalrec_quan").val(totalrec_quan);
                     $('#'+id_spliced+counter+"-discrepancy").val(disc);
@@ -510,12 +509,15 @@
             if(discQuan === 0){ //Non-issue
                 disc = false;
                 status = 'Non-Issue';
+                $('#sum_table tr.tablerow.sum:last').attr('class', "tablerow sum noissue");
             }else if (discQuan > 0){//Short-Shipped
                 disc = true;
                 status = 'Short-Shipped';
+                $('#sum_table tr.tablerow.sum:last').attr('class', "tablerow sum issue");
             }else {//Over-Shipped
                 disc = true;
                 status = 'Over-Shipped';
+                $('#sum_table tr.tablerow.sum:last').attr('class', "tablerow sum issue");
             }
             
         $('#sum_table tr.tablerow.sum:last').find('input[type=text]').each(function (i, el) {

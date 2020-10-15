@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Inbound Shipment {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -48,7 +48,7 @@
         <div class="col-lg-4">
             <div class="card" id="po_card">
                 <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">Purchase Order to Receive:</h4>
+                    <h4 class="card-title">Open Purchase Orders:</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive"> <!--PO Num Table-->
@@ -75,7 +75,7 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">Purchase Order to Receive:</h4>
+                    <h4 class="card-title">Purchased Items:</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive"> <!--PO Num Table-->
@@ -112,14 +112,13 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
-<script>
 
+<script>
     $(window).on('load', function() {
-        document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+        document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });      
     });
 
     $(document).ready(function(){
-
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -141,6 +140,7 @@
             };
         };
         
+        
         $('#item_table').find('tr.tablerow').each(function (i, el) {
             $(this).hide();
         });
@@ -149,7 +149,7 @@
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
             window.opener.insert_po('formpo', $('#name1').val());
 
-            toastr.success('Purchase Order ' + po_num + " is selected to the Shipment.");
+            toastr.success('Purchase Order ' + $('#name1').val() + ' is selected to the Shipment.');
         });
 
         $("#donebtn").on("click", function () {
@@ -165,17 +165,14 @@
             $('#item_table').find('tr.tablerow').each(function (i, el) {
                 var name = this;
                 var item_po_num = name.dataset.ponum;
-                console.log(po_num);
-                console.log(item_po_num);
                 if (po_num === item_po_num){
-                    console.log("TRUE");
                     $(this).show();
                 }else {
                     $(this).hide();
                 }
             });
 
-            toastr.info('Purchase Order ' + po_num + " is selected.");
+            toastr.info('Purchase Order ' + po_num + ' is selected.');
 
         });
 
@@ -183,7 +180,7 @@
 
     $("#po_table").DataTable({
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-    $("#item_table").DataTable({paging: false, 
+    $("#item_table").DataTable({paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
 </script>
 {% endblock javascripts %}

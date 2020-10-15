@@ -505,6 +505,7 @@ def ViewPendingWO(request):
     
     issuance_list = WO_Issuance_List.objects.filter(prod_sched__in=prodsched_filter).values(
         'prod_sched__id',
+        'prod_sched__work_order_number__work_order_number',
         'cleared',
         'issues',
         'issued_by',
@@ -514,6 +515,7 @@ def ViewPendingWO(request):
     
     assembly_list = WO_Assembly.objects.filter(prod_sched__in=prodsched_filter).values(
         'prod_sched__id',
+        'prod_sched__work_order_number__work_order_number',
         'date_received',
         'assembled_by',
         'date_assembled',
@@ -523,6 +525,7 @@ def ViewPendingWO(request):
     
     coupling_list = WO_Coupling.objects.filter(prod_sched__in=prodsched_filter).values(
         'prod_sched__id',
+        'prod_sched__work_order_number__work_order_number',
         'date_received',
         'coupled_by',
         'date_coupled',
@@ -532,6 +535,7 @@ def ViewPendingWO(request):
     
     testing_list = WO_Testing.objects.filter(prod_sched__in=prodsched_filter).values(
         'prod_sched__id',
+        'prod_sched__work_order_number__work_order_number',
         'date_received',
         'tested_by',
         'date_tested',

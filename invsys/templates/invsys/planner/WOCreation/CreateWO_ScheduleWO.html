@@ -66,6 +66,11 @@
     .fc-highlight {
         background-color:red;
     }
+    .default, .fc-agenda .default .fc-event-time, .default a {
+    background-color: #5cb85c;/* background color */
+    border-color: #5cb85c;/* border color (often same as background-color) */
+    color: #292b2c;/* text color */
+    }     
 </style>
 {% endblock stylesheets %}
     
@@ -342,7 +347,7 @@
                         start: '{{ event.date_required|date:"Y-m-d" }}',
                         end: '{{ event.date_required|date:"Y-m-d" }}',
                         quantity: '{{ event.quantity }}',
-                        className: 'info'
+                        className: 'default'
                     },
                 {% endfor %}
                 {% for event in scheduled_prod_sched %}
@@ -351,7 +356,7 @@
                         start: '{{ event.date_required|date:"Y-m-d" }}',
                         end: '{{ event.date_required|date:"Y-m-d" }}',
                         quantity: '{{ event.quantity }}',
-                        className: 'success'
+                        className: 'default'
                     },
                 {% endfor %}
             ],
@@ -411,7 +416,7 @@
             allDay: true,
             start: event_date,
             end: event_date,
-            className: 'chill',
+            className: 'warning',
             quantity: quantity,
             prod_cat: "new_sched"
         },

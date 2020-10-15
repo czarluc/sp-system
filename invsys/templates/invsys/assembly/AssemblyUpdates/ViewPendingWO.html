@@ -8,14 +8,15 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css" integrity="sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==" crossorigin="anonymous" />
 {% endblock stylesheets %}
 
 {% block content %}
-<h2> View Work Order Summary </h2>
+<h2> View Work Orders in Production </h2>
 
-	<div class="card">
+    <div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Work Order:</h4>
+            <h4 class="card-title">Work Orders:</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive"> <!--Shrnk Items-->
@@ -38,7 +39,7 @@
                             <td>{{ instance.prod_number__prod_desc }}</td>
                             <td>{{ instance.prod_number__uom }}</td>
                             <td>{{ instance.prod_number__prod_type }}</td>
-                        	<td>{{ instance.prod_number__prod_class }}</td>
+                            <td>{{ instance.prod_number__prod_class }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -47,9 +48,9 @@
         </div>
     </div>
 
-	<div class="card">
+    <div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Production Schedule:</h4>
+            <h4 class="card-title">Production Schedules:</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive"> <!--Shrnk Items-->
@@ -96,7 +97,7 @@
                     </thead>
                     <tbody>
                     {% for instance in issuance_set %}
-                        <tr class="tablerow" id="req-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}" id="issuance-{{forloop.counter}}-sched">
+                        <tr class="tablerow" id="req-{{forloop.counter}}" data-wo_num="{{instance.prod_sched__work_order_number__work_order_number}}" data-cleared="{{instance.cleared}}" id="issuance-{{forloop.counter}}-sched">
                             <td>{{ instance.prod_sched__id }}</td>
                             <td>{{ instance.issued_by }}</td>
                             <td>{{ instance.date_issued }}</td>
@@ -131,7 +132,7 @@
                     </thead>
                     <tbody>
                     {% for instance in assembly_set %}
-                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}">
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-wo_num="{{instance.prod_sched__work_order_number__work_order_number}}" data-cleared="{{instance.cleared}}">
                             <td>{{ instance.prod_sched__id }}</td>
                             <td>{{ instance.date_received }}</td>
                             <td>{{ instance.assembled_by }}</td>
@@ -167,7 +168,7 @@
                     </thead>
                     <tbody>
                     {% for instance in coupling_set %}
-                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}">
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-wo_num="{{instance.prod_sched__work_order_number__work_order_number}}" data-cleared="{{instance.cleared}}">
                             <td>{{ instance.prod_sched__id }}</td>
                             <td>{{ instance.date_received }}</td>
                             <td>{{ instance.coupled_by }}</td>
@@ -203,7 +204,7 @@
                     </thead>
                     <tbody>
                     {% for instance in testing_set %}
-                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-prodsched="{{instance.prod_sched__id}}">
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-wo_num="{{instance.prod_sched__work_order_number__work_order_number}}" data-cleared="{{instance.cleared}}">
                             <td>{{ instance.prod_sched__id }}</td>
                             <td>{{ instance.date_received }}</td>
                             <td>{{ instance.tested_by }}</td>
@@ -237,53 +238,249 @@
 <script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function() {
-	var table = $('#wo_table').DataTable({
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "8500",
+            "hideDuration": "8500",
+            "timeOut": "8500",
+            "extendedTimeOut": "8500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+
+    var table = $('#wo_table').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect wo_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table.buttons().container()
-        .appendTo( '#wo_table_wrapper .col-md-6:eq(0)' );
+
+    $("div.customselect.wo_table").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>Work Order Number</option><option>Product Number</option><option>Product Description</option><option>UOM</option><option>Product Type</option><option>Product Class</option></select>");
+
+    $('#wo_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex = document.querySelector('#select').selectedIndex;
+        table.column(colIndex).search($(this).val()).draw();
+        console.log(colIndex);
+        console.log($(this).val());
+    });
+
+    $('#select').change(function() {
+        table.columns().search('').draw();
+    });
+
 
     var table2 = $('#prodsched_table').DataTable({
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        paging: false,
+        info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect prodsched_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table2.buttons().container()
-        .appendTo( '#prodsched_tablee_wrapper .col-md-6:eq(0)' );
+
+    $("div.customselect.prodsched_table").html("<select id="+ "'select2'" + "class='browser-default custom-select'"+"><option>Production Schedule</option><option>Product Quantity</option><option>Date Required</option><option>Status</option></select>");
+
+    $('#prodsched_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex3 = document.querySelector('#select2').selectedIndex;
+        table2.column(colIndex3).search($(this).val()).draw();
+    });
+
+    $('#select2').change(function() {
+        table2.columns().search('').draw();
+    });
+
 
     var table3 = $('#issuance_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        paging: false,
+        info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect issuance_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table3.buttons().container()
-        .appendTo( '#issuance_table_wrapper .col-md-6:eq(0)' );
+
+    $("div.customselect.issuance_table").html("<select id="+ "'select3'" + "class='browser-default custom-select'"+"><option>Production Schedule</option><option>Date Required</option><option>Date Issued</option><option>Issued By</option><option>Verified By</option><option>Cleared</option><option>Issues</option><option>Notes</option></select>");
+
+    $('#issuance_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex3 = document.querySelector('#select3').selectedIndex;
+        table3.column(colIndex3).search($(this).val()).draw();
+    });
+
+    $('#select3').change(function() {
+        table3.columns().search('').draw();
+    });
 
     var table4 = $('#assembly_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        paging: false,
+        info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect assembly_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table4.buttons().container()
-        .appendTo( '#assembly_table_wrapper .col-md-6:eq(0)' );
+
+    $("div.customselect.assembly_table").html("<select id="+ "'select4'" + "class='browser-default custom-select'"+"><option>Production Schedule</option><option>Date Required</option><option>Date Assembled</option><option>Assembled By</option><option>Verified By</option><option>Cleared</option><option>Issues</option><option>Notes</option></select>");
+
+    $('#assembly_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex4 = document.querySelector('#select4').selectedIndex;
+        table4.column(colIndex4).search($(this).val()).draw();
+    });
+
+    $('#select4').change(function() {
+        table4.columns().search('').draw();
+    });
 
     var table5 = $('#coupling_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        paging: false,
+        info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect coupling_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table5.buttons().container()
-        .appendTo( '#coupling_table_wrapper .col-md-6:eq(0)' );
+
+    $("div.customselect.coupling_table").html("<select id="+ "'select5'" + "class='browser-default custom-select'"+"><option>Production Schedule</option><option>Date Required</option><option>Date Coupled</option><option>Coupled By</option><option>Verified By</option><option>Cleared</option><option>Issues</option><option>Notes</option></select>");
+
+    $('#coupling_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex4 = document.querySelector('#select5').selectedIndex;
+        table5.column(colIndex4).search($(this).val()).draw();
+    });
+
+    $('#select5').change(function() {
+        table5.columns().search('').draw();
+    });
 
     var table6 = $('#testing_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        paging: false,
+        info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect testing_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
- 
-    table6.buttons().container()
-        .appendTo( '#testing_table_wrapper .col-md-6:eq(0)' );
+
+    $("div.customselect.testing_table").html("<select id="+ "'select6'" + "class='browser-default custom-select'"+"><option>Production Schedule</option><option>Date Required</option><option>Date Tested</option><option>Tested By</option><option>Verified By</option><option>Cleared</option><option>Issues</option><option>Notes</option></select>");
+
+    $('#testing_table_filter label input').unbind().bind('keyup', function() {
+        var colIndex4 = document.querySelector('#select6').selectedIndex;
+        table6.column(colIndex4).search($(this).val()).draw();
+    });
+
+    $('#select6').change(function() {
+        table6.columns().search('').draw();
+    });
+
+
+    $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#issuance_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#assembly_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#coupling_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#testing_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $( "#wo_table" ).on("click", ".btn.btn-primary",function () {
+        var btn = this;
+        var wo_num = btn.dataset.wo_num;
+
+        toastr.info('Work Order Number ' + wo_num + " is selected.");
+
+        $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
+            var issuancesched = this;
+            var issuancesched_wo_num = issuancesched.dataset.wo_num;
+            if (wo_num === issuancesched_wo_num){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+        });
+        
+        $('#issuance_table').find('tr.tablerow').each(function (i, el) {
+            var issuancesched = this;
+            var issuancesched_wo_num = issuancesched.dataset.wo_num;
+            var cleared = issuancesched.dataset.cleared;
+            if (wo_num === issuancesched_wo_num){
+                if ( cleared === "True"){
+                    $(this).show();
+                } else{
+                    $(this).hide();
+                }                
+            }else {
+                $(this).hide();
+            }
+        });
+
+        $('#assembly_table').find('tr.tablerow').each(function (i, el) {
+            var issuanceitem = this;
+            var issuanceitem_wo_num = issuanceitem.dataset.wo_num;
+            if (wo_num === issuanceitem_wo_num){
+                if ( cleared === "True"){
+                    $(this).show();
+                } else{
+                    $(this).hide();
+                } 
+            }else {
+                $(this).hide();
+            }
+        });
+
+        $('#coupling_table').find('tr.tablerow').each(function (i, el) {
+            var issuanceitem = this;
+            var issuanceitem_wo_num = issuanceitem.dataset.wo_num;
+            if (wo_num === issuanceitem_wo_num){
+                if ( cleared === "True"){
+                    $(this).show();
+                } else{
+                    $(this).hide();
+                } 
+            }else {
+                $(this).hide();
+            }
+        });
+
+        $('#testing_table').find('tr.tablerow').each(function (i, el) {
+            var issuanceitem = this;
+            var issuanceitem_wo_num = issuanceitem.dataset.wo_num;
+            if (wo_num === issuanceitem_wo_num){
+                if ( cleared === "True"){
+                    $(this).show();
+                } else{
+                    $(this).hide();
+                }
+            }else {
+                $(this).hide();
+            }
+        });
+
+    });
 
 } );
  </script>

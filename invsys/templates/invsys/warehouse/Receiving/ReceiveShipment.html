@@ -6,9 +6,10 @@
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}    
 <style>
-    input[readonly] {
+    input {
       border:0px;
       background-color: transparent;
+      text-align: center; 
     }
     #part_table tr td:nth-child(2), #part_table th:nth-child(2) {
         display: none;
@@ -17,6 +18,9 @@
         display: none;
     }
     #part_table tr td:nth-child(4), #part_table th:nth-child(4) {
+        display: none;
+    }
+    #summary_table tr td:nth-child(4), #summary_table th:nth-child(4) {
         display: none;
     }
     .btn-item {
@@ -31,7 +35,13 @@
       border-color: #11D43F;
     }
     .table-striped tbody tr.highlight td { 
-    background-color: #f3fafe;
+    background-color: #87CEFA;
+    }
+    .table-striped tbody tr.noissue td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.issue td { 
+    background-color: #f0ad4e;
     }
 </style>
 {% endblock stylesheets %}
@@ -68,7 +78,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label>Supplier: </label>
-                        <input type="text" name="supplier" class="form-control" id="id_supplier" readonly>
+                        <input type="text" name="supplier" class="form-control" id="id_supplier" value="sample" readonly>
                     </div>
                 </div>
             </div>
@@ -76,7 +86,7 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label>Notes: </label>
-                        <input type="text" name="notes" class="form-control" id="id_notes" readonly>
+                        <input type="text" name="notes" class="form-control" id="id_notes" value="sample notes" readonly>
                     </div>
                 </div>
             </div>
@@ -196,14 +206,15 @@
                     </tbody>
                 </table>
             </div>
+            <div class="row spacer">
+                <div class="col-2">
+                    <button type="submit" class="btn btn-block btn-success">Create</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row spacer">
-        <div class="col-2">
-            <button type="submit" class="btn btn-block btn-success">Create</button>
-        </div>
-    </div>
+    
     </form>
 {% endblock content %}
 
@@ -303,7 +314,6 @@
 
         $('#part_table').on('click', '.edit-form-row', function(event) {
             var parent_row = $(this).closest('tr');
-            console.log(parent_row.attr('class'));
             if(parent_row.attr('class') === "tablerow highlight"){
                 parent_row.removeClass('highlight');
                 $(this).html('<i class="fa fa-edit"></i>');
@@ -345,16 +355,14 @@
                     var name = $(this).attr('name');
                     if(name) {
                         if (counter === 0){
-                            $(this).attr("readonly", false);
                             counter++;
-                        } else if(counter === 4){
+                        } else if(counter === 6){
                             $(this).attr("readonly", false);
                             counter++;
                         } else if(counter === 5){
                             $(this).attr("readonly", false);
                             counter++;
                         } else {
-                            $(this).attr("readonly", false);
                             counter++;
                         }
                     }
@@ -391,10 +399,6 @@
                     } else if(counter === 4){
                         $(this).val(item_num);
                         $(this).attr({"data-purchasedquan":purchasedquan});
-                        console.log("item_num");
-                        console.log(item_num);
-                        console.log("purchasedquan");
-                        console.log(purchasedquan);
                         counter++;
                     } else {
                         counter++;
@@ -519,23 +523,9 @@
             summary_row = getExistingSum_Row(item_number);
 
             if( !(parseInt(summary_row) === -1) ){ 
-                console.log("EXISTS"); //If there is existing row
+                 //If there is existing row
 
                 tot_recquan = getTot_rec(item_number);
-
-                var issue = ''
-                var disc = false;
-                var discQuan = pur_quantity - tot_recquan;
-                    if(discQuan === 0){ //Non-issue
-                        disc = false;
-                        issue = 'Non-Issue';
-                    }else if (discQuan > 0){//Short-Shipped
-                        disc = true;
-                        issue = 'Short-Shipped';
-                    }else {//Over-Shipped
-                        disc = true;
-                        issue = 'Over-Shipped';
-                    }
 
                 ship_sum_rowid = "#id_formsum-" + summary_row;
                 shipsum_totrec_selector = ship_sum_rowid + "-total_received_quantity";
@@ -543,13 +533,34 @@
                 shipsum_discquan_selector = ship_sum_rowid + "-discrepancy_quantity";
                 shipsum_issue_selector = ship_sum_rowid + "-issue";
 
+                ship_sum_row = "#formsum-" + summary_row;
+                $(ship_sum_row).attr('class', "tablerow");
+
+                var issue = ''
+                var disc = false;
+                var discQuan = pur_quantity - tot_recquan;
+                    if(discQuan === 0){ //Non-issue
+                        disc = false;
+                        issue = 'Non-Issue';
+                        console.log("FUCK");
+                        $(ship_sum_row).attr('class', "tablerow noissue");
+                    }else if (discQuan > 0){//Short-Shipped
+                        disc = true;
+                        issue = 'Short-Shipped';
+                        $(ship_sum_row).attr('class', "tablerow issue");
+                    }else {//Over-Shipped
+                        disc = true;
+                        issue = 'Over-Shipped';
+                        $(ship_sum_row).attr('class', "tablerow issue");
+                    }
+
                 $(shipsum_totrec_selector).val(tot_recquan);
                 $(shipsum_disc_selector).val(disc);
                 $(shipsum_discquan_selector).val(discQuan);
                 $(shipsum_issue_selector).val(issue);
 
             }else{ 
-                console.log("NOT EXISTS"); //If there is no existing row 
+                 //If there is no existing row 
                     $('#summary_table tr.tablerow:last').show();
                 var lastrowtbl = $('#summary_table tr.tablerow:last').clone(true);
                 var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
@@ -566,12 +577,15 @@
                     if(discQuan === 0){ //Non-issue
                         disc = false;
                         issue = 'Non-Issue';
+                        $('#summary_table tr.tablerow:last').attr('class', "tablerow noissue");
                     }else if (discQuan > 0){//Short-Shipped
                         disc = true;
                         issue = 'Short-Shipped';
+                        $('#summary_table tr.tablerow:last').attr('class', "tablerow issue");
                     }else {//Over-Shipped
                         disc = true;
                         issue = 'Over-Shipped';
+                        $('#summary_table tr.tablerow:last').attr('class', "tablerow issue");
                     }
                     
                 $('#summary_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
@@ -672,7 +686,6 @@
             });
 
             lastrowtbl.find('input[type=text]').each(function (i, el) {
-                console.log(this);
                 var name = $(this).attr('name');
                 if(name) {
                     name = name.replace('-' + currentnum + '-', '-' + total + '-');
@@ -755,7 +768,6 @@
         }
 
         function UpdateSummary(part_row){
-            console.log(part_row);
             var part_row_id = part_row.attr('id');
             var partrow_recitem_selector = "#id_"+part_row_id+"-item_quantity";
             var partrow_itemid_selector = "#id_"+part_row_id+"-item_number";

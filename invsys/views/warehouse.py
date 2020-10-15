@@ -736,35 +736,52 @@ def ResolvePO_SelectPO(request):
     po_num_query = Purchase_Order.objects.filter(cleared=False, issues=True).values(
         'po_number',
         'purchase_date',
-        'notes',
-        'supplier',)
+        'supplier',
+        'notes',)
 
     po_list =[]
     for po_num in po_num_query:
         po_list.append(po_num.get('po_number'))
 
-    poitemset = Purchase_Order_Item.objects.filter(po_number__in=po_list).values(
+    shipment_po_query = Shipment_PO.objects.filter(po_num__po_number__in=po_list).values(
+        'po_num__po_number',
+        'shipment_num__shipment_num',
+        'shipment_num__dr_num',
+        'shipment_num__rr_num',
+        'shipment_num__invoice_num',
+        'shipment_num__ship_trucking',
+        'shipment_num__ship_category',
+        'shipment_num__container_num',
+        'shipment_num__container_type',
+        'shipment_num__awl_bl',
+        'shipment_num__notes',
+        'shipment_num__date_dr',
+        'shipment_num__date_warehouse',
+        'shipment_num__cleared',        
+        'validated',)
+
+    ponum_item_list = Purchase_Order_Item.objects.filter(po_number__in=po_list).values(
         'po_number__po_number',
         'item_number__item_number',
-        'item_quantity', 
-        'item_number__item_desc',
-        'item_number__uom__uom',)
-
-    recship_items_query = Receive_Shipment_Item.objects.filter(shipment_po__po_num__po_number__in=po_list).values(
-        'shipment_po__id',
+        'item_quantity',)
+    
+    ship_item_list = Receive_Shipment_Item.objects.filter(shipment_po__po_num__po_number__in=po_list).values(
+        'shipment_po__shipment_num__shipment_num',
         'shipment_po__po_num__po_number',
         'date_validated',
         'start_time_validation',
         'end_time_validation',
         'validation_time',
         'item_number__item_number',
+        'item_number__item_desc',
         'item_quantity',
         'notes',)
 
-    recship_sum_query = Shipment_Summary.objects.filter(shipment_po__po_num__po_number__in=po_list).values(
-        'shipment_po__id',
+    ship_summary_query = Shipment_Summary.objects.filter(shipment_po__po_num__po_number__in=po_list).values(
+        'shipment_po__shipment_num__shipment_num',
         'shipment_po__po_num__po_number',
         'item_number__item_number',
+        'item_number__item_desc',
         'purchased_quantity',
         'total_received_quantity',
         'discrepancy',
@@ -772,11 +789,40 @@ def ResolvePO_SelectPO(request):
         'issue',
         'received',)
 
+    ship_sum_list = []
+    for ship_sum in ship_summary_query:
+        details={}
+        po_num = 0
+        purch_quan = 0
+        tot_rec_quan = 0
+        for i in ship_sum:
+            if i == 'shipment_po__shipment_num__shipment_num':
+                details['ship_num'] = ship_sum[i]
+            elif i == 'shipment_po__po_num__po_number':
+                po_num = ship_sum[i]
+                details['po_num'] = ship_sum[i]
+            elif i == 'item_number__item_number':
+                details['item_number'] = ship_sum[i]
+            elif i == 'item_number__item_desc':
+                details['item_desc'] = ship_sum[i]
+            elif i == 'purchased_quantity':
+                purch_quan = ship_sum[i]
+                details['purch_quan'] = ship_sum[i]
+            elif i == 'total_received_quantity':
+                tot_rec_quan = ship_sum[i]
+                details['tot_rec_quan'] = ship_sum[i]
+        details['balance'] = int(purch_quan) - int(tot_rec_quan)
+        latest_ship_query = Receive_Shipment_Item.objects.filter(shipment_po__po_num__po_number=po_num).order_by('-date_validated').values(
+            'date_validated').first()        
+        details['date_shipped'] = latest_ship_query.get('date_validated')
+        ship_sum_list.append(details)
+
     return render(request, template_name, {
-        'po_num_set':po_num_query,
-        'poitemset':poitemset,
-        'recship_items_set':recship_items_query,
-        'recship_sum_set':recship_sum_query})
+        'ponum_set':po_num_query,
+        'shipment_set':shipment_po_query,
+        'ponum_item_set':ponum_item_list,
+        'ship_item_set':ship_item_list,
+        'ship_summary_set':ship_sum_list})
 
 
 def DeleteRecLobbyBin():
@@ -791,17 +837,24 @@ def DeleteRecLobbyBin():
 def ViewShipmentSummary(request):
     template_name = 'invsys/warehouse/Receiving/ViewShipmentSummary.html'
 
-    shipment_query = Shipment.objects.all()
+    po_query = Purchase_Order.objects.all()
 
     shipment_po_query = Shipment_PO.objects.all().values(
-        'shipment_num__shipment_num',
-        'validated',
         'po_num__po_number',
-        'po_num__purchase_date',
-        'po_num__notes',
-        'po_num__supplier',
-        'po_num__cleared',
-        'po_num__issues',)
+        'shipment_num__shipment_num',
+        'shipment_num__dr_num',
+        'shipment_num__rr_num',
+        'shipment_num__invoice_num',
+        'shipment_num__ship_trucking',
+        'shipment_num__ship_category',
+        'shipment_num__container_num',
+        'shipment_num__container_type',
+        'shipment_num__awl_bl',
+        'shipment_num__notes',
+        'shipment_num__date_dr',
+        'shipment_num__date_warehouse',
+        'shipment_num__cleared',        
+        'validated',)
 
     ponum_item_list = Purchase_Order_Item.objects.all().values(
         'po_number__po_number',
@@ -816,13 +869,15 @@ def ViewShipmentSummary(request):
         'end_time_validation',
         'validation_time',
         'item_number__item_number',
+        'item_number__item_desc',
         'item_quantity',
         'notes',)
 
-    ship_summary_list = Shipment_Summary.objects.all().values(
+    ship_summary_query = Shipment_Summary.objects.all().values(
         'shipment_po__shipment_num__shipment_num',
         'shipment_po__po_num__po_number',
         'item_number__item_number',
+        'item_number__item_desc',
         'purchased_quantity',
         'total_received_quantity',
         'discrepancy',
@@ -830,12 +885,41 @@ def ViewShipmentSummary(request):
         'issue',
         'received',)
 
+    ship_sum_list = []
+    for ship_sum in ship_summary_query:
+        details={}
+        po_num = 0
+        purch_quan = 0
+        tot_rec_quan = 0
+        for i in ship_sum:
+            if i == 'shipment_po__shipment_num__shipment_num':
+                details['ship_num'] = ship_sum[i]
+            elif i == 'shipment_po__po_num__po_number':
+                po_num = ship_sum[i]
+                details['po_num'] = ship_sum[i]
+            elif i == 'item_number__item_number':
+                details['item_number'] = ship_sum[i]
+            elif i == 'item_number__item_desc':
+                details['item_desc'] = ship_sum[i]
+            elif i == 'purchased_quantity':
+                purch_quan = ship_sum[i]
+                details['purch_quan'] = ship_sum[i]
+            elif i == 'total_received_quantity':
+                tot_rec_quan = ship_sum[i]
+                details['tot_rec_quan'] = ship_sum[i]
+        details['balance'] = int(purch_quan) - int(tot_rec_quan)
+        latest_ship_query = Receive_Shipment_Item.objects.filter(shipment_po__po_num__po_number=po_num).order_by('-date_validated').values(
+            'date_validated').first()        
+        details['date_shipped'] = latest_ship_query.get('date_validated')
+        ship_sum_list.append(details)
+
+
     return render(request, template_name, 
-        {'shipment_set':shipment_query,
-        'ponum_set':shipment_po_query, 
+        {'ponum_set':po_query,
+        'shipment_set':shipment_po_query, 
         'ponum_item_set':ponum_item_list, 
         'ship_item_set':ship_item_list,
-        'ship_summary_set':ship_summary_list})
+        'ship_summary_set':ship_sum_list})
 
 
 
@@ -877,7 +961,7 @@ def GeneratePutAwaySchedule(request):
 def recordPAChanges(refnum, itemnum, itemquan, pastrefnum, binlocation):
     RecordPASchedTransac(refnum, itemnum, itemquan) #Record Schedule Transactions
     UpdateReceivingLobbyPASched(itemnum, itemquan, pastrefnum) #Update Receiving Lobby 
-    UpdateWhseItemPASched(refnum, itemnum, itemquan, binlocation) #Update Whse Bin  
+    UpdateWhseItemPASched(pastrefnum, itemnum, itemquan, binlocation) #Update Whse Bin  
 def RecordPASchedTransac(refnum,itemnum,itemquan):
     paschedtransac = Put_Away_Schedule_Transaction.objects.create(
         reference_number=refnum,
@@ -985,13 +1069,13 @@ def FinishPutAway(request):
             for pa_sum in pasum_query:
 
                 try: #Check if the pa_sum exist in the pa_item
-                    pa_item = Put_Away_Items.objects.get(schedule_num=pa_sched, item_num=pa_sum.item_num, bin_location=pa_sum.bin_location)
+                    pa_item = Put_Away_Items.objects.get(schedule_num=pa_sched, item_num=pa_sum.item_num, bin_location=pa_sum.bin_location, reference_number=pa_sum.reference_number)
                     if (pa_sum.required_quantity >= pa_sum.stored_quantity):
                         print("Stored")
                         pa_item.stored = True
                         pa_item.save()
-                        RecordPAFinishTransactions(pa_item.id, pa_sum.item_num, pa_sum.stored_quantity,pa_sum.bin_location)
-                        UpdateWhseItemPAFinish(pa_item.id, pa_sum.bin_location, pa_sum.item_num, pa_sum.stored_quantity)
+                        RecordPAFinishTransactions(pa_item.reference_number, pa_sum.item_num, pa_sum.stored_quantity,pa_sum.bin_location)
+                        UpdateWhseItemPAFinish(pa_item.reference_number, pa_sum.bin_location, pa_sum.item_num, pa_sum.stored_quantity)
                         UpdateReceivingLobbyPAFinish(pa_item.reference_number, pa_sum.item_num, pa_sum.stored_quantity)
 
                 except pa_item.DoesNotExist: #There are no item in pa_item
