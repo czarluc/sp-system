@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Shipping Lobby {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -33,7 +33,7 @@
                 <tbody>
                 {% for instance in ship_lobby_set %}
                     <tr class="tablerow" id="sched-{{forloop.counter}}">
-                        <td>{{ instance.reference_number }}</td>
+                        <td>{{ instance.prod_sched__id }}</td>
                         <td>{{ instance.prod_number__prod_number }}</td>
                         <td>{{ instance.prod_number__prod_desc }}</td>
                         <td>{{ instance.quantity }}</td>

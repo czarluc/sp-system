@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Finish Part Request Schedule {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -14,13 +14,13 @@
 {% block content %} 
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Select a Component Return Schedule:</h4>
+            <h4 class="card-title">Select a Part Request Schedule:</h4>
         </div>
         <div class="card-body">
             <div class="form-row align-items-center">
                 <div class="col-6">
                     <div class="form-group">
-                        <label>Component Issuance Schedule Number</label>
+                        <label>Part Request Schedule Number</label>
                         <input type ="text" class="form-control" id="name1" data-itemid="" readonly/>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
 
             <div class="card" id="comp_req_card">
                 <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">Component Request Schedules:</h4>
+                    <h4 class="card-title">Part Request Schedules:</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive"> <!--Component Issuance Schedules-->
@@ -123,7 +123,7 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>`
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
     $(window).on('load', function() {
         document.getElementById("comp_req_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });

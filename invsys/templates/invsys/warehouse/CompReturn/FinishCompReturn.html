@@ -1,16 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Finish Component Return {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
 {% load static %}
 <style>
-    input[readonly="readonly"] {
-        border:0px;
+    input:not([name="notes"]){ 
+        text-align: center; 
+    }
+    #sum_table tr td:nth-child(8), #sum_table th:nth-child(8){
+        display: none;
     }
     .table-striped tbody tr.highlight td { 
-        background-color: #f3fafe;
+    background-color: #87CEFA;
+    }
+    .table-striped tbody tr.noissue td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.issue td { 
+    background-color: #d9534f;
     }
 </style>
 {% endblock stylesheets %}
@@ -128,7 +137,7 @@
         var parent_row = $(this).closest('tr');
         console.log(parent_row.attr('class'));
         if(parent_row.attr('class') === "tablerow sum highlight"){
-            parent_row.removeClass('highlight');
+            parent_row.attr('class', 'tablerow sum');
             $(this).html('<i class="fa fa-edit"></i>');
             var counter = 0;
 
@@ -160,12 +169,15 @@
             if(discQuan === 0){ //Non-issue
                 disc = false;
                 status = 'Non-Issue';
+                parent_row.attr('class','tablerow sum noissue');
             }else if (discQuan > 0){//Short-Shipped
                 disc = true;
                 status = 'Short-Shipped';
+                parent_row.attr('class','tablerow sum issue');
             }else {//Over-Shipped
                 disc = true;
                 status = 'Over-Shipped';
+                parent_row.attr('class','tablerow sum issue');
             }
             
             var counter = 0;
@@ -191,7 +203,7 @@
             
             
         }else{
-            parent_row.addClass('highlight');
+            parent_row.attr('class','tablerow sum highlight');
             $(this).html('<i class="fa fa-check"></i>');
             var counter = 0;
             parent_row.find('input[type=text]').each(function (i, el) {
@@ -256,6 +268,8 @@
                 }
             }
         });
+
+        $('#sum_table tr.tablerow.sum:last').attr('class','tablerow sum issue');
 
         $('#sum_table tr.tablerow.sum:last').find('.btn.edit-form-row')
         .show();

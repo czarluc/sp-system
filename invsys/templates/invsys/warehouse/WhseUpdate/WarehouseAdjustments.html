@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Warehouse Adjustments {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -37,7 +37,7 @@
                     {% for instance in iaf_report_set %}
                         <tr class="tablerow" id="whse-{{forloop.counter}}">
 
-                            <td><button type="button" class="btn btn-primary wo" data-report_num="{{instance.report_num}}" data-iaf_whse="{{instance.iaf_whse__whse}}" data-adjustment_type="{{instance.adjustment_type__iaf_code}}" data-iaf_action="{{instance.iaf_action}}" data-date_requested="{{instance.date_requested}}" data-date_approved="{{instance.date_approved}}" data-date_adjusted="{{instance.date_adjusted}}" data-prepared_by="{{instance.prepared_by}}" data-noted_by="{{instance.noted_by}}">{{ instance.report_num }}</button></td>
+                            <td><button type="button" class="btn btn-primary report_num" data-report_num="{{instance.report_num}}" data-iaf_whse="{{instance.iaf_whse__whse}}" data-adjustment_type="{{instance.adjustment_type__iaf_code}}" data-iaf_action="{{instance.iaf_action}}" data-date_requested="{{instance.date_requested}}" data-date_approved="{{instance.date_approved}}" data-date_adjusted="{{instance.date_adjusted}}" data-prepared_by="{{instance.prepared_by}}" data-noted_by="{{instance.noted_by}}">{{ instance.report_num }}</button></td>
                             <td>{{ instance.iaf_whse__whse }}</td>
                             <td>{{ instance.adjustment_type__iaf_code }}</td>
                             <td>{{ instance.iaf_action }}</td>
@@ -83,9 +83,9 @@
                     </thead>
                     <tbody>
                     {% for instance in iaf_item_set %}
-                        <tr class="tablerow" id="whse-{{forloop.counter}}">
+                        <tr class="tablerow" id="whse-{{forloop.counter}}" data-report_num="{{instance.report_num__report_num}}">
 
-                            <td><button type="button" class="btn btn-primary wo" data-report_num="{{instance.report_num__report_num}}" data-iaf_whse="{{instance.report_num__iaf_whse}}" data-adjustment_type="{{instance.item_number}}" data-iaf_action="{{instance.bin_location}}" data-date_requested="{{instance.item_quantity}}" data-date_approved="{{instance.iaf_operator}}" data-date_adjusted="{{instance.total_cost}}" data-prepared_by="{{instance.reason}}" data-noted_by="{{instance.report_num__adjustment_type}}" data-iaf_action="{{instance.report_num__iaf_action}}" data-date_requested="{{instance.report_num__date_requested}}" data-date_approved="{{instance.report_num__date_approved}}" data-date_adjusted="{{instance.report_num__date_adjusted}}" data-prepared_by="{{instance.report_num__prepared_by}}" data-noted_by="{{instance.report_num__noted_by}}">{{ instance.report_num__report_num }}</button></td>
+                            <td>{{ instance.report_num__report_num }}</td>
                             <td>{{ instance.report_num__iaf_whse__whse }}</td>
                             <td>{{ instance.item_number__item_number }}</td>
                             <td>{{ instance.bin_location__bin_location }}</td>
@@ -136,8 +136,8 @@
                     </thead>
                     <tbody>
                     {% for instance in iaf_prod_set %}
-                        <tr class="tablerow" id="whse-{{forloop.counter}}">
-                            <td><button type="button" class="btn btn-primary wo" data-report_num__report_num="{{instance.report_num__report_num}}" data-report_num__iaf_whse="{{instance.report_num__iaf_whse}}" data-prod_number="{{instance.prod_number}}" data-bin_location="{{instance.bin_location}}" data-prod_quantity="{{instance.prod_quantity}}" data-iaf_operator="{{instance.iaf_operator}}" data-total_cost="{{instance.total_cost}}" data-reason="{{instance.reason}}" data-report_num__adjustment_type="{{instance.report_num__adjustment_type}}" data-report_num__iaf_action="{{instance.report_num__iaf_action}}" data-report_num__date_requested="{{instance.report_num__date_requested}}" data-report_num__date_approved="{{instance.report_num__date_approved}}" data-report_num__date_adjusted="{{instance.report_num__date_adjusted}}" data-report_num__prepared_by="{{instance.report_num__prepared_by}}" data-report_num__noted_by="{{instance.report_num__noted_by}}">{{ instance.report_num__report_num }}</button></td>
+                        <tr class="tablerow" id="whse-{{forloop.counter}}" data-report_num="{{instance.report_num__report_num}}">
+                            <td>{{ instance.report_num__report_num }}</td>
                             <td>{{ instance.report_num__iaf_whse__whse }}</td>
                             <td>{{ instance.prod_number__prod_number }}</td>
                             <td>{{ instance.bin_location__bin_location }}</td>
@@ -178,8 +178,30 @@
 <script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
     var table = $('#report_table').DataTable( {
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
         dom: 'Blfrtip',
@@ -190,6 +212,8 @@ $(document).ready(function() {
         .appendTo( '#report_table_wrapper .col-md-6:eq(0)' );
 
     var table2 = $('#item_table').DataTable( {
+        paging:false,
+        info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
         dom: 'Blfrtip',
         buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
@@ -199,6 +223,8 @@ $(document).ready(function() {
         .appendTo( '#item_table_wrapper .col-md-6:eq(0)' );
 
     var table3 = $('#prod_table').DataTable( {
+        paging:false,
+        info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
         dom: 'Blfrtip',
         buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
@@ -206,6 +232,50 @@ $(document).ready(function() {
  
     table3.buttons().container()
         .appendTo( '#prod_table_wrapper .col-md-6:eq(0)' );
+
+
+    $('#item_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#prod_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $("#report_table").on("click", ".btn.btn-primary.report_num", function(){
+        var btn = this;
+
+        var report_num = btn.dataset.report_num;
+
+        $('#item_table').find('tr.tablerow').each(function (i, el) {
+            var item_row = this;
+
+            var item_report_num = item_row.dataset.report_num;
+
+            if( report_num === item_report_num ){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }           
+        });
+
+        $('#prod_table').find('tr.tablerow').each(function (i, el) {
+            var prod_row = this;
+
+            var prod_report_num = prod_row.dataset.report_num;
+
+            if( report_num === prod_report_num ){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }           
+        });
+
+
+        toastr.info('IAF Report '+ report_num + " is selected.");
+
+    });
+
 } );
  </script>
 {% endblock javascripts %}

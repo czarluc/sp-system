@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Report Shrinkage {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-
+<style type="text/css">
+    input { 
+    text-align: center; 
+    }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}
@@ -34,11 +38,14 @@
                    </div>
                </div>
 
-                <div class="col-4">
-                    <div class="form-group">
-                        <label for="id_customer">Shrinkage Type:</label>
-                        <input type="text" name="report-shrinkage_type" maxlength="200" class="form-control" required="" id="id_report-shrinkage_type">
-                   </div>
+                <div class="col-1.5">
+                    <label for="id_customer">Shrinkage Type:</label>
+                </div>
+                <div class="col-2">
+                    <select name="report-shrinkage_type" class='browser-default custom-select' id="id_report-shrinkage_type" required>
+                        <option value="1">Damage</option>
+                        <option value="2">Loss</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -57,7 +64,7 @@
                     </div>
                 </div>
                 <div class="col-1">
-		            <button class="btn btn-success add-prod_sched">+</button>
+                    <button class="btn btn-success add-prod_sched">+</button>
                </div>
 
                 <div class="col-4">
@@ -66,13 +73,6 @@
                         <input type="text" name="wonum" maxlength="200" class="form-control" required="" id="wonum" readonly>
                    </div>
                </div>
-
-                <div class="col-4">
-                    <div class="form-group">
-                        <label for="id_customer">Date Received:</label>
-                        <input type="text" name="date_received" maxlength="200" class="form-control" required="" id="id_date_received" readonly>
-                   </div>
-                </div>
             </div>
             <div class="form-row align-items-center">
                 <div class="col-4">
@@ -110,31 +110,37 @@
                     <div class="form-row align-items-center">
                         <div class="col-4">
                             <div class="form-group">
-                        		<label for="id_work_order_number">Part Number:</label>
+                                <label for="id_work_order_number">Part Number:</label>
                                 <input type="text" name="report-item_number" maxlength="200" class="form-control" required="" id="id_report-item_number" readonly>
                             </div>
                         </div>
                         <div class="col-2">
-        		            <button class="btn btn-success add-shrnk_part">+</button>
+                            <button class="btn btn-success add-shrnk_part">+</button>
                        </div>
 
                         <div class="col-6">
                             <div class="form-group">
-                        		<label for="id_customer">Item Category:</label>
-                        		<input type="text" name="date_assembled" maxlength="200" class="form-control" required="" id="shrnk_itemcat" readonly>
+                                <label for="id_customer">Item Category:</label>
+                                <input type="text" name="date_assembled" maxlength="200" class="form-control" required="" id="shrnk_itemcat" readonly>
                            </div>
                        </div>
                     </div>
                     <div class="form-row align-items-center">
                         <div class="col-6">
                             <div class="form-group">
-                        		<label for="id_work_order_number">Shrinkage Quantity:</label>
-                        		<input type="text" name="report-quantity" maxlength="200" class="form-control" required="" id="id_report-quantity" readonly>
+                                <label for="id_work_order_number">Shrinkage Quantity:</label>
+                                <input type="text" name="report-quantity" maxlength="200" class="form-control" required="" id="id_report-quantity" readonly>
                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-lg-3">
+                            <button type="submit" class="btn btn-block btn-success">Report</button>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
         <div class="col-6">
 
@@ -198,11 +204,7 @@
     </div>
     
     
-    <div class="form-row align-items-center">
-        <div class="col-lg-2">
-            <button type="submit" class="btn btn-block btn-success">Report</button>
-        </div>
-    </div>
+    
 </form>
 {% endblock content %}
 
@@ -210,9 +212,9 @@
 {% block javascripts %}
 <script type="text/javascript">
     $(document).ready(function(){
-    	var d = new Date($.now());
-		var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
-		$('#id_report-date_reported').val(currentdate);
+        var d = new Date($.now());
+        var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+        $('#id_report-date_reported').val(currentdate);
 
         });
 

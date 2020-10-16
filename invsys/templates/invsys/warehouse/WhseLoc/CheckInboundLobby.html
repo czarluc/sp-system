@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Inbound Lobby {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -39,7 +39,7 @@
                 {% for instance in inbound_lobby_set %}
                     <tr class="tablerow" id="ponum-{{forloop.counter}}">
 
-                        <td>{{ instance.shipment_num__shipment_num }}</td>
+                        <td><button type="button" class="btn btn-primary ship_num" data-ship_num="{{ instance.shipment_num__shipment_num }}">{{ instance.shipment_num__shipment_num }}</button></td>
                         <td>{{ instance.date_in }}</td>
                         <td>{{ instance.shipment_num__dr_num }}</td>
                         <td>{{ instance.shipment_num__rr_num }}</td>
@@ -95,8 +95,37 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    $(".btn.btn-primary.ship_num").on("click", function(){
+        btn = this;
+        var ship_num = btn.dataset.ship_num;
+
+        toastr.info('Shipment '+ ship_num + " is selected.");
+    })
+
     var table = $('#inbound_table').DataTable({
         dom: "<'row'<'col-lg-6'B>>" +
         "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +

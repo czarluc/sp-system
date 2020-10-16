@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Generate Part Request Schedule {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -149,39 +149,30 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>          
     $(document).ready(function(){
-        /*
-        $( "#datepicker" ).datepicker({
-            onSelect: function(dateText, inst) { 
-                document.getElementById('label_reqdate').innerHTML = dateText;
-                getWO()
-            }
-        });
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "8500",
+                "hideDuration": "8500",
+                "timeOut": "8500",
+                "extendedTimeOut": "8500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
 
-        function getWO(){
-            $('#wo_table').find('tr.tablerow').each(function (i, el) {
-                var rowelm = this;
-                var date_req = rowelm.dataset.date_req;
-                var date_sel = document.getElementById('label_reqdate').innerHTML
-
-                if(date_sel === date_req){
-                    $(this).show();
-                }else{
-                    $(this).hide();
-                }
-
-                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-                    $(this).hide();
-                });
-
-            });
-        }
-        
-        $('#wo_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
-        });
-        */
 
         $('#whsebin_items').hide();
 
@@ -217,6 +208,8 @@
                     }                            
                 }
             });
+
+            toastr.info('Item '+ item_num + " from production schedule " + prod_sched +" is selected. <br> Please confirm.");
         });
         
         $(".btn.btn-success.btn-lg").on("click", function () {

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Receive Product {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -66,7 +66,7 @@
             </div>
             <div class="form-row align-items-center">
                 <div class="col-lg-1">
-                    <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg">Select</button>
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
                 </div>
             </div>
         </div>
@@ -244,13 +244,13 @@
                     $(this).hide();
                 }
             });
-            toastr.info('Production Schedule '+ prodsched + " from Work Order Number " + wonum + "is selected.");
+            toastr.info('Production Schedule '+ prodsched + " from Work Order Number " + wonum + " is selected.");
 
             document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
         });
         
-        $(".btn.btn-warehouse.btn-lg").on("click", function () {
+        $(".btn.btn-success.btn-lg").on("click", function () {
 
             var prodsched = $('#name1').val();
             var wonum = $('#name2').val();

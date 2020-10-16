@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Open PO {% endblock %} 
+{% block title %} Item Transactions {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -93,8 +93,30 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
     $.fn.dataTable.moment( 'DD-MM-YYY' );
 
     var table1 = $('#item_master').DataTable({
@@ -117,8 +139,7 @@ $(document).ready(function() {
 
     var table = $('#trans_table').DataTable({
         paging: false, info: false,
-        dom: "<'row'<'col-lg-6'B>>" +
-        "<'row'<'col-md-4'l><'col-md-4'<'customselect trans'>><'col-md-4'f>>" +
+        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect trans'>><'col-md-4'f>>" +
         "<'row'<'col-md-12'rtip>>",
         buttons: [ 'copy', {
                 extend: 'excelHtml5',
@@ -157,6 +178,8 @@ $(document).ready(function() {
                 $(this).hide();
             }
         });
+
+        toastr.info('Item '+ item_num + " is selected.");
 
     });
 

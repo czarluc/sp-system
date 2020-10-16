@@ -1223,7 +1223,7 @@ class DFMR_Report(models.Model):
     def __str__(self):
         return '%s %s' % (str(self.report_num), str(self.iaf_whse))
 class DFMR_Item(models.Model):
-    report_num = models.ForeignKey(DMMR_Report, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    report_num = models.ForeignKey(DFMR_Report, default='1', blank=True, null=True, on_delete=models.CASCADE)
     bin_location = models.ForeignKey(Warehouse, default='1', blank=True, null=True, on_delete=models.CASCADE)
     item_number = models.ForeignKey(Item, default='1', blank=True, null=True, on_delete=models.CASCADE)
     item_quantity = models.IntegerField(blank=True, null=True)

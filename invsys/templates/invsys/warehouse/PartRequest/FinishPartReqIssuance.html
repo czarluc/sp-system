@@ -1,28 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Finish Part Request Schedule {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
 {% load static %}
 <style>
-    input[readonly="readonly"] {
-        border:0px;
+    input:not([name="notes"]){ 
+    text-align: center; 
+    }
+    #sum_table tr td:nth-child(5), #sum_table th:nth-child(5){
+    display: none;
+    }
+    #sum_table tr td:nth-child(8), #sum_table th:nth-child(8){
+    display: none;
+    }
+    #sum_table tr td:nth-child(10), #sum_table th:nth-child(10){
+    display: none;
     }
     .table-striped tbody tr.highlight td { 
-        background-color: #f3fafe;
+    background-color: #87CEFA;
+    }
+    .table-striped tbody tr.noissue td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.issue td { 
+    background-color: #d9534f;
     }
 </style>
 {% endblock stylesheets %}
 
 {% block content %}
-<h2> Finish Component Request Schedule</h2>
+<h2> Finish Part Request Schedule</h2>
     <form class="form-horizontal" method="POST" action="">
         {% csrf_token %}
 
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Component Request Schedule:</h4>
+            <h4 class="card-title">Part Request Schedule:</h4>
         </div>
         <div class="card-body">
             <div class="form-row align-items-center">
@@ -55,7 +70,7 @@
 
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Verify Component Request Issuance:</h4>
+            <h4 class="card-title">Verify Part Request Issuance:</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -134,7 +149,7 @@
         var parent_row = $(this).closest('tr');
         console.log(parent_row.attr('class'));
         if(parent_row.attr('class') === "tablerow sum highlight"){
-            parent_row.removeClass('highlight');
+            parent_row.attr('class', 'tablerow sum')
             $(this).html('<i class="fa fa-edit"></i>');
             var counter = 0;
 
@@ -166,12 +181,15 @@
             if(discQuan === 0){ //Non-issue
                 disc = false;
                 status = 'Non-Issue';
+                parent_row.attr('class','tablerow sum noissue');
             }else if (discQuan > 0){//Short-Shipped
                 disc = true;
                 status = 'Short-Shipped';
+                parent_row.attr('class','tablerow sum issue');
             }else {//Over-Shipped
                 disc = true;
                 status = 'Over-Shipped';
+                parent_row.attr('class','tablerow sum issue');
             }
             
             var counter = 0;
@@ -197,7 +215,7 @@
             
             
         }else{
-            parent_row.addClass('highlight');
+            parent_row.attr('class','tablerow sum highlight');
             $(this).html('<i class="fa fa-check"></i>');
             var counter = 0;
             parent_row.find('input[type=text]').each(function (i, el) {
@@ -268,6 +286,8 @@
                 }
             }
         });
+
+        $('#sum_table tr.tablerow.sum:last').attr('class','tablerow sum issue');
 
         $('#sum_table tr.tablerow.sum:last').find('.btn.edit-form-row')
         .show();

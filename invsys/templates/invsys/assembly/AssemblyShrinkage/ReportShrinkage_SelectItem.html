@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Report Shrinkage {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
 {% load static %}
+<style type="text/css">
+    input { 
+    text-align: center; 
+    }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}
@@ -40,14 +45,14 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label>Quantity Lost due to Shrinkage</label>
-                        <input type ="text" class="form-control" id="name5"/>
+                        <input type ="number" class="form-control" id="name5"/>
                    </div>
                </div>
 
                 <div class="col-4">
                     <div class="form-group">
                         <label>Available Quantity</label>
-                        <input type ="text" class="form-control" id="name6"/>
+                        <input type ="text" class="form-control" value="67" id="name6" readonly/>
                         <input type ="hidden" class="form-control" id="name7" readonly/> <!--ASS LINE ID-->
                    </div>
                 </div>
@@ -95,8 +100,29 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>          
     $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
 
         $( "#bom_table" ).on("click", ".btn.btn-primary.item_number", function () {
             var btn = this;
@@ -109,6 +135,8 @@
             $('#name3').val(item_cat);
             $('#name4').val(assline);
             $('#name7').val(assline_id);
+
+            toastr.info('Item '+ item_num + " is selected. <br> Please enter shrinkage quantity");
         });
         
         $(".btn.btn-success.btn-lg").on("click", function () {

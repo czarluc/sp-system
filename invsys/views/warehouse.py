@@ -215,7 +215,7 @@ def ReceiveShipment(request):
             checkPO(shipment_po_object)
             shipment_po_object.validated = True
             shipment_po_object.save()
-            #add clear shipment if all ship_pos are validated
+            checkRemShippingInbound(shipment_po_object.shipment_num.shipment_num)#Searches for Shipments from ship num to remove to inbound lobby#add clear shipment if all ship_pos are validated
         else:
             print("shipmentitemformset")
             print(shipmentitemformset.errors)
@@ -223,6 +223,26 @@ def ReceiveShipment(request):
             print(shipmentsummaryformset.errors)
 
         return redirect('home')
+
+def checkRemShippingInbound(shipment_num):
+    ship_po_query = Shipment_PO.objects.filter(shipment_num__shipment_num=shipment_num)
+
+    total_po = 0
+    total_val = 0
+    for ship_po in ship_po_query:
+        total_po += 1
+        if ship_po.validated == True:
+            total_val += 1
+
+    if total_po == total_val:
+        shipment_obj = Shipment.objects.get(shipment_num=shipment_num)
+        shipment_obj.cleared = True
+        shipment_obj.save()
+        DeleteInboundLobby(shipment_num)
+
+def DeleteInboundLobby(shipment_num):
+    inbound_lobby_obj = InboundLobby.objects.get(shipment_num__shipment_num=shipment_num)
+    inbound_lobby_obj.delete()
 
 def checkPO(shipment_po):
     po_object = Purchase_Order.objects.filter(po_number=shipment_po.po_num)
@@ -462,6 +482,9 @@ def ContinueReceiveShipment(request):
                     newshipmentsummary.save()
                     counter += 1
             checkPO_VDR(shipment_po_object)
+            shipment_po_object.validated = True
+            shipment_po_object.save()
+            checkRemShippingInbound(shipment_po_object.shipment_num.shipment_num)#Searches for Shipments from ship num to remove to inbound lobby
         else:
             print("shipmentitemformset.errors")
             print(shipmentitemformset.errors)
@@ -1452,6 +1475,7 @@ def ReceiveProduct(request):
             wo_finished.checked_by = wo_finishedform.checked_by
             wo_finished.notes = wo_finishedform.notes
             wo_finished.cleared = True
+            wo_finished.image = request.FILES["image"]
             wo_finished.save()
             #-----PROD SCHED UPDATE----
             prod_sched = WO_Production_Schedule.objects.get(id=wo_finishedform.prod_sched.id)
@@ -2216,6 +2240,32 @@ def CheckCompReturnSchedule(compreturn_schedule):
         compreturn_schedule.cleared = True
         compreturn_schedule.save()
 
+def ViewCompReturnSummary(request):
+    template_name = 'invsys/warehouse/CompReturn/ViewCompReturnSummary.html'
+    
+    return_sched_list = ComponentReturn_Schedule.objects.all().values(
+        'schedule_num',
+        'date_scheduled',
+        'cleared',
+        'issues',
+        'notes',)
+    
+    return_sum_list = ComponentReturn_Summary.objects.all().values(
+        'schedule_num__schedule_num',
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'totalreq_quan',
+        'totalrec_quan',
+        'discrepancy_quantity',
+        'status',
+        'date_received',
+        'ass_location__name',)
+
+    return render(request, template_name, 
+        {'return_sched_set':return_sched_list,
+        'return_sum_set':return_sum_list,})
 
 #WHSE UPDATES
 #--REPORT DMMR--
@@ -2263,7 +2313,7 @@ def ReportDMMR(request):
             print(dmmritem_formset.errors)
         return redirect('home')
 def UpdateWhseItem_DMMR(bin_loc, item_num, item_quan):
-    whseitem_DMMR = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num)
+    whseitem_DMMR = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num, status="In Stock")
     whseitem_DMMR.quantity -= item_quan 
     whseitem_DMMR.save()
 def AddDMMR_Transac(refnum, bin_loc, itemnum, itemquan):
@@ -2380,7 +2430,7 @@ def ReportDFMR(request):
             print(dfmritem_formset.errors)
         return redirect('home')
 def UpdateWhseItem_DFMR(bin_loc, item_num, item_quan):
-    whseitem_DFMR = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num)
+    whseitem_DFMR = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num, status="In Stock")
     whseitem_DFMR.quantity -= item_quan 
     whseitem_DFMR.save()
 def AddDFMR_Transac(refnum, bin_loc, itemnum, itemquan):
@@ -2460,7 +2510,7 @@ def ReportSysAdj(request):
             print(saitem_formset.errors)
         return redirect('home')
 def UpdateWhseItem_SA(bin_loc, item_num, item_quan, iaf_operator):
-    whseitem_SA = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num)
+    whseitem_SA = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num, status="In Stock")
     if iaf_operator == "Subtract":
         whseitem_SA.quantity -= item_quan
     else:
@@ -2632,7 +2682,7 @@ def RecordRecLobbyTransac_DismProd(refnum,itemnum,itemquan):
     rtransac.full_clean()
     rtransac.save()
 def UpdateWhse_prod_Dismantle(bin_loc, prod_sched, dism_quan):
-    whseprod_dismantle = Warehouse_Products.objects.get(bin_location=bin_loc, reference_number=prod_sched)
+    whseprod_dismantle = Warehouse_Products.objects.get(bin_location=bin_loc, reference_number=prod_sched, status="In Stock")
     whseprod_dismantle.quantity -= int(dism_quan)
     whseprod_dismantle.save()
 def DeleteWhseProdBin():
@@ -2745,12 +2795,23 @@ def TransferItem(request):
         return redirect('home')
 
 def UpdateWhseItem_Transfer(bin_loc, item_num, item_quan, iaf_operator):
-    whseitem_Transfer = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num)
-    if iaf_operator == "Subtract":
-        whseitem_Transfer.quantity -= item_quan
-    else:
-        whseitem_Transfer.quantity += item_quan
-    whseitem_Transfer.save()
+    try:
+        whseitem_Transfer = Warehouse_Items.objects.get(bin_location=bin_loc, item_number=item_num, status="In Stock")
+        if iaf_operator == "Subtract":
+            whseitem_Transfer.quantity -= item_quan
+        else:
+            whseitem_Transfer.quantity += item_quan
+        whseitem_Transfer.save()
+    except whseitem_Transfer.DoesNotExist: #There are no item in whse bin to transfer
+        whseitem_New = Warehouse_Items.objects.create(
+            bin_location=bin_loc,
+            item_number=item_num,
+            quantity=item_quan,
+            status="In Stock",
+            reference_number="None")
+        whseitem_New.full_clean()
+        whseitem_New.save()
+
 def AddTransfer_Subt_Transac(refnum, bin_loc, itemnum, itemquan):
     transfer_subt_transac = Transfer_Subt_Transaction.objects.create(
         reference_number=refnum,
@@ -2809,7 +2870,7 @@ def TransferItem_SelectItem(request):
         'prod_class__prod_class',
         'barcode',)
 
-    new_whse_item_query = Warehouse_Items.objects.all().values(
+    new_whse_item_query = Warehouse_Items.objects.filter(status="In Stock").values(
         'bin_location__id',
         'bin_location__bin_location',
         'bin_location__item_cat__item_cat',
@@ -3937,7 +3998,7 @@ def CheckProduct(request):
         'reference_number')
     
     ship_lobby_query = Shipping_Lobby.objects.filter().values(
-        'prod_sched__id'
+        'prod_sched__id',
         'prod_number__prod_number',
         'prod_number__prod_desc',
         'quantity',

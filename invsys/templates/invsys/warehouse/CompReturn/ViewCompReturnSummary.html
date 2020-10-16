@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} View Part Request Issuance Summary {% endblock %} 
+{% block title %} View Component Return Summary {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -11,11 +11,11 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<h2> View Part Request Issuance Summary </h2>
+<h2> View Component Return Summary </h2>
 
-    <div class="card">
+	<div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Part Request Schedule</h4>
+            <h4 class="card-title">Component Return Schedule</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive"> <!--Shrnk Items-->
@@ -30,7 +30,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for instance in req_sched_set %}
+                    {% for instance in return_sched_set %}
                         <tr class="tablerow" id="sched-{{forloop.counter}}">
                             <td><button type="button" class="btn btn-primary wo" data-schednum="{{instance.schedule_num}}" id="wo-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
                             <td>{{ instance.date_scheduled }}</td>
@@ -47,7 +47,7 @@
 
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Part Request Issuance Summary</h4>
+            <h4 class="card-title">Component Return Summary</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive"> <!--Shrnk Items-->
@@ -64,12 +64,11 @@
                             <th scope="col">Discrepancy Quantity</th>
                             <th scope="col">Status</th>
                             <th scope="col">Date Received</th>
-                            <th scope="col">Warehouse</th>
                             <th scope="col">Assembly</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for instance in req_sum_set %}
+                    {% for instance in return_sum_set %}
                         <tr class="tablerow" id="req-{{forloop.counter}}" data-schednum="{{instance.schedule_num__schedule_num}}"id="issuance-{{forloop.counter}}-sched">
                             <td>{{ instance.schedule_num__schedule_num }}</td>
                             <td>{{ instance.prod_sched__work_order_number__work_order_number }}</td>
@@ -81,7 +80,6 @@
                             <td>{{ instance.discrepancy_quantity }}</td>
                             <td>{{ instance.status }}</td>
                             <td>{{ instance.date_received }}</td>
-                            <td>{{ instance.bin_location__bin_location }}</td>
                             <td>{{ instance.ass_location__name }}</td>
                         </tr>
                     {% endfor %}
@@ -134,11 +132,11 @@ $(document).ready(function() {
     };
 
     $(".btn.btn-primary.wo").on("click", function () {
-        toastr.info('Part Request Schedule ' + 4 + " is selected.");
+        toastr.info('Component Return Schedule ' + 4 + " is selected.");
 
     });
 
-    var table = $('#wo_table').DataTable({
+	var table = $('#wo_table').DataTable({
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
  

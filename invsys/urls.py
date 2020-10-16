@@ -92,6 +92,7 @@ urlpatterns = [
         path('FinishCompReturn/', warehouse.FinishCompReturn, name='FinishCompReturn'),
         path('FinishCompReturn/SelectCompReturnSched/', warehouse.FinishCompReturn_SelectCompReturnSched, name='FinishCompReturn_SelectCompReturnSched'),
         re_path(r'^FinishCompReturn/(?P<pk>[0-9]+)/SelectCompReturnItem/', warehouse.FinishCompReturn_SelectItem, name='FinishCompReturn_SelectItem'),
+        path('ViewCompReturnSummary/', warehouse.ViewCompReturnSummary, name='ViewCompReturnSummary'),
         #--WHSE UPDATES
         path('ReportDMMR/', warehouse.ReportDMMR, name='ReportDMMR'),
         path('ReportDMMR/SelectItem', warehouse.ReportDMMR_SelectItem, name='ReportDMMR_SelectItem'),

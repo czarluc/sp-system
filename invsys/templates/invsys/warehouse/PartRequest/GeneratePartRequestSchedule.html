@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Generate Part Request Schedule {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -8,6 +8,12 @@
 <style>
     input:not([name="notes"]){ 
     text-align: center; 
+    }
+    #part_table tr td:nth-child(4), #part_table th:nth-child(4){
+    display: none;
+    }
+    #part_table tr td:nth-child(6), #part_table th:nth-child(6){
+    display: none;
     }
     #part_table tr td:nth-child(8), #part_table th:nth-child(8){
     display: none;
@@ -28,14 +34,14 @@
             <div class="form-row align-items-center">
                 <div class="col-3">
                     <div class="form-group">
-                    	<label for="id_schedule_num">Scheduled Number:</label>
-                    	<input type="text" name="schedule_num" class="form-control" required="" readonly id="id_schedule_num" value="{{scheduleid}}">
+                        <label for="id_schedule_num">Scheduled Number:</label>
+                        <input type="text" name="schedule_num" class="form-control" required="" readonly id="id_schedule_num" value="{{scheduleid}}">
                     </div>
                 </div>
                 <div class="col-3">
                     <div class="form-group">
-                    	<label for="id_date_scheduled">Scheduled Date:</label>
-                    	<input type="text" name="date_scheduled" class="form-control" required="" readonly id="id_date_scheduled">
+                        <label for="id_date_scheduled">Scheduled Date:</label>
+                        <input type="text" name="date_scheduled" class="form-control" required="" readonly id="id_date_scheduled">
                     </div>
                 </div>
             </div>
@@ -51,7 +57,7 @@
                 <table class="table table-hover table-striped w-auto" id="part_table">
                     <thead class="thead-dark">
                         <tr class="tablehead">
-                        	<th scope="col">Production Schedule ID</th>
+                            <th scope="col">Production Schedule ID</th>
                             <th scope="col">Item Number</th>
                             <th scope="col">Quantity</th>
                             <th scope="col">Location From ID</th>
