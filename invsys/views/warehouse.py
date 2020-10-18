@@ -3801,13 +3801,7 @@ def CheckWarehouse_getImage(request):
     bin_loc_image = ""
 
     for bin_loc in bin_loc_obj:
-        bin_loc_image = bin_loc.get("image")
-
-    if bin_loc_image == None:
-        bin_loc_image = "/media/noimage/noimage.png"
-    else:
-        for bin_loc in bin_loc_obj:
-            bin_loc_image = "/media/" + bin_loc.get("image")
+        bin_loc_image = "/media/" + bin_loc.get("image")
 
         
     data = {
