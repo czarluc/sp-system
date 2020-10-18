@@ -267,12 +267,7 @@ $(document).ready(function() {
     }
 
     function showImage(data){
-        if(data.image === "null"){
-
-            $('#div_whse_image').append("<img id='preview' class='img-thumbnail' src=/media/ noimage.png />");
-        }else {
-            $('#div_whse_image').append("<img id='preview' class='img-thumbnail' src=/media/" + data.image + " />");
-        }
+        $('#div_whse_image').append("<img id='preview' class='img-thumbnail' src=" + data.image + " />");
     }
 
 });
