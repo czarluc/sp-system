@@ -272,7 +272,7 @@ $(document).ready(function() {
         if( data.image === "/media/" ){
             $('#div_whse_image').append("<img id='preview' class='img-thumbnail' src='" + "{% static 'invsys/noimage.png' %}"+"' />");
         } else{
-            $('#div_whse_image').append("<img id='preview' class='img-thumbnail' src=/media/" + data.image + " />");
+            $('#div_whse_image').append("<img id='preview' class='img-thumbnail' src=" + data.image + " />");
         }
         
     }
