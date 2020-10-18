@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Update PO {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -27,9 +27,9 @@
         </div>
         <div class="card-body">
 
-        	<input type="file" id="excelfile" class="btn btn-danger" />  
-            <input type="button" id="viewfile" class="btn btn-primary" value="Export To Table" onclick="ExportToTable()" />
-          	<button type="submit" class="btn btn-success">Save</button>
+            <input type="file" id="excelfile" class="btn btn-danger" />  
+            <input type="button" id="viewfile" class="btn btn-primary" value="Import To Table" onclick="ExportToTable()" />
+            <button type="submit" class="btn btn-success">Save</button>
         </div>
     </div>
     
@@ -39,32 +39,32 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-               	<table class="table items table-hover table-striped w-auto mx-auto" id="exceltable">
-            		<thead class="thead-dark">
+                <table class="table items table-hover table-striped" id="exceltable">
+                    <thead class="thead-dark">
                         <tr class="tablehead">
                             <th scope="col">PO Num</th>
                             <th scope="col">Item Num</th>
                             <th scope="col">Purchase Date</th>
-                        	<th scope="col">Item Quantity</th>
+                            <th scope="col">Item Quantity</th>
                         </tr>
                     </thead>
                     <tbody>
-                    	{{ ponumformset.management_form }}
-                		{{ ponum_itemformset.management_form }}
-                		<tr class="breakrow" id="porow-">
-                			<td><button class="btn btn-success add-form-row item">+</button><input type="text" name="formsetpo-0-po_number" class="form-control" id="id_formsetpo-0-po_number" readonly form_tag = False></td>
+                        {{ ponumformset.management_form }}
+                        {{ ponum_itemformset.management_form }}
+                        <tr class="breakrow" id="porow-">
+                            <td><button class="btn btn-success add-form-row item">+</button><input type="text" name="formsetpo-0-po_number" class="form-control" id="id_formsetpo-0-po_number" readonly form_tag = False></td>
                             <td><input type="hidden" name="formsetpo-0-item_num" class="form-control" id="id_formsetpo-0-item_num" readonly form_tag = False></td>
                             <td><input type="text" name="formsetpo-0-purchase_date" class="form-control" id="id_formsetpo-0-purchase_date" readonly form_tag = False></td>
                             <td><input type="hidden" name="formsetpo-0-item_quantity" class="form-control" id="id_formsetpo-0-item_quantity" readonly form_tag = False></td>
-                		</tr>
-                		<tr class="datarow sample" id="poitem-">
-                			<td><input type="text" name="formsetitem-0-po_number" class="form-control" id="id_formsetitem-0-po_number" readonly form_tag = False></td>
+                        </tr>
+                        <tr class="datarow sample" id="poitem-">
+                            <td><input type="text" name="formsetitem-0-po_number" class="form-control" id="id_formsetitem-0-po_number" readonly form_tag = False></td>
                             <td><input type="text" name="formsetitem-0-item_number" class="form-control" id="id_formsetitem-0-item_number" readonly form_tag = False></td>
                             <td><input type="text" name="formsetitem-0-purchase_date" class="form-control" id="id_formsetitem-0-purchase_date" readonly form_tag = False></td>
                             <td><input type="text" name="formsetitem-0-item_quantity" class="form-control" id="id_formsetitem-0-item_quantity" readonly form_tag = False></td>
-                		</tr>
+                        </tr>
                     </tbody>
-               	</table> 
+                </table> 
             </div>
         </div>
     </div>

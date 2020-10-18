@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} View Put Away Summary {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -32,7 +32,7 @@
                     {% for instance in pasched_set %}
                         <tr class="tablerow" id="sched-{{forloop.counter}}">
 
-                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
+                            <td><button type="button" class="btn btn-primary sched" data-sched_num="{{instance.schedule_num}}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
                             <td>{{ instance.date_scheduled }}</td>
                             <td>{{ instance.notes }}</td>
                             <td>{{ instance.cleared }}</td>
@@ -64,9 +64,9 @@
                     </thead>
                     <tbody>
                     {% for instance in paitem_set %}
-                        <tr class="tablerow" id="req-{{forloop.counter}}">
+                        <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}">
 
-                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="req-{{forloop.counter}}-sched">{{ instance.schedule_num__schedule_num }}</button></td>
+                            <td>{{ instance.schedule_num__schedule_num }}</td>
                             <td>{{ instance.item_num__item_number }}</td>
                             <td>{{ instance.required_quantity }}</td>
                             <td>{{ instance.bin_location__bin_location }}</td>
@@ -104,8 +104,8 @@
                     </thead>
                     <tbody>
                     {% for instance in pasum_set %}
-                        <tr class="tablerow" id="sum-{{forloop.counter}}">
-                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num__schedule_num}}" id="sum-{{forloop.counter}}-sched">{{ instance.schedule_num__schedule_num }}</button></td>
+                        <tr class="tablerow" id="sum-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}">
+                            <td>{{ instance.schedule_num__schedule_num }}</td>
                             <td>{{ instance.item_num__item_number }}</td>
                             <td>{{ instance.required_quantity }}</td>
                             <td>{{ instance.stored_quantity }}</td>
@@ -142,8 +142,30 @@
 <script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
     var table = $('#sched_table').DataTable( {
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
         dom: 'Blfrtip',
@@ -170,6 +192,47 @@ $(document).ready(function() {
  
     table3.buttons().container()
         .appendTo( '#sum_table_wrapper .col-md-6:eq(0)' );
+
+    $('#req_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#sum_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $("#sched_table").on("click", ".btn.btn-primary.sched", function(){
+        btn = this;
+        var sched_num = btn.dataset.sched_num;
+
+        $('#req_table').find('tr.tablerow').each(function (i, el) {
+            var row = this;
+
+            var row_sched_num = row.dataset.sched_num;
+
+            if ( sched_num === row_sched_num ){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
+        });
+
+        $('#sum_table').find('tr.tablerow').each(function (i, el) {
+            var row = this;
+
+            var row_sched_num = row.dataset.sched_num;
+
+            if ( sched_num === row_sched_num ){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
+        });
+
+        toastr.info('Put Away Schedule Number '+ sched_num + " is selected.");
+
+    });
+
 } );
  </script>
 {% endblock javascripts %}

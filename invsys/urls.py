@@ -142,6 +142,8 @@ urlpatterns = [
         
         #--Check Parts
         path('CheckPart/', planner.CheckPart, name='CheckPart'),
+        path('CheckProduct/', planner.CheckProduct, name='CheckProduct'),
+
 
         #ISSUANCE TIMELINESS
         re_path(r'^Dashboard_get_issuance_time/$', planner.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),

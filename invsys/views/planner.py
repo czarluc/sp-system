@@ -12,6 +12,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 from ..decorators import planner_required
 from ..forms import *
 from ..models import *
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from datetime import date, timedelta
 import json
@@ -367,7 +368,7 @@ def CheckPart(request):
     item_list = Item.objects.filter().values(
         'item_number',
         'item_desc',
-        'uom',
+        'uom__uom',
         'item_cat__item_cat',
         'prod_class__prod_class',
         'barcode',
@@ -394,7 +395,78 @@ def CheckPart(request):
         {'whse_bin_set':whse_bin_list,
         'whse_item_set':whse_item_list, 
         'item_set':item_list,})
+
+#Check Product
+@login_required
+@planner_required
+def CheckProduct(request):
+    prod_list = Product.objects.filter().values(
+        'prod_number',
+        'prod_desc',
+        'uom__uom',
+        'prod_type',
+        'prod_class__prod_class',
+        'barcode',
+        'price',
+        'notes',)
+
+    whse_prod_list = Warehouse_Products.objects.filter(status="In Stock").values(
+        'bin_location__bin_location',
+        'prod_number__prod_number',
+        'quantity',
+        'status',
+        'reference_number',)
+
+    whsebin_query = []
+    for whsebin in whse_prod_list:
+        whsebin_query.append(whsebin.get("bin_location__bin_location"))
+
+    whse_bin_list = Warehouse.objects.filter(bin_location__in=whsebin_query).values(
+        'bin_location',
+        'item_cat__item_cat',
+        'prod_class__prod_class',
+        'barcode',)
+
+    prod_bom_query = ProductItemList.objects.filter().values(
+        'prod_number__prod_number',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'quantity',)
+
+    prod_bom_list = []
+    for prod_bom in prod_bom_query:
+        details = {}
+        avail_quan = 0
+        for i in prod_bom:
+            if i == "prod_number__prod_number":
+                details['prod_num'] = prod_bom[i]
+            elif i == "item_number__item_number":
+                details['item_num'] = prod_bom[i]
+                avail_quan = getItemStock(prod_bom[i])
+            elif i == "item_number__item_desc":
+                details['item_desc'] = prod_bom[i]
+            elif i == "quantity":
+                details['quantity'] = prod_bom[i]
+            details['avail_quan'] = avail_quan
+        prod_bom_list.append(details)
+
+    return render(request, 'invsys/planner/CheckInv/CheckProduct.html', 
+        {'whse_bin_set':whse_bin_list,
+        'whse_prod_set':whse_prod_list, 
+        'prod_set':prod_list,
+        'prod_bom_set':prod_bom_list})
+
+def getItemStock(item_num):
+    whse_item_query = Warehouse_Items.objects.filter(item_number__item_number=item_num, status="In Stock")
+    avail_quan = 0
+    try:
+        for whse_item in whse_item_query:
+            avail_quan += whse_item.quantity
+    except whse_item_query.DoesNotExist:
+        avail_quan = 0
     
+    return avail_quan
+
 #ISSUANCE TIMELINESS
 def Dashboard_get_issuance_acc(request):
 

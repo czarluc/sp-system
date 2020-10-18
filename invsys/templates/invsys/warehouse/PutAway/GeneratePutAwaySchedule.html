@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Generate Put Away Schedule {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -11,6 +11,9 @@
     }
     .table {
         text-align: center;   
+    }
+    #part_table tr td:nth-child(3), #part_table th:nth-child(3){
+        display: none;
     }
 </style>
 {% endblock stylesheets %}

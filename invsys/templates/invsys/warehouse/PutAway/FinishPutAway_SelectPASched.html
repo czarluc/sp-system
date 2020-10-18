@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %} 
+{% block title %} Finish Put Away {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
 {% load static %}
+<style>
+    input:not([name="notes"]){ 
+        text-align: center; 
+    }
+    #item_table tr td:nth-child(4), #item_table th:nth-child(4){
+        display: none;
+    }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}

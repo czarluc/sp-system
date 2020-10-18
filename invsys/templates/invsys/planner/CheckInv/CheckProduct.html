@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %} Check Product {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> View Available Products </h2>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product Master:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="prod_table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Product Description</th>
+                            <th scope="col">UOM</th>
+                            <th scope="col">Product Type</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Barcode</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in prod_set %}
+                        <tr class="tablerow" id="sched-{{forloop.counter}}">
+
+                            <td><button type="button" class="btn btn-primary wo" data-prod_num="{{instance.prod_number}}" data-item_cat="{{ instance.item_cat__item_cat }}" data-prod_class="{{ instance.prod_class__prod_class }}" id="sched-{{forloop.counter}}-sched">{{ instance.prod_number }}</button></td>
+                            <td>{{ instance.prod_desc }}</td>
+                            <td>{{ instance.uom__uom }}</td>
+                            <td>{{ instance.prod_type }}</td>
+                            <td>{{ instance.prod_class__prod_class }}</td>
+                            <td>{{ instance.barcode }}</td>
+                            <td>{{ instance.price }}</td>
+                            <td>{{ instance.notes }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product Availability:</h4>
+        </div>
+        <div class="card-body">
+            <p >Available Quantity: <label id="avail_quan"></label></p>
+            <div class="form-row align-top">
+                <div class="col-lg-5">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Warehouse Bins:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive"> <!--Shrnk Items-->
+                                <table class="table table-hover table-striped table-bordered nowrap" id="whse_bin_table">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">Bin Location</th>
+                                            <th scope="col">Item Category</th>
+                                            <th scope="col">Product Class</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for instance in whse_bin_set %}
+                                        <tr class="tablerow" data-bin_loc="{{ instance.bin_location }}" id="req-{{forloop.counter}}">
+
+                                            <td>{{ instance.bin_location }}</td>
+                                            <td>{{ instance.item_cat__item_cat }}</td>
+                                            <td>{{ instance.prod_class__prod_class }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-7">
+
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-info">
+                            <h4 class="card-title">Warehouse Bin Products:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive"> <!--Shrnk Items-->
+                                <table class="table table-hover table-striped table-bordered nowrap" id="whse_prod_table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Bin Location</th>
+                                            <th scope="col">Product Number</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Reference Number</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for instance in whse_prod_set %}
+                                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-bin_loc="{{ instance.bin_location__bin_location }}" data-prod_num="{{ instance.prod_number__prod_number }}" data-quantity="{{ instance.quantity }}">
+                                            <td>{{ instance.bin_location__bin_location }}</td>
+                                            <td>{{ instance.prod_number__prod_number }}</td>
+                                            <td>{{ instance.quantity }}</td>
+                                            <td>{{ instance.status }}</td>
+                                            <td>{{ instance.reference_number }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table> 
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Product BOM:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive"> <!--Shrnk Items-->
+                <table class="table table-hover table-striped table-bordered nowrap" id="bom_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Item Number</th>
+                            <th scope="col">Item Description</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Available Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in prod_bom_set %}
+                        <tr class="tablerow" id="rec-{{forloop.counter}}" data-prod_num="{{ instance.prod_num }}">
+                            <td>{{ instance.item_num }}</td>
+                            <td>{{ instance.item_desc }}</td>
+                            <td>{{ instance.quantity }}</td>
+                            <td>{{ instance.avail_quan }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+
+    
+
+    
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    var table = $('#prod_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table.buttons().container()
+        .appendTo( '#item_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#whse_bin_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table2.buttons().container()
+        .appendTo( '#whse_bin_table_wrapper .col-md-6:eq(0)' );
+
+    var table3 = $('#whse_prod_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table3.buttons().container()
+        .appendTo( '#whse_item_table_wrapper .col-md-6:eq(0)' );
+
+    var table4 = $('#bom_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table4.buttons().container()
+        .appendTo( '#whse_item_table_wrapper .col-md-6:eq(0)' );
+
+
+    $('#whse_bin_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $('#bom_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $( "#prod_table" ).on("click", ".btn.btn-primary.wo", function () {
+
+        $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        $('#whse_bin_table').find('tr.tablerow').each(function (i, el) {
+            $(this).hide();
+        });
+
+        var btn = this;
+
+        var prod_num = btn.dataset.prod_num;
+        var item_cat = btn.dataset.item_cat;
+        var prod_class = btn.dataset.prod_class;
+
+        var avail_quan = 0;
+        
+        toastr.info('Product ' + prod_num + " is selected.");
+
+        $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
+            var row_whseprod = this;
+
+            var whseprod_prodnum = row_whseprod.dataset.prod_num;
+            var whseprod_binloc = row_whseprod.dataset.bin_loc;
+            var whseprod_prodquan = row_whseprod.dataset.quantity;
+
+            if( prod_num === whseprod_prodnum ){
+                $(this).show();
+                avail_quan += parseInt(whseprod_prodquan);
+
+                $('#whse_bin_table').find('tr.tablerow').each(function (i, el) {
+                    var row_whsebin = this;
+
+                    var whsebin_binloc = row_whsebin.dataset.bin_loc;
+
+                    if( whseprod_binloc === whsebin_binloc ){
+                        $(this).show();
+                    } else{
+                        $(this).hide();
+                    }
+
+                });
+            } else {
+                $(this).hide();
+            }
+
+        });
+
+        $('#bom_table').find('tr.tablerow').each(function (i, el) {
+            var bomrow = this;
+
+            var bom_prod_num = bomrow.dataset.prod_num;
+
+            if ( prod_num === bom_prod_num ){
+                $(this).show();
+            } else{
+                $(this).hide();
+            }
+
+        });
+
+        $("#avail_quan").html(avail_quan);
+
+    });
+
+});
+ </script>
+{% endblock javascripts %}
