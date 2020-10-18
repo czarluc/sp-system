@@ -3791,6 +3791,28 @@ def CheckWarehouse(request):
 
 @login_required
 @warehouse_required
+def CheckWarehouse_getImage(request):
+    files = request.POST
+
+    bin_loc_ajax = files.get("bin_loc")
+    bin_loc_obj = Warehouse.objects.filter(bin_location=bin_loc_ajax).values(
+        'image')
+
+    bin_loc_image = ""
+
+    for bin_loc in bin_loc_obj:
+        bin_loc_image = bin_loc.get("image")
+    if bin_loc_image == None:
+        bin_loc_image = "null"
+        
+    data = {
+        "image" : bin_loc_image,
+    }
+
+    return JsonResponse(data) # http response
+
+@login_required
+@warehouse_required
 def CheckAssemblyItem(request):
     template_name = 'invsys/warehouse/WhseLoc/CheckAssemblyItem.html'
     ass_item_query = Assembly_Items.objects.filter().values(

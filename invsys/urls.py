@@ -113,6 +113,7 @@ urlpatterns = [
         path('CheckReceivingLobby/', warehouse.CheckReceivingLobby, name='CheckReceivingLobby'),
         path('CheckVDRLobby/', warehouse.CheckVDRLobby, name='CheckVDRLobby'),
         path('CheckWarehouse/', warehouse.CheckWarehouse, name='CheckWarehouse'),
+        path('CheckWarehouse_getImage/', warehouse.CheckWarehouse_getImage, name='CheckWarehouse_getImage'),
         path('CheckAssemblyItem/', warehouse.CheckAssemblyItem, name='CheckAssemblyItem'),
         path('CheckAssemblyDiscrepancy/', warehouse.CheckAssemblyDiscrepancy, name='CheckAssemblyDiscrepancy'),
         path('CheckShippingLobby/', warehouse.CheckShippingLobby, name='CheckShippingLobby'),
