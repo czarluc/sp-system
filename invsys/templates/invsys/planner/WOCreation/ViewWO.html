@@ -151,6 +151,9 @@
         <div class="card-body">
 
         <div class="container">
+            <div class="row" id="btn_pdf">
+                <button class="btn btn-warning pdf" type="button">download pdf</button>
+            </div>
             
             <div class="stepwizard">
                 <div class="progress center-block">
@@ -586,6 +589,7 @@
 <script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 <script>
 $(document).ready(function() {
 
@@ -662,6 +666,7 @@ $(document).ready(function() {
         $('#btn1').trigger('click');
         resetWizard();
         var button = this;
+
         $.ajax({
             method: "POST",
             url: "{% url 'planner:ViewWO_getDetails' %}",
@@ -676,6 +681,8 @@ $(document).ready(function() {
                 alert("error");
             }
         });
+
+        $('.btn-warning.pdf').attr('data-prod_sched',button.dataset.prod_sched);
 
         document.getElementById("status_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
     });
@@ -899,6 +906,320 @@ $(document).ready(function() {
  
     table4.buttons().container()
         .appendTo( '#bom_table_wrapper .col-md-6:eq(0)' );
+
+    $(document).on('click', '.btn-warning.pdf', function(e){
+        var button = this;
+
+        $.ajax({
+            method: "POST",
+            url: "{% url 'planner:ViewWO_getPDF' %}",
+            data: {'prod_sched': button.dataset.prod_sched,
+                  'csrfmiddlewaretoken': '{{ csrf_token }}'},
+
+            success: function(data){
+                dl_pdf(data, button.dataset.prod_sched);
+            },
+            error: function(error_data){
+                alert("error");
+            }
+        });
+    });
+
+    function dl_pdf(data, prod_sched){
+        var prod_sched = prod_sched;
+        var wo_num = '';
+        var doc = new jsPDF('l', 'mm', 'a4');
+
+        //210 x 297 mm
+
+        if(data.prodsched_set.length === 1){
+            data.prodsched_set.forEach(function(item) {
+
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(252, 32, item.work_order_number__creation_date); //DATE CREATED
+
+                doc.setFontSize(25); 
+                doc.setFontType('bold');
+                doc.rect(120, 45, 75, 13);
+                doc.text(143, 55, item.work_order_number__work_order_number); //WO NUM
+                wo_num = item.work_order_number__work_order_number;
+
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(190, 40, item.work_order_number__customer); //CUSTOMER
+                doc.text(240, 40, item.work_order_number__tid_number); //TID
+                doc.text(270, 40, item.work_order_number__work_order_class); //CLASS
+                doc.text(140, 40, item.work_order_number__order_type); //ORDER TYPE
+                doc.text(138, 62, item.work_order_number__prod_number__prod_desc); //PROD DESC
+
+                doc.setFontSize(18);
+                doc.setFontType('bold');
+                doc.text(135, 73, item.work_order_number__prod_number__prod_number);
+                doc.text(155, 86, String(item.quantity));
+
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(202, 113, String(item.date_required)); //Date Required
+                doc.text(202, 128, item.work_order_number__required_completion_date); //COMPLETION
+
+            });   
+        }
+
+        if(data.issuance_set.length === 1){
+            data.issuance_set.forEach(function(item) {
+                
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(202, 118, String(item.date_issued)); //DATE ISSUED
+                doc.text(202, 138, item.verified_by); //RECEIVED
+            });
+        }
+
+        if(data.assembly_set.length === 1){
+            data.assembly_set.forEach(function(item) {
+                
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(202, 143, String(item.date_assembled)); //DATE ASSEMBLED                
+                doc.text(202, 148, item.assembled_by); //ASSEMBLED
+
+            });
+        }
+
+        if(data.coupling_set.length === 1){
+            data.coupling_set.forEach(function(item) {
+                
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(202, 153, String(item.date_coupled)); //DATE COUPLED
+                doc.text(202, 158, item.coupled_by); //COUPLED
+
+            });
+        }
+
+        if(data.testing_set.length === 1){
+            data.testing_set.forEach(function(item) {
+                
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(202, 163, String(item.date_tested)); //DATE TESTED
+                doc.text(202, 168, item.tested_by); //TESTED
+
+            });
+        }
+
+        if(data.finished_set.length === 1){
+            data.finished_set.forEach(function(item) {
+                
+                if(item.name_plate === true){
+                    doc.line(25, 70, 28, 73);
+                    doc.line(28, 70, 25, 73);
+                }
+
+                if(item.label_sticker === true){
+                    doc.line(25, 78, 28, 81);
+                    doc.line(28, 78, 25, 81);
+                }
+
+                if(item.iom === true){
+                    doc.line(25, 86, 28, 89);
+                    doc.line(28, 86, 25, 89);
+                }
+
+                if(item.qr_code === true){
+                    doc.line(25, 94, 28, 97);
+                    doc.line(28, 94, 25, 97);
+                }
+
+                if(item.wrnty_card === true){
+                    doc.line(25, 102, 28, 105);
+                    doc.line(28, 102, 25, 105);
+                }
+
+                if(item.packaging === true){
+                    doc.line(25, 110, 28, 113);
+                    doc.line(28, 110, 25, 113);
+                }
+
+                doc.setFontSize(10);
+                doc.setFontType('normal');
+                doc.text(45, 122, item.checked_by); //CHECKED BY
+                doc.text(35, 130, String(item.date_out)); //DATE CHECKED
+                doc.text(202, 133, String(item.date_out)); //DATE CHECKED
+                doc.text(202, 178, item.checked_by); //DATE CHECKED
+                doc.text(202, 183, String(item.date_out)); //DATE CHECKED
+
+            });
+        }
+        
+        //Row 1
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+        doc.rect(20, 15, 50, 20);
+        doc.text('XYLEM Water Systems', 22, 22);
+        doc.text('International, Inc.', 22, 27);
+        doc.text('LISP II, Calamba, Laguna', 22, 32);
+
+        doc.rect(70, 15, 150, 20);
+        doc.setFontSize(30);
+        doc.setFontType('bold');
+        doc.text(105, 30, 'WORK ORDER');
+
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+
+        doc.rect(220, 15, 30, 10);
+        doc.text(222, 22, 'REF NO.');
+        doc.rect(250, 15, 30, 10);
+        doc.text(252, 22, prod_sched);
+
+        doc.rect(220, 25, 30, 10);
+        doc.text(222, 32, 'Date Issued:'); //DATE CREATED
+        doc.rect(250, 25, 30, 10);
+        
+
+        
+        //Row 2
+        doc.text(180, 40, 'FOR:'); //CUSTOMER
+        doc.text(230, 40, 'TID:'); //TID
+        doc.text(260, 40, 'CLASS:'); //CLASS
+
+        
+        //Row 3
+        doc.setFontSize(19);
+        doc.setFontType('bold');
+        doc.text(55, 50, 'WORK ORDER NO:');
+        doc.text(55, 57, 'BARCODE');
+        doc.rect(120, 65, 75, 13);
+        doc.rect(120, 78, 75, 13);
+        doc.rect(120, 91, 75, 13);
+        doc.text(155, 99, "0");
+
+        doc.setFontSize(15);
+        doc.setFontType('bold');
+        doc.text(92, 73, 'MODEL:');
+        doc.text(82, 86, 'QUANTITY:');
+        doc.text(78, 99, 'SERIAL NO.:');
+
+        //Row 4
+        //RECEIVE
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+
+        doc.rect(20, 65, 50, 70);
+
+        doc.rect(25, 70, 3, 3);
+        doc.text(30, 73, 'Name plate');
+
+        doc.rect(25, 78, 3, 3);
+        doc.text(30, 81, 'Label Sticker');
+
+        doc.rect(25, 86, 3, 3);
+        doc.text(30, 89, 'IOM');
+
+        doc.rect(25, 94, 3, 3);
+        doc.text(30, 97, 'QR code');
+
+        doc.rect(25, 102, 3, 3);        
+        doc.text(30, 105, 'Warranty card');
+
+        doc.rect(25, 110, 3, 3);
+        doc.text(30, 113, 'Packaging');
+
+
+        doc.text(35, 150, 'QR CODE');
+        
+
+        //WHSE PICKING
+        doc.setFontSize(15);
+        doc.setFontType('normal');
+        doc.text(78, 116, 'WHSE PICKING:');
+
+        //PRODUCTION
+        doc.setFontSize(15);
+        doc.text(80, 131, 'PRODUCTION:');
+
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+
+        doc.rect(120, 109, 75, 5);
+        doc.text(122, 113, 'Date Required by Production:');
+        doc.rect(200, 109, 80, 5);
+
+        doc.rect(120, 124, 75, 5);
+        doc.text(122, 128, 'Required Completion Date:');
+        doc.rect(200, 124, 80, 5);
+
+        doc.rect(120, 114, 75, 5);
+        doc.text(122, 118, 'Date Issued in Production:');
+        doc.rect(200, 114, 80, 5);
+
+        doc.rect(120, 134, 75, 5);
+        doc.text(122, 138, 'Components Received by:');
+        doc.rect(200, 134, 80, 5);
+
+        doc.rect(120, 139, 75, 5);
+        doc.text(122, 143, 'Date Assembled:');
+        doc.rect(200, 139, 80, 5);
+        
+        doc.rect(120, 144, 75, 5);
+        doc.text(122, 148, 'Assembled by:');
+        doc.rect(200, 144, 80, 5);
+
+        doc.rect(120, 149, 75, 5);
+        doc.text(122, 153, 'Date Coupled:');
+        doc.rect(200, 149, 80, 5);
+
+        doc.rect(120, 154, 75, 5);
+        doc.text(122, 158, 'Coupled by:');
+        doc.rect(200, 154, 80, 5);
+
+        doc.rect(120, 159, 75, 5);
+        doc.text(122, 163, 'Date Tested:');
+        doc.rect(200, 159, 80, 5);
+
+        doc.rect(120, 164, 75, 5);
+        doc.text(122, 168, 'Tested by:');
+        doc.rect(200, 164, 80, 5);
+        
+        //WHSE FINAL RECEIVING
+        doc.setFontSize(15);
+        doc.setFontType('normal');
+        doc.text(35, 181, 'WAREHOUSE FINAL RECEIVING:');
+
+        //WORK ORDER AUTH
+        doc.setFontSize(15);
+        doc.text(35, 193, 'WORK ORDER AUTHORIZATION:');
+
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+        doc.rect(120, 189, 75, 5);
+        doc.text(122, 193, 'Authorized by:');
+        doc.rect(200, 189, 80, 5);
+        doc.text(202, 193, data.planner);
+
+        doc.text(25, 123, 'Checked by:');
+                doc.line(45, 123, 65, 123);
+
+        doc.text(25, 131, 'Date:');
+        doc.line(35, 131, 65, 131);
+
+        doc.rect(120, 129, 75, 5);
+        doc.text(122, 133, 'Completion Date:');
+        doc.rect(200, 129, 80, 5);
+
+        doc.rect(120, 174, 75, 5);
+        doc.text(122, 178, 'Checked by:');
+        doc.rect(200, 174, 80, 5);
+
+        doc.rect(120, 179, 75, 5);
+        doc.text(122, 183, 'Date Received:');
+        doc.rect(200, 179, 80, 5);
+
+        doc.save(wo_num+'_'+prod_sched+'.pdf');
+
+    }
 
 });
  </script>

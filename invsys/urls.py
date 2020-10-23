@@ -137,6 +137,7 @@ urlpatterns = [
         path('ScheduleWorkOrder/add_schedule', planner.add_schedule, name='add_schedule'),
         path('ViewWO/', planner.ViewWO, name='ViewWO'),
         re_path(r'^ViewWO_getDetails/$', planner.ViewWO_getDetails, name='ViewWO_getDetails'),
+        re_path(r'^ViewWO_getPDF/$', planner.ViewWO_getPDF, name='ViewWO_getPDF'),
         
         path('ConvertWO/', planner.ConvertWO, name='ConvertWO'),
         

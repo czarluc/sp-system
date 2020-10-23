@@ -356,6 +356,89 @@ def ViewWO_getDetails(request):
 
     return JsonResponse(data) # http response
 
+def ViewWO_getPDF(request):
+
+    files = request.POST
+
+    wo_num = files.get("wo_num")
+    prod_sched = files.get("prod_sched")
+
+    prodsched_list = WO_Production_Schedule.objects.filter(id=prod_sched).values(
+        'work_order_number__work_order_number',
+        'work_order_number__customer',
+        'work_order_number__tid_number',
+        'work_order_number__prod_number__prod_number',
+        'work_order_number__prod_number__prod_desc',
+        'work_order_number__work_order_class',
+        'work_order_number__order_type',
+        'work_order_number__creation_date',
+        'work_order_number__required_completion_date',
+        'quantity',
+        'date_required')
+        
+    issuance_list = WO_Issuance_List.objects.filter(prod_sched=prod_sched).values(
+        'date_issued',
+        'verified_by',)
+    
+    assembly_list = WO_Assembly.objects.filter(prod_sched=prod_sched).values(
+        'assembled_by',
+        'date_assembled',)
+    
+    coupling_list = WO_Coupling.objects.filter(prod_sched=prod_sched).values(
+        'coupled_by',
+        'date_coupled',)
+    
+    testing_list = WO_Testing.objects.filter(prod_sched=prod_sched).values(
+        'tested_by',
+        'date_tested',)
+
+    finished_list = WO_Finished.objects.filter(prod_sched=prod_sched).values(
+        'name_plate',
+        'label_sticker',
+        'iom',
+        'qr_code',
+        'wrnty_card',
+        'packaging',
+        'date_out',
+        'checked_by',)
+
+    prodsched_query = []
+    issuance_query = []
+    assembly_query = []
+    coupling_query = []
+    testing_query = []
+    finished_query = []
+
+    for prodsched in prodsched_list:
+        prodsched_query.append(prodsched)
+
+    for issuance in issuance_list:
+        issuance_query.append(issuance)
+
+    for assembly in assembly_list:
+        assembly_query.append(assembly)
+
+    for coupling in coupling_list:
+        coupling_query.append(coupling)
+
+    for testing in testing_list:
+        testing_query.append(testing)
+
+    for finished in finished_list:
+        finished_query.append(finished)
+
+    data = {
+        "planner" : request.user.username,
+        "prodsched_set" : prodsched_query,
+        "issuance_set" : issuance_query,
+        "assembly_set" : assembly_query,
+        "coupling_set" : coupling_query,
+        "testing_set" : testing_query,
+        "finished_set" : finished_query,
+    }
+
+    return JsonResponse(data) # http response
+
 @login_required
 @planner_required
 def ConvertWO(request):
