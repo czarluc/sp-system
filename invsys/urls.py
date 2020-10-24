@@ -121,6 +121,12 @@ urlpatterns = [
         #--VIEW INVENTORY
         path('CheckItem/', warehouse.CheckItem, name='CheckItem'),
         path('CheckProduct/', warehouse.CheckProduct, name='CheckProduct'),
+
+        #--EDIT INVENTORY
+        path('EditItem/', warehouse.EditItem, name='EditItem'),
+        path('EditProduct/', warehouse.EditProduct, name='EditProduct'),
+        path('EditProduct_getparts/', warehouse.EditProduct_getparts, name='EditProduct_getparts'),
+        path('EditProduct/SelectItem/', warehouse.EditProduct_SelectItem, name='EditProduct_SelectItem'),
         
         path('ViewItemTransactions/', warehouse.ViewItemTransactions, name='ViewItemTransactions'),
         path('ViewProductTransactions/', warehouse.ViewProductTransactions, name='ViewProductTransactions'),

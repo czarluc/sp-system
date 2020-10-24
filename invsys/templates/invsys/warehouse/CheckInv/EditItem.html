@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %} Edit Item {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+    .img-thumbnail{
+        width: 200px;
+        height: 200px;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>Edit an Item</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Item Details:</h4>
+    </div>
+    <div class="card-body">
+        <div class="form-row align-items-center">
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_item_number">Item number</label>
+                    <input type="text" name="item_number" maxlength="100" required="" class="form-control" id="item_num" readonly>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_item_desc">Item description</label>
+                    <input type="text" name="item_desc" maxlength="100" required="" class="form-control" id="item_desc" readonly>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_item_desc">UOM</label>
+                    <input type="text" name="uom" maxlength="100" required="" class="form-control" id="uom" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="form-row align-items-center">
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_item_desc">Item Category</label>
+                    <input type="text" name="item_cat" maxlength="100" required="" class="form-control" id="item_cat" readonly>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_item_desc">Product Class</label>
+                    <input type="text" name="prod_class" maxlength="100" required="" class="form-control" id="prod_class" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="form-row align-items-center">
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_price">Price:</label>
+                    <input type="number" name="price" id="price" class="form-control">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_notes">Notes:</label>
+                    <input type="text" name="notes" maxlength="200" required="" id="notes" class="form-control">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="id_orderpoint">Orderpoint:</label>
+                    <input type="number" name="orderpoint" id="orderpoint" class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="form-row align-items-center">
+            <div class="col-4">
+                <label for="id_image">Image:</label>
+                <input type="file" name="image" accept="image/*" id="image" class="form-control">
+            </div>
+
+            <div class="col-4" id="div_image">
+                                
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+    </div>
+</div>
+</form>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Item Master:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered" id="item_master">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">UOM</th>
+                        <th scope="col">Item Category</th>
+                        <th scope="col">Product Class</th>
+                        <th scope="col">Barcode</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Orderpoint</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in item_master_set %}
+                    <tr class="tablerow" id="sched-{{forloop.counter}}">
+                        <td><button type="button" class="btn btn-primary item_num" data-item_num="{{ instance.item_number }}" data-item_desc="{{ instance.item_desc }}" data-uom="{{ instance.uom__uom }}" data-item_cat="{{ instance.item_cat__item_cat }}" data-prod_class="{{ instance.prod_class__prod_class }}" data-barcode="{{ instance.barcode }}" data-price="{{ instance.price }}" data-notes="{{ instance.notes }}" data-orderpoint="{{ instance.orderpoint }}" data-image="{{ instance.image }}">{{ instance.item_number }}</button></td>
+                        <td>{{ instance.item_desc }}</td>
+                        <td>{{ instance.uom__uom }}</td>
+                        <td>{{ instance.item_cat__item_cat }}</td>
+                        <td>{{ instance.prod_class__prod_class }}</td>
+                        <td>{{ instance.barcode }}</td>
+                        <td>{{ instance.price }}</td>
+                        <td>{{ instance.notes }}</td>
+                        <td>{{ instance.orderpoint }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+    
+    
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    var table = $('#item_master').DataTable({
+        dom: "<'row'<'col-md-4'l><'col-md-4'<'customselect item_master'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect.item_master").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option value='0'>Item Number</option><option value='1'>Item Description</option><option value='2'>UOM</option><option value='3'>Item Category</option><option value='4'>Product Class</option><option value='5'>Barcode</option><option value='6'>Price</option><option value='7'>Notes</option><option value='8'>Orderpoint</option></select>");
+
+    $('#item_master_filter label input').unbind().bind('keyup', function() {
+      var colIndex = $('#select').val();
+      var srch_item = $('#item_master_filter label input').val();
+      table.column(colIndex).search(srch_item).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+
+    $("#item_master").on("click", ".btn.btn-primary.item_num", function(){
+        $("#image_prev").remove();
+
+        var btn = this;
+
+        var item_num = btn.dataset.item_num;
+        var item_desc = btn.dataset.item_desc;
+        var uom = btn.dataset.uom;
+        var item_cat = btn.dataset.item_cat;
+        var prod_class = btn.dataset.prod_class;
+        var barcode = btn.dataset.barcode;
+        var price = btn.dataset.price;
+        var notes = btn.dataset.notes;
+        var orderpoint = btn.dataset.orderpoint;
+        var image = btn.dataset.image;
+
+        $("#item_num").val(item_num);
+        $("#item_desc").val(item_desc);
+        $("#uom").val(uom);
+        $("#item_cat").val(item_cat);
+        $("#prod_class").val(prod_class);
+        $("#price").val(price);
+        $("#notes").val(notes);
+        $("#orderpoint").val(orderpoint);
+
+        $('#div_image').append("<img id='image_prev' class='img-thumbnail' src=/media/" + image + " />");
+
+        toastr.info('Item '+ item_num + " is selected.");
+
+    });
+
+    $('#image').change(function(e) {
+        readURL(this);
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            reader.onload = function (e) {
+                $('#image_prev').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+});
+</script>
+
+{% endblock javascripts %}

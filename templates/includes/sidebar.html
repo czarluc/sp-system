@@ -2,9 +2,8 @@
     <div class="sidebar" data-color="purple" data-background-color="white" data-image="/static/assets/img/sidebar-1.jpg">
       {% if user.is_authenticated and user.is_warehouse %}
       <div class="logo">
-        <a target="_blank" rel="noopener noreferrer" 
-           target="_blank" rel="noopener noreferrer" 
-           href="https://www.creative-tim.com/product/material-dashboard-django" class="simple-text logo-normal">
+        <a rel="noopener noreferrer"
+           href="/" class="simple-text logo-normal">
           Warehouse
         </a>
       </div>
@@ -235,6 +234,14 @@
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:whse_add_prod' %}">Add Product</a>
                     </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:EditItem' %}">Edit Item</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:EditProduct' %}">Edit Product</a>
+                    </li>
                 </ul>
           </li>
         </ul>
@@ -242,9 +249,8 @@
       {% endif %}
       {% if user.is_authenticated and user.is_planner %}
       <div class="logo">
-        <a target="_blank" rel="noopener noreferrer" 
-           target="_blank" rel="noopener noreferrer" 
-           href="https://www.creative-tim.com/product/material-dashboard-django" class="simple-text logo-normal">
+        <a rel="noopener noreferrer"
+           href="/" class="simple-text logo-normal">
           Production Plan
         </a>
       </div>
@@ -287,9 +293,8 @@
       {% endif %}
       {% if user.is_authenticated and user.is_assembly %}
       <div class="logo">
-        <a target="_blank" rel="noopener noreferrer" 
-           target="_blank" rel="noopener noreferrer" 
-           href="https://www.creative-tim.com/product/material-dashboard-django" class="simple-text logo-normal">
+        <a rel="noopener noreferrer" 
+           href="/" class="simple-text logo-normal">
           Assembly
         </a>
       </div>

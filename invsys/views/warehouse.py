@@ -4785,3 +4785,121 @@ def ViewProductTransactions(request):
 
     return render(request, template_name, {'prod_set':prod_query, "prodtrans_set":prodtrans_list})
 
+@login_required
+@warehouse_required
+def EditItem(request):
+    template_name = 'invsys/warehouse/CheckInv/EditItem.html'
+    if request.method == 'GET':
+        item_query = Item.objects.all().values(
+            'item_number',
+            'item_desc',
+            'uom__uom',
+            'item_cat__item_cat',
+            'prod_class__prod_class',
+            'barcode',
+            'price',
+            'notes',
+            'orderpoint',
+            'image')
+
+        return render(request, template_name, {'item_master_set':item_query})
+
+    elif request.method == 'POST' :
+
+        item_num_form = request.POST.get("item_number")
+
+        item_obj = Item.objects.get(item_number=item_num_form)
+
+        item_obj.price = request.POST.get("price")
+        item_obj.notes = request.POST.get("notes")
+        item_obj.orderpoint = request.POST.get("orderpoint")
+        if len(request.FILES) != 0:
+            item_obj.image = request.FILES["image"]
+        item_obj.save()
+
+        return redirect('home')
+
+@login_required
+@warehouse_required
+def EditProduct(request):
+    template_name = 'invsys/warehouse/CheckInv/EditProduct.html'
+    if request.method == 'GET':
+
+        prod_query = Product.objects.all().values(
+            'prod_number',
+            'prod_desc',
+            'uom__uom',
+            'prod_type',
+            'prod_class__prod_class',
+            'barcode',
+            'price',
+            'notes',
+            'image')
+
+        formset = ProductItemListFormset(queryset=ProductItemList.objects.none())
+        
+        return render(request, template_name, {'prod_master_set':prod_query, 'formset': formset,})
+
+    elif request.method == 'POST' :
+
+        formset = ProductItemListFormset(request.POST)
+
+        prod_num_form = request.POST.get("prod_num")
+        prod_obj = Product.objects.get(prod_number=prod_num_form)
+
+        prod_obj.price = request.POST.get("price")
+        prod_obj.notes = request.POST.get("notes")
+
+        if len(request.FILES) != 0:
+            prod_obj.image = request.FILES["image"]
+
+        prod_obj.save()
+
+        if formset.is_valid():
+            # Save the Product first before its items
+            prod_item_list = ProductItemList.objects.filter(prod_number=prod_obj)
+
+            for prod_item in prod_item_list:
+                prod_item.delete()
+
+
+            counter = 1
+            for form in formset:
+                if counter < len(formset):
+                    #Loop through each form in the formset to get each of the items
+                    part = form.save(commit=False)
+                    part.prod_number = prod_obj
+                    part.save()
+                    counter += 1
+
+        else:
+            print(formset.errors)
+
+        return redirect('home')
+
+def EditProduct_getparts(request):
+
+    files = request.POST
+
+    prod_num = files.get("prod_num")
+
+    proditem_query = ProductItemList.objects.filter(prod_number__prod_number=prod_num).values(
+        'item_number__item_number',
+        'quantity')
+
+    proditem_list = []
+
+    for proditem in proditem_query:
+        proditem_list.append(proditem)
+
+    data = {
+        "proditem_set" : proditem_list,
+    }
+
+    return JsonResponse(data) # http response
+
+@login_required
+@warehouse_required
+def EditProduct_SelectItem(request):
+    itemset = Item.objects.all()
+    return render(request, 'invsys/warehouse/CheckInv/EditProduct_SelectItem.html', {'itemset':itemset})
