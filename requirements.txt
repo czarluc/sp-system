@@ -14,6 +14,7 @@ idna==2.9
 Pillow==7.1.2
 psycopg2==2.8.5
 pycodestyle==2.6.0
+python-barcode==0.13.1
 python-decouple==3.3
 pytz==2017.3
 requests==2.24.0

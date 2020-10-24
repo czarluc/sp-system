@@ -153,6 +153,10 @@
         <div class="container">
             <div class="row" id="btn_pdf">
                 <button class="btn btn-warning pdf" type="button">download pdf</button>
+                <div id="barcode_container">
+                    <img id="barcode" hidden>
+                    <div id="qrcode" hidden></div>
+                </div>
             </div>
             
             <div class="stepwizard">
@@ -590,6 +594,8 @@
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.3/JsBarcode.all.min.js" integrity="sha512-TLB7v1Y4YHGy/EHUu5VZ2bl6sC/WvXh/NFdjEZ7JmbpsUG87dirXAOFSAS3O6Tn3rsZljFTcTdMz9PDM4mV26g==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha512-NFUcDlm4V+a2sjPX7gREIXgCSFja9cHtKPOL1zj6QhnE0vcY695MODehqkaGYTLyL2wxe/wtr4Z49SvqXq12UQ==" crossorigin="anonymous"></script>
 <script>
 $(document).ready(function() {
 
@@ -1090,7 +1096,32 @@ $(document).ready(function() {
         doc.setFontSize(19);
         doc.setFontType('bold');
         doc.text(55, 50, 'WORK ORDER NO:');
-        doc.text(55, 57, 'BARCODE');
+
+        $('#qrcode').qrcode(wo_num+"-"+prod_sched);
+
+        var qrcode_canvas = document.querySelector('#qrcode canvas');
+        console.log(qrcode_canvas);
+
+        var ctx = qrcode_canvas.getContext('2d');
+
+        ctx.fillRect(50,50,50,50);
+
+        var img_qr = new Image();
+        img_qr.src = qrcode_canvas.toDataURL();
+
+        doc.addImage(img_qr, 'PNG', 35, 140, 20, 20);
+
+        JsBarcode("#barcode", wo_num+"-"+prod_sched,{
+            format: "CODE39",
+            displayValue: false
+        });
+
+        var barcode_img = document.getElementById("barcode").src
+        
+        
+        doc.addImage(barcode_img, 'PNG', 55, 50, 50, 9);
+
+        //doc.text(55, 57, 'BARCODE');
         doc.rect(120, 65, 75, 13);
         doc.rect(120, 78, 75, 13);
         doc.rect(120, 91, 75, 13);
@@ -1125,11 +1156,7 @@ $(document).ready(function() {
         doc.text(30, 105, 'Warranty card');
 
         doc.rect(25, 110, 3, 3);
-        doc.text(30, 113, 'Packaging');
-
-
-        doc.text(35, 150, 'QR CODE');
-        
+        doc.text(30, 113, 'Packaging');        
 
         //WHSE PICKING
         doc.setFontSize(15);
