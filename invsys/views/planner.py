@@ -441,8 +441,83 @@ def ViewWO_getPDF(request):
 
 @login_required
 @planner_required
-def ConvertWO(request):
-    return render(request, 'invsys/warehouse/Shipping/Sample_ShipProd.html')
+def ExportWO(request):
+    template_name = 'invsys/planner/WOCreation/ExportWO.html'
+
+    prod_sched_query = WO_Production_Schedule.objects.filter().values(
+        'work_order_number__work_order_number',
+        'work_order_number__customer',
+        'work_order_number__order_type',
+        'work_order_number__work_order_class',
+        'work_order_number__fo_number',
+        'work_order_number__tid_number',
+        'work_order_number__prod_number',
+        'work_order_number__customer_order_date',
+        'work_order_number__otd_customer_req_date',
+        'work_order_number__otp_commitment_date',
+        'work_order_number__required_completion_date',
+        'work_order_number__finished_completion_date',
+        'work_order_number__creation_date',
+        'work_order_number__notes',
+        'id',
+        'quantity',
+        'date_required',)
+
+    wo_export_list = []
+    for prod_sched in prod_sched_query:
+        details={}
+        wo_num = ''
+        for i in prod_sched:
+            if i == "work_order_number__work_order_number":
+                details['wo_num'] = prod_sched[i]
+                wo_num = prod_sched[i]
+            elif i == "work_order_number__customer":
+                details['customer'] = prod_sched[i]
+            elif i == 'work_order_number__order_type':
+                details['order_type'] = prod_sched[i]
+            elif i == 'work_order_number__work_order_class':
+                details['work_order_class'] = prod_sched[i]
+            elif i == 'work_order_number__fo_number':
+                details['fo_number'] = prod_sched[i]
+            elif i == 'work_order_number__tid_number':
+                details['tid_number'] = prod_sched[i]
+            elif i == 'work_order_number__prod_number':
+                details['prod_number'] = prod_sched[i]
+            elif i == 'work_order_number__customer_order_date':
+                details['customer_order_date'] = prod_sched[i]
+            elif i == 'work_order_number__otd_customer_req_date':
+                details['otd_customer_req_date'] = prod_sched[i]
+            elif i == 'work_order_number__otp_commitment_date':
+                details['otp_commitment_date'] = prod_sched[i]
+            elif i == 'work_order_number__required_completion_date':
+                details['required_completion_date'] = prod_sched[i]
+            elif i == 'work_order_number__finished_completion_date':
+                details['finished_completion_date'] = prod_sched[i]
+            elif i == 'work_order_number__creation_date':
+                details['creation_date'] = prod_sched[i]
+            elif i == 'work_order_number__notes':
+                details['notes'] = prod_sched[i]
+            elif i == 'id':
+                details['ref_num'] = prod_sched[i]
+            elif i == 'quantity':
+                details['prod_quan'] = prod_sched[i]
+            elif i == 'date_required':
+                details['date_required'] = prod_sched[i]
+
+        wo_item_query = Work_Order_Item_List.objects.filter(work_order_number=wo_num).values(
+            'item_number__item_number',
+            'item_quantity',)
+
+        for wo_item in wo_item_query:
+            for i in wo_item:
+                if i == "item_number__item_number":
+                    details['item_num'] = wo_item[i]
+                elif i == "item_quantity":
+                    details['item_quan'] = wo_item[i]
+            details['tot_item_quan'] = int(details['prod_quan']) * int(details['item_quan'])
+            wo_export_list.append(details)
+
+    return render(request, template_name, {'wo_export_set':wo_export_list})
 
 #Check Inv
 @login_required

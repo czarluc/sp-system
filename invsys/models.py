@@ -531,6 +531,7 @@ class WO_Production_Schedule(models.Model):
     tested = models.BooleanField(default=False)
     received = models.BooleanField(default=False)
     status = models.CharField(max_length=200, default='', blank=True, null=True)
+    issues = models.CharField(max_length=200, default='None', blank=True, null=True)
     class Meta: 
         verbose_name = "WO Production Schedule"
         verbose_name_plural = "WO Production Schedules"

@@ -151,7 +151,7 @@ urlpatterns = [
         re_path(r'^ViewWO_getDetails/$', planner.ViewWO_getDetails, name='ViewWO_getDetails'),
         re_path(r'^ViewWO_getPDF/$', planner.ViewWO_getPDF, name='ViewWO_getPDF'),
         
-        path('ConvertWO/', planner.ConvertWO, name='ConvertWO'),
+        path('ExportWO/', planner.ExportWO, name='ExportWO'),
         
         #--Check Parts
         path('CheckPart/', planner.CheckPart, name='CheckPart'),

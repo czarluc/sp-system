@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %} Export Work Order {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>Export Work Order</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Work Orders:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="trans_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">WO#</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Order Type</th>
+                        <th scope="col">WO Class</th>
+                        <th scope="col">FO#</th>
+                        <th scope="col">TID#</th>
+                        <th scope="col">Product#</th>
+                        <th scope="col">Customer Order Date</th>
+                        <th scope="col">OTD Customer Date</th>
+                        <th scope="col">OTP Commitment Date</th>
+                        <th scope="col">Required Completion Date</th>
+                        <th scope="col">Finished Completion Date</th>
+                        <th scope="col">Creation Date</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Reference#</th>
+                        <th scope="col">Product Quantity</th>
+                        <th scope="col">Date Required</th>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Item Quantity</th>
+                        <th scope="col">Total Item Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in wo_export_set %}
+                    <tr class="tablerow" data-wo_num="{{ instance.item_number }}" data-prod_sched="{{ instance.ref_num }}" id="ponum-{{forloop.counter}}">
+
+                        <td>{{ instance.wo_num }}</td>
+                        <td>{{ instance.customer }}</td>
+                        <td>{{ instance.order_type }}</td>
+                        <td>{{ instance.work_order_class }}</td>
+                        <td>{{ instance.fo_number }}</td>
+                        <td>{{ instance.tid_number }}</td>
+                        <td>{{ instance.prod_number }}</td>
+                        <td>{{ instance.customer_order_date|date:'d-m-Y' }}</td>
+                        <td>{{ instance.otd_customer_req_date|date:'d-m-Y' }}</td>
+                        <td>{{ instance.otp_commitment_date|date:'d-m-Y' }}</td>
+                        <td>{{ instance.required_completion_date|date:'d-m-Y' }}</td>
+                        <td>{{ instance.finished_completion_date|date:'d-m-Y' }}</td>
+                        <td>{{ instance.creation_date|date:'d-m-Y' }}</td>
+                        <td>{{ instance.notes }}</td>
+                        <td>{{ instance.ref_num }}</td>
+                        <td>{{ instance.prod_quan }}</td>
+                        <td>{{ instance.date_required|date:'d-m-Y' }}</td>
+                        <td>{{ instance.item_num }}</td>
+                        <td>{{ instance.item_quan }}</td>
+                        <td>{{ instance.tot_item_quan }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+    var minDateFilter = "";// Date range filter
+    var maxDateFilter = "";
+
+$(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    var table = $('#trans_table').DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    columns: ':visible',
+                    rows: ':visible' 
+                }
+            }, 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.date_from").html("<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>WO#</option><option>Customer</option><option>Order Type</option><option>WO Class</option><option>FO#</option><option>TID#</option><option>Product#</option><option>Customer Order Date</option><option>OTD Customer Date</option><option>OTP Commitment Date</option><option>Required Completion Date</option><option>Finished Completion Date</option><option>Creation Date</option><option>Notes</option><option>Reference#</option><option>Product Quantity</option><option>Date Required</option><option>Item Number</option><option>Item Quantity</option><option>Total Item Quantity</option></select>");
+
+    $('#trans_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_trans').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select_trans').change(function() {
+        $("#date_from").val('');
+        $("#date_to").val('');
+        table.columns().search('').draw();
+    });
+
+    $(".date").change(function () {
+        if ($("#date_from").val()){
+            minDateFilter = new Date($("#date_from").val());
+            minDateFilter = moment( minDateFilter , 'DD-MM-YYYY' ).valueOf();
+        }
+
+        if ( $("#date_to").val() ){
+            maxDateFilter = new Date($("#date_to").val());
+            maxDateFilter = moment( maxDateFilter, 'DD-MM-YYYY' ).valueOf();
+        }
+
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                var min = minDateFilter;
+                var max = maxDateFilter;
+                var startDate = moment(data[document.querySelector('#select_trans').selectedIndex], 'DD-MM-YYYY').valueOf();
+
+                if(min && max){
+
+                    if( (startDate) >= (min) & (startDate) <= (max) ){
+                        return true;
+                    }else{
+                        console.log( " false ");
+                        return false;
+                    }
+
+                }else{
+                    return true;
+                }
+            }
+        );
+
+        table.draw();
+        $.fn.dataTable.ext.search.pop();
+    });
+});
+</script>
+{% endblock javascripts %}
