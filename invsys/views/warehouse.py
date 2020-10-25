@@ -4785,6 +4785,7 @@ def ViewProductTransactions(request):
 
     return render(request, template_name, {'prod_set':prod_query, "prodtrans_set":prodtrans_list})
 
+#--Edit Item
 @login_required
 @warehouse_required
 def EditItem(request):
@@ -4819,6 +4820,7 @@ def EditItem(request):
 
         return redirect('home')
 
+#--Edit Product
 @login_required
 @warehouse_required
 def EditProduct(request):
@@ -4903,3 +4905,103 @@ def EditProduct_getparts(request):
 def EditProduct_SelectItem(request):
     itemset = Item.objects.all()
     return render(request, 'invsys/warehouse/CheckInv/EditProduct_SelectItem.html', {'itemset':itemset})
+
+
+#--WAREHOUSE BIN
+#--Create Warehouse Bin--
+@login_required
+@warehouse_required
+def CreateWarehouseBin(request):
+    if request.method == 'GET':
+
+        whsebin_form = WarehouseBinForm(request.GET or None)
+
+        itemcat_query = ItemCat.objects.all().order_by('item_cat').values(
+            'id',
+            'item_cat',)
+
+        prodclass_query = ProdClass.objects.all().order_by('prod_class').values(
+            'id',
+            'prod_class',)
+
+        return render(request, 'invsys/warehouse/CheckInv/CreateWarehouseBin.html', {
+            'whsebin_form':whsebin_form,
+            'itemcat_query':itemcat_query,
+            'prodclass_query':prodclass_query,})
+
+    elif request.method == 'POST' :
+        whsebin_form = WarehouseBinForm(request.POST, request.FILES)
+
+        if whsebin_form.is_valid():
+            whsebin_obj = whsebin_form.save(commit=False)
+            whsebin_obj.bin_location = whsebin_obj.rack + whsebin_obj.column + '-' + whsebin_obj.layer + whsebin_obj.direction
+            whsebin_obj.save()           
+        else:
+            print("whsebin_obj")
+            print(whsebin_obj.errors)
+
+        return redirect('home')
+
+@login_required
+@warehouse_required
+def EditWarehouseBin(request):
+    template_name = 'invsys/warehouse/CheckInv/EditWarehouseBin.html'
+    if request.method == 'GET':
+
+        whsebin_query = Warehouse.objects.all().values(
+            'bin_location',
+            'item_cat__item_cat',
+            'prod_class__prod_class',
+            'image',)
+
+        return render(request, template_name, {'whsebin_set':whsebin_query})
+
+    elif request.method == 'POST' :
+
+        whsebin_form = request.POST.get("bin_loc")
+
+        whsebin_obj = Warehouse.objects.get(bin_location=whsebin_form)
+
+        if len(request.FILES) != 0:
+            whsebin_obj.image = request.FILES["image"]
+
+        whsebin_obj.save()
+
+        return redirect('home')
+
+def EditWarehouseBin_getparts(request):
+
+    whsebin_form = request.POST.get("bin_loc")
+
+    whsebin_obj = Warehouse.objects.get(bin_location=whsebin_form)
+
+    whse_products_list = []
+    whse_items_list = []
+
+    if whsebin_obj.item_cat.item_cat == "Product":
+
+        whse_products_query = Warehouse_Products.objects.filter(bin_location__bin_location=whsebin_form).values(
+            'prod_number__prod_number',
+            'quantity',
+            'status',
+            'reference_number',)
+
+        for whse_products in whse_products_query:
+            whse_products_list.append(whse_products)
+    
+    else:
+
+        whse_items_query = Warehouse_Items.objects.filter(bin_location__bin_location=whsebin_form).values(
+            'item_number__item_number',
+            'quantity',
+            'status',
+            'reference_number',)
+
+        for whse_items in whse_items_query:
+            whse_items_list.append(whse_items)
+
+
+    data = { "whse_products_set" : whse_products_list,
+    "whse_items_set" : whse_items_list, }
+
+    return JsonResponse(data) # http response

@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %} Edit Warehouse Bin {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+    .img-thumbnail{
+        width: 200px;
+        height: 200px;
+    }
+    .table {
+       text-align: center;   
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>Edit Warehouse Bin</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Warehouse Bin Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_item_number">Bin Location:</label>
+                        <input type="text" name="bin_loc" maxlength="100" required="" class="form-control" id="bin_loc" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_item_number">Item Category:</label>
+                        <input type="text" name="item_cat" maxlength="100" required="" class="form-control" id="item_cat" readonly>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="id_item_number">Product Class:</label>
+                        <input type="text" name="prod_class" maxlength="100" required="" class="form-control" id="prod_class" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <label for="id_image">Image:</label>
+                    <input type="file" name="image" accept="image/*" id="image" class="form-control">
+                </div>
+                <div class="col-4" id="div_image">
+                                
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header card-header-tabs card-header-info">
+                    <h4 class="card-title">Warehouse Bin Contents:</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        
+                        <table class="table table-hover table-striped w-auto small" id="prod_table">
+                            <thead class="thead-dark">
+                                <tr class="tablehead">
+                                    <th scope="col">Product Number</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Reference Number</th>
+                                </tr>
+                            </thead>
+                            <tbody ID="tblBody_prod">
+                                
+                            </tbody>
+                        </table>
+
+                        <table class="table table-hover table-striped w-auto small" id="part_table">
+                            <thead class="thead-dark">
+                                <tr class="tablehead">
+                                    <th scope="col">Item Number</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Reference Number</th>
+                                </tr>
+                            </thead>
+                            <tbody ID="tblBody_part">
+                                
+                            </tbody>
+                        </table>
+                    
+                    </div>
+                    
+                </div>
+            </div>
+
+
+            <button type="submit" class="btn btn-success">Update</button>
+        </div>
+    </div>
+    
+</form>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Warehouse Bins:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped table-bordered" id="whse_bin_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Bin Location</th>
+                        <th scope="col">Item Category</th>
+                        <th scope="col">Product Class</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in whsebin_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}">
+                        <td><button type="button" class="btn btn-primary bin_loc" data-bin_loc="{{ instance.bin_location }}" data-item_cat="{{ instance.item_cat__item_cat }}" data-prod_class="{{ instance.prod_class__prod_class }}" data-image="{{ instance.image }}">{{ instance.bin_location }}</button></td>
+                        <td>{{ instance.item_cat__item_cat }}</td>
+                        <td>{{ instance.prod_class__prod_class }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+
+var table = $('#whse_bin_table').DataTable({
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l><'col-md-4'<'customselect whse_bin_table'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect.whse_bin_table").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option value='0'>Product Number</option><option value='1'>Product Description</option><option value='2'>UOM</option><option value='3'>Product Type</option><option value='4'>Product Class</option><option value='5'>Barcode</option><option value='6'>Price</option><option value='7'>Notes</option></select>");
+
+    $('#whse_bin_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = $('#select').val();
+      var srch_item = $('#prod_master_filter label input').val();
+      table.column(colIndex).search(srch_item).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+
+
+    $("#whse_bin_table").on("click", ".btn.btn-primary.bin_loc", function(){
+        $("#image_prev").remove();
+
+        var btn = this;
+
+        var bin_loc = btn.dataset.bin_loc;
+        var item_cat = btn.dataset.item_cat;
+        var prod_class = btn.dataset.prod_class;
+        var image = btn.dataset.image;
+
+        $("#bin_loc").val(bin_loc);
+        $("#item_cat").val(item_cat);
+        $("#prod_class").val(prod_class);
+
+        $.ajax({
+            method: "POST",
+            url: "{% url 'warehouse:EditWarehouseBin_getparts' %}",
+            data: {'bin_loc': bin_loc,
+                  'csrfmiddlewaretoken': '{{ csrf_token }}'},
+
+            success: function(data){
+                deleteprod()
+                deletepart()
+                                
+                if(data.whse_products_set.length > 0){
+                    data.whse_products_set.forEach(function(item) {
+                        showprod(item.prod_number__prod_number, item.quantity, item.status, item.reference_number)                     
+                    });     
+                }
+
+                if(data.whse_items_set.length > 0){
+                    data.whse_items_set.forEach(function(item) {
+                        showpart(item.item_number__item_number, item.quantity, item.status, item.reference_number)
+                    });     
+                }
+
+            },
+            error: function(error_data){
+                alert("error");
+            }
+        });
+
+        $('#div_image').append("<img id='image_prev' class='img-thumbnail' src=/media/" + image + " />");
+
+        toastr.info('Warehouse Bin '+ bin_loc + " is selected.");
+
+    });
+
+    $('#image').change(function(e) {
+        readURL(this);
+    });
+
+});
+    
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            reader.onload = function (e) {
+                $('#image_prev').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#prod_table").hide();
+    $("#part_table").hide();
+    
+    function showprod(prod_num, quantity, status, ref_num) {
+        $("#prod_table").show();
+        $('#prod_table').prepend('<tr><td>'+prod_num+'</td><td>'+quantity+'</td><td>'+status+'</td><td>'+ref_num+'</td></tr>');
+        
+        return false;
+    }
+
+    function deleteprod() {
+        $("#prod_table").hide();
+        $("#tblBody_prod").empty();
+
+        return false;
+    }
+
+    function showpart(item_num, quantity, status, ref_num) {
+        $("#part_table").show();
+        $('#part_table').prepend('<tr><td>'+item_num+'</td><td>'+quantity+'</td><td>'+status+'</td><td>'+ref_num+'</td></tr>');
+        
+        return false;
+    }
+
+    function deletepart() {
+        $("#part_table").hide();
+        $("#tblBody_part").empty();
+
+        return false;
+    }
+
+</script>
+{% endblock javascripts %}

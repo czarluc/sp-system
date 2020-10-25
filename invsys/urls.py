@@ -121,6 +121,9 @@ urlpatterns = [
         #--VIEW INVENTORY
         path('CheckItem/', warehouse.CheckItem, name='CheckItem'),
         path('CheckProduct/', warehouse.CheckProduct, name='CheckProduct'),
+        path('ViewItemTransactions/', warehouse.ViewItemTransactions, name='ViewItemTransactions'),
+        path('ViewProductTransactions/', warehouse.ViewProductTransactions, name='ViewProductTransactions'),
+        
 
         #--EDIT INVENTORY
         path('EditItem/', warehouse.EditItem, name='EditItem'),
@@ -128,9 +131,12 @@ urlpatterns = [
         path('EditProduct_getparts/', warehouse.EditProduct_getparts, name='EditProduct_getparts'),
         path('EditProduct/SelectItem/', warehouse.EditProduct_SelectItem, name='EditProduct_SelectItem'),
         
-        path('ViewItemTransactions/', warehouse.ViewItemTransactions, name='ViewItemTransactions'),
-        path('ViewProductTransactions/', warehouse.ViewProductTransactions, name='ViewProductTransactions'),
-
+        #--CREATE/UPDATE WAREHOUSE BIN
+        path('CreateWarehouseBin/', warehouse.CreateWarehouseBin, name='CreateWarehouseBin'),
+        path('EditWarehouseBin/', warehouse.EditWarehouseBin, name='EditWarehouseBin'),
+        path('EditWarehouseBin_getparts/', warehouse.EditWarehouseBin_getparts, name='EditWarehouseBin_getparts'),
+        
+        
 
     ], 'invsys'), namespace='warehouse')),
 

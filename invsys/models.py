@@ -62,7 +62,7 @@ class Item(models.Model):
     uom = models.ForeignKey(Uom, default='1', blank=True, on_delete=models.CASCADE)
     item_cat = models.ForeignKey(ItemCat, default='1', blank=True, on_delete=models.CASCADE)
     prod_class = models.ForeignKey(ProdClass, default='1', blank=True, on_delete=models.CASCADE)
-    barcode = models.CharField(max_length=100, default='')
+    barcode = models.CharField(max_length=100, default='', blank=True, null=True)
     price = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=200, default='')
     orderpoint = models.IntegerField(blank=True, null=True)
@@ -86,7 +86,7 @@ class Product(models.Model):
     uom = models.ForeignKey(Uom, default='1', blank=True, on_delete=models.CASCADE)
     prod_type = models.CharField(max_length=100, default='')
     prod_class = models.ForeignKey(ProdClass, default='1', blank=True, on_delete=models.CASCADE)
-    barcode = models.CharField(max_length=100, default='')
+    barcode = models.CharField(max_length=100, default='', blank=True, null=True)
     price = models.IntegerField(blank=True, null=True)
     notes = models.CharField(max_length=200, default='')
     image = models.ImageField(upload_to='product/',
@@ -162,7 +162,7 @@ class Warehouse(models.Model):
     direction = models.CharField(max_length=200, default='')
     item_cat = models.ForeignKey(ItemCat, default='1', blank=True, on_delete=models.CASCADE)
     prod_class = models.ForeignKey(ProdClass, default='1', blank=True, on_delete=models.CASCADE)
-    barcode = models.CharField(max_length=100, default='')
+    barcode = models.CharField(max_length=100, default='', blank=True, null=True)
     image = models.ImageField(upload_to='whse/',
         null=True,
         blank=True,

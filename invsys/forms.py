@@ -119,6 +119,18 @@ ProductItemListFormset = modelformset_factory(
     extra=1,
     )
 
+class WarehouseBinForm(forms.ModelForm):
+    class Meta:
+        model = Warehouse
+        fields = ('rack',
+            'column',
+            'layer',
+            'direction',
+            'item_cat',
+            'prod_class',
+            'image',)
+
+
 #RECEIVING
 class ShipmentForm(forms.ModelForm):
     class Meta:

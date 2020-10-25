@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %} Create Warehouse Bin {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+    .img-thumbnail{
+        width: 200px;
+        height: 200px;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2>Create Warehouse Bin</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Warehouse Bin Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_item_number">Rack:</label>
+                        <input type="text" name="rack" maxlength="100" required="" class="form-control" id="id_rack">
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_item_desc">Column:</label>
+                        <input type="text" name="column" maxlength="100" required="" class="form-control" id="id_column">
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_item_desc">Layer:</label>
+                        <input type="text" name="layer" maxlength="100" required="" class="form-control" id="id_layer">
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_item_desc">Direction:</label>
+                        <input type="text" name="direction" maxlength="100" required="" class="form-control" id="id_direction">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <label for="id_item_cat">Item Category:</label>
+                </div>
+                <div class="col-3"> 
+                    <select name="item_cat" id="id_item_cat" class="browser-default custom-select">
+                        {% for itemcat in itemcat_query %}
+                        <option value="{{ itemcat.id }}">{{ itemcat.item_cat }}</option>
+                        {% endfor %}
+                    </select> 
+                </div>
+                <div class="col-3">
+                    <label for="id_prod_class">Product class:</label>
+                </div>
+                <div class="col-3"> 
+                    <select name="prod_class" id="id_prod_class" class="browser-default custom-select">
+                        {% for prodclass in prodclass_query %}
+                        <option value="{{ prodclass.id }}">{{ prodclass.prod_class }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-4">
+                    <label for="id_image">Image:</label>
+                    <input type="file" name="image" accept="image/*" id="id_image" class="form-control">
+                </div>
+                <div class="col-4" id="div_image">
+                                
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Save</button>
+        </div>
+    </div>
+    
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+
+    $('#id_image').change(function(e) {
+        $("#image_prev").remove();
+
+        readURL(this);
+
+        toastr.success('Picture uploaded.');
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            reader.onload = function (e) {
+                $('#div_image').append("<img id='image_prev' class='img-thumbnail' src=" + e.target.result + " />");
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+});
+</script>
+{% endblock javascripts %}
