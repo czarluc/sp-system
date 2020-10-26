@@ -1869,7 +1869,7 @@ def FinishPartReqIssuance(request):
                         bin_location=partreq_summary.bin_location,
                         ass_location=partreq_summary.ass_location,)
                     partreq_recitem.save()
-                    SubtractBinStock_FinishPartReqIssuance(partreq_recitem)
+                    SubtractBinStock_FinishPartReqIssuance(partreq_recitem, request)
 
                     AnalyzeIssuance_PartReq(partreq_summary)
                     UpdateReqItems_PartReq(partreq_summary)
@@ -1877,6 +1877,7 @@ def FinishPartReqIssuance(request):
             
             CheckPartReq_IssuanceSchedule(partreqissuesched)
             DeleteWhseItemBin()
+            DeleteAssemblyItem()
             checkcomplete_prodsched_items(partreq_summary.prod_sched.id)
         else:
             print("partreq_summary.errors")
@@ -1885,10 +1886,9 @@ def FinishPartReqIssuance(request):
         return redirect('home')
 def UpdateReqItems_PartReq(partreq_summary):
     part_reqitem = Request_Item.objects.get(schedule_num=partreq_summary.schedule_num, prod_sched=partreq_summary.prod_sched, item_number=partreq_summary.item_number)
-    if partreq_summary.discrepancy == False:
-        part_reqitem.cleared = True
-        part_reqitem.save()
-def SubtractBinStock_FinishPartReqIssuance(partreq_recitem):
+    part_reqitem.cleared = True
+    part_reqitem.save()
+def SubtractBinStock_FinishPartReqIssuance(partreq_recitem, request ):
     itemnum = partreq_recitem.item_number
     bin_loc = partreq_recitem.bin_location
     prodsched = partreq_recitem.prod_sched.id
@@ -1896,8 +1896,194 @@ def SubtractBinStock_FinishPartReqIssuance(partreq_recitem):
 
     whsebinset = Warehouse_Items.objects.filter(bin_location=bin_loc, item_number=itemnum, reference_number=prodsched, status="Scheduled for Request Issuance")
     for whsebin in whsebinset:
+        
         whsebin.quantity -= recQuan
+        
+        if whsebin.quantity < 0:
+            
+            adjustitems_overissuance( whsebin.bin_location,whsebin.item_number, abs(whsebin.quantity), request )
+            whsebin.quantity = 0
+
+        elif whsebin.quantity > 0:
+
+            adjustitems_shortissuance( whsebin.bin_location, whsebin.item_number, abs(whsebin.quantity), request, prodsched )
+
+            whsebin.quantity = 0
+
         whsebin.save()
+
+def adjustitems_overissuance( whse_bin_adj, item_num_adj, item_quan_adj, request ):
+    
+    sa_report_newobj = SA_Report.objects.create(
+        iaf_whse=IAF_whse.objects.get(whse="WHSE"),
+        date_reported=datetime.now().replace(tzinfo=pytz.utc),
+        notes="Warehouse Over Issued - New Items")
+    sa_report_newobj.full_clean()
+    sa_report_newobj.save()
+
+    sa_item_newobj = SA_Item.objects.create(
+        report_num=sa_report_newobj,
+        bin_location=whse_bin_adj,
+        item_number=item_num_adj,
+        item_quantity=item_quan_adj,
+        iaf_operator=IAF_operator.objects.get(operator="Add"),
+        total_cost=int(item_num_adj.price) * item_quan_adj,
+        reason="new items from over issuance")
+    sa_item_newobj.full_clean()
+    sa_item_newobj.save()
+
+    sa_items = []
+    sa_items.append(sa_item_newobj)
+
+    #Add transaction because of new items found
+    AddSA_Add_Transac(sa_report_newobj.report_num, sa_item_newobj.bin_location.bin_location, sa_item_newobj.item_number, sa_item_newobj.item_quantity)
+    #Add IAF Report
+    AddIAF_Report(sa_report_newobj.iaf_whse, "Change/Modify/Conversion", "System Adjustment", request.user, sa_items)
+
+def adjustitems_shortissuance( whse_bin_adj, item_num_adj, item_quan_adj, request, prodsched ):
+    
+    prodsched_obj = WO_Production_Schedule.objects.get(id=prodsched)
+    prod_class = prodsched_obj.work_order_number.prod_number.prod_class
+    assembly_line_ass = Assembly_Line_Assignment.objects.get(prod_class=prod_class)
+
+    shrnk_report_newobj = Shrinkage_Ass_Report.objects.create(
+        prod_sched=prodsched_obj,
+        item_number=item_num_adj,
+        quantity=item_quan_adj,
+        shrinkage_type=Shrinkage_Type.objects.get(shrinkage_type="Loss"),
+        reason="Warehouse Short Issued - Short Items",
+        date_reported=datetime.now().replace(tzinfo=pytz.utc))
+    shrnk_report_newobj.full_clean()
+    shrnk_report_newobj.save()
+
+    shrnk_item_newobj = Shrinkage_Ass_Item.objects.create(
+        report_num=shrnk_report_newobj,
+        item_number=item_num_adj,
+        quantity=item_quan_adj,
+        scheduled=False,
+        ass_location=assembly_line_ass.assemblyline)
+    shrnk_item_newobj.full_clean()
+    shrnk_item_newobj.save()
+
+    totalallocated = 0
+
+    AllocateWhseItems_Shrnk( shrnk_item_newobj.item_number, shrnk_item_newobj.quantity, totalallocated, shrnk_report_newobj.prod_sched.id )
+    UpdateAssemblyItems( shrnk_report_newobj.prod_sched.id, shrnk_item_newobj.item_number, shrnk_item_newobj.quantity )
+    AddShrnkReportTransac( shrnk_report_newobj.prod_sched.id, shrnk_report_newobj.date_reported, shrnk_report_newobj.item_number, shrnk_report_newobj.quantity, shrnk_item_newobj.ass_location.name )
+    AddShrnkRplItemTransac( shrnk_report_newobj.prod_sched.id, shrnk_report_newobj.date_reported, shrnk_item_newobj.item_number, shrnk_item_newobj.quantity, shrnk_item_newobj.ass_location.name )
+
+def AddShrnkReportTransac(refnum, transac_date, item_number, item_quan, ass_line):
+    shrnkreport_transac = Shrinkage_Ass_Report_Transaction.objects.create(
+        reference_number=refnum,
+        transaction_type="Shrinkage Item Report",
+        transaction_date=transac_date,
+        transaction_location=ass_line,
+        item_number=item_number,
+        item_quantity=item_quan,
+        )
+    shrnkreport_transac.full_clean()
+    shrnkreport_transac.save()
+def AddShrnkRplItemTransac(refnum, transac_date, item_number, item_quan, ass_line):
+    shrnkrplitem_transac = Shrinkage_Ass_Item_Transaction.objects.create(
+        reference_number=refnum,
+        transaction_type="Shrinkage Item Replacement",
+        transaction_date=transac_date,
+        transaction_location=ass_line,
+        item_number=item_number,
+        item_quantity=item_quan,
+        )
+    shrnkrplitem_transac.full_clean()
+    shrnkrplitem_transac.save()
+def UpdateAssemblyItems(prod_sched, item_num, item_quan):
+    assitem_shrnkset = Assembly_Items.objects.filter(reference_number=prod_sched, item_number=item_num)
+
+    for ass_item in assitem_shrnkset:#----Adjust Assembly Line Item---
+        ass_item.quantity -= item_quan
+        if(ass_item.quantity == 0):
+            ass_item.delete()
+        else:
+            ass_item.save()
+def AllocateWhseItems_Shrnk(itemnum, totalreq, totalalloc, prod_sched):
+    whseitemset = Warehouse_Items.objects.filter(status="In Stock", item_number=itemnum, bin_location__item_cat=itemnum.item_cat, bin_location__prod_class=itemnum.prod_class).order_by('quantity')
+    for whsebin in whseitemset:
+        if not totalreq == totalalloc:
+            totalalloc, whsebin = SubtractBinStock(whsebin, totalreq, totalalloc, itemnum, prod_sched)
+            whsebin.save() 
+def SubtractBinStock(whsebin, totalreq, totalalloc, itemnum, prod_sched):
+    allocatedbinquan = 0
+    binStock = 0
+    remainingalloc = 0
+    binStock = whsebin.quantity
+    remainingalloc = int(totalreq) - totalalloc
+    if remainingalloc < binStock: #Bin stock fulfilled required allocation
+        allocatedbinquan = remainingalloc
+        whsebin.quantity -= remainingalloc
+    elif remainingalloc == binStock: #Bin stock fulfilled required allocation
+        allocatedbinquan = remainingalloc
+        whsebin.quantity = 0
+    elif remainingalloc > binStock: #Bin stock did not fulfill required allocation
+        allocatedbinquan = binStock
+        whsebin.quantity = 0
+    CreateWhseItemBin_Shrnk(whsebin.bin_location, itemnum, allocatedbinquan, prod_sched)
+    totalalloc += allocatedbinquan
+    return totalalloc, whsebin
+def CreateWhseItemBin_Shrnk(binloc, itemnum, allocquan, prod_sched):
+    whseitemBin = Warehouse_Items.objects.create(
+        bin_location=binloc, 
+        item_number=itemnum,
+        quantity=allocquan,
+        status="Allocated for Part Request",
+        reference_number=prod_sched)
+    whseitemBin.full_clean()
+    whseitemBin.save()
+def DeleteWhseItemBin():
+    whseitemset = Warehouse_Items.objects.order_by('quantity')
+    for whsebin in whseitemset:
+        if whsebin.quantity == 0:
+            whsebin.delete()
+def ReportShrinkage_SelectProdSched(request):
+    template_name = 'invsys/assembly/AssemblyShrinkage/ReportShrinkage_SelectProdSched.html'
+
+    prodsched_list = WO_Production_Schedule.objects.filter(scheduled=True, received=False).values( #Only issues work-orders
+        'id',
+        'work_order_number__work_order_number',
+        'work_order_number__prod_number__prod_number',
+        'work_order_number__prod_number__prod_class__prod_class',
+        'quantity',
+        'issued',
+        'assembled',
+        'coupled',)
+
+    prodsched_listquery = WO_Production_Schedule.objects.filter(issued=True)
+    prodsched_set = []
+    for prod_sched in prodsched_listquery:
+        prodsched_set.append(prod_sched.id)
+
+    wo_itemlist = Assembly_Items.objects.filter(reference_number__in=prodsched_set).values(
+        'reference_number',
+        'item_number__item_number',
+        'quantity',
+        'assemblyline__name',)
+
+    return render(request, template_name, {'prodsched_list':prodsched_list,'wo_itemlist':wo_itemlist})
+def ReportShrinkage_SelectItem(request, pk=None):
+    template_name = 'invsys/assembly/AssemblyShrinkage/ReportShrinkage_SelectItem.html'
+    ass_item = Assembly_Items.objects.filter(reference_number=pk).values(
+        'item_number__item_number',
+        'item_number__item_cat__item_cat',
+        'quantity',
+        'assemblyline__id',
+        'assemblyline__name',)
+
+    return render(request, template_name,{'ass_item':ass_item})
+def DeleteAssemblyItem():
+    assitem_set = Assembly_Items.objects.order_by('quantity')
+    for assitem in assitem_set:
+        if assitem.quantity == 0:
+            assitem.delete()
+
+
+
 def AnalyzeIssuance_PartReq(partreq_summary):
     itemnum = partreq_summary.item_number
     reqQuan = partreq_summary.totalreq_quan
@@ -1919,14 +2105,14 @@ def AnalyzeIssuance_PartReq(partreq_summary):
         AddtoAssembly_Transac_PartReq(itemnum, reqQuan, prodsched, ass_line)
 
         if not assline_itemdisc_list:
-            AddAssemblyDiscItem_PartReq(itemnum, discQuan, prodsched, ass_line)
+            AddAssemblyDiscItem_PartReq(itemnum, abs(int(discQuan)), prodsched, ass_line)
         else:
             for assline_disc in assline_itemdisc_list:
-                assline_disc.quantity += discQuan
+                assline_disc.quantity += abs(int(discQuan))
                 assline_disc.save()       
         AddRecIssuanceDiscTransac_PartReq(itemnum, discQuan, prodsched, ass_line)
 
-    else:
+    elif reqQuan == recQuan:
         if not assline_item_list:
             AddtoAssembly_Item_PartReq(itemnum, reqQuan, prodsched, ass_line)
         else:
@@ -1934,6 +2120,15 @@ def AnalyzeIssuance_PartReq(partreq_summary):
                 assline.quantity += reqQuan
                 assline.save()
         AddtoAssembly_Transac_PartReq(itemnum, reqQuan, prodsched, ass_line)
+    elif reqQuan > recQuan:
+        if not assline_item_list:
+            AddtoAssembly_Item_PartReq(itemnum, recQuan, prodsched, ass_line)
+        else:
+            for assline in assline_item_list:
+                assline.quantity += reqQuan
+                assline.save()
+        AddtoAssembly_Transac_PartReq(itemnum, recQuan, prodsched, ass_line)
+
 def AddtoAssembly_Item_PartReq(itemnum, reqQuan, prodsched, ass_line):
     ass_item = Assembly_Items.objects.create(
         assemblyline=ass_line,
@@ -2048,6 +2243,7 @@ def checkcomplete_prodsched_items(prodsched):
 
     prodsched_obj.issues = issues
     prodsched_obj.save()
+
 
 #Component Return
 #--Generate Component Return Schedule--
@@ -4811,6 +5007,7 @@ def ViewProductTransactions(request):
 
     return render(request, template_name, {'prod_set':prod_query, "prodtrans_set":prodtrans_list})
 
+
 #--Edit Item
 @login_required
 @warehouse_required
@@ -5031,6 +5228,8 @@ def EditWarehouseBin_getparts(request):
     "whse_items_set" : whse_items_list, }
 
     return JsonResponse(data) # http response
+
+
 
 #--- EXPORT RECEIVED SHIPMENTS
 #--View Accomplished Shipments--

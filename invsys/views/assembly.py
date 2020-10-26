@@ -13,6 +13,9 @@ from ..decorators import assembly_required
 from ..forms import *
 from ..models import *
 
+from datetime import date, timedelta, datetime
+import pytz
+
 
 class AssemblySignUpView(CreateView):
     model = User
@@ -49,14 +52,13 @@ def FinishCompIssuance(request):
             'bin_location__bin_location')
         return render(request, template_name, {'wo_recitem':wo_recitem,'wo_summary':wo_summary,'wo_itemissuance_list':wo_itemissuance_list})
     elif request.method == 'POST' :
-
         wo_recitemformset = WO_Issuance_RecItemFormset(request.POST , request.FILES, prefix='formsetitem')
         wo_summaryformset = WO_Issuance_SummaryFormset(request.POST , request.FILES, prefix='formsetsummary')
 
         if wo_recitemformset.is_valid() and wo_summaryformset.is_valid():
             compissueschedule = WO_Issuance_Schedule.objects.get(schedule_num=request.POST.get('compissuesched',''))
             prodsched = WO_Production_Schedule.objects.get(id=request.POST.get('prodsched',''))
-            date_received = '01/01/2020'
+            date_received = datetime.now().replace(tzinfo=pytz.utc)
 
             counter = 1
             for reci_item in wo_recitemformset:
@@ -65,7 +67,7 @@ def FinishCompIssuance(request):
                     wo_recitem.schedule_num = compissueschedule
                     date_received = wo_recitem.date_received
                     wo_recitem.save()
-                    SubtractBinStock_FinishIssuance(wo_recitem)
+                    SubtractBinStock_FinishIssuance(wo_recitem, request)
                     counter += 1
 
             counter = 1    
@@ -83,6 +85,8 @@ def FinishCompIssuance(request):
             UpdateProdSched(prodsched)
             AddWOAssembly_List(prodsched, date_received)
             DeleteWhseItemBin()
+            DeleteAssemblyItem()
+
             checkcomplete_prodsched_items(prodsched.id)
 
         else:
@@ -92,7 +96,7 @@ def FinishCompIssuance(request):
             print(wo_summaryformset.errors)
 
         return redirect('home')
-def SubtractBinStock_FinishIssuance(wo_recitem):
+def SubtractBinStock_FinishIssuance( wo_recitem, request ):
     itemnum = wo_recitem.item_num
     bin_loc = wo_recitem.bin_location
     prodsched = wo_recitem.prod_sched.id
@@ -100,8 +104,137 @@ def SubtractBinStock_FinishIssuance(wo_recitem):
 
     whsebinset = Warehouse_Items.objects.filter(bin_location=bin_loc, item_number=itemnum, reference_number=prodsched, status="For Component Issuance")
     for whsebin in whsebinset:
+        
         whsebin.quantity -= recQuan
+        
+        if whsebin.quantity < 0:
+            
+            adjustitems_overissuance( whsebin.bin_location,whsebin.item_number, abs(whsebin.quantity), request )
+            whsebin.quantity = 0
+
+        elif whsebin.quantity > 0:
+
+            adjustitems_shortissuance( whsebin.bin_location, whsebin.item_number, abs(whsebin.quantity), request, prodsched )
+
+            whsebin.quantity = 0
+
         whsebin.save()
+
+def adjustitems_overissuance( whse_bin_adj, item_num_adj, item_quan_adj, request ):
+    
+    sa_report_newobj = SA_Report.objects.create(
+        iaf_whse=IAF_whse.objects.get(whse="WHSE"),
+        date_reported=datetime.now().replace(tzinfo=pytz.utc),
+        notes="Warehouse Over Issued - New Items")
+    sa_report_newobj.full_clean()
+    sa_report_newobj.save()
+
+    sa_item_newobj = SA_Item.objects.create(
+        report_num=sa_report_newobj,
+        bin_location=whse_bin_adj,
+        item_number=item_num_adj,
+        item_quantity=item_quan_adj,
+        iaf_operator=IAF_operator.objects.get(operator="Add"),
+        total_cost=int(item_num_adj.price) * item_quan_adj,
+        reason="new items from over issuance")
+    sa_item_newobj.full_clean()
+    sa_item_newobj.save()
+
+    sa_items = []
+    sa_items.append(sa_item_newobj)
+
+    #Add transaction because of new items found
+    AddSA_Add_Transac(sa_report_newobj.report_num, sa_item_newobj.bin_location.bin_location, sa_item_newobj.item_number, sa_item_newobj.item_quantity)
+    #Add IAF Report
+    AddIAF_Report(sa_report_newobj.iaf_whse, "Change/Modify/Conversion", "System Adjustment", request.user, sa_items)
+
+def adjustitems_shortissuance( whse_bin_adj, item_num_adj, item_quan_adj, request, prodsched ):
+    
+    prodsched_obj = WO_Production_Schedule.objects.get(id=prodsched)
+    prod_class = prodsched_obj.work_order_number.prod_number.prod_class
+    assembly_line_ass = Assembly_Line_Assignment.objects.get(prod_class=prod_class)
+
+    shrnk_report_newobj = Shrinkage_Ass_Report.objects.create(
+        prod_sched=prodsched_obj,
+        item_number=item_num_adj,
+        quantity=item_quan_adj,
+        shrinkage_type=Shrinkage_Type.objects.get(shrinkage_type="Loss"),
+        reason="Warehouse Short Issued - Short Items",
+        date_reported=datetime.now().replace(tzinfo=pytz.utc))
+    shrnk_report_newobj.full_clean()
+    shrnk_report_newobj.save()
+
+    shrnk_item_newobj = Shrinkage_Ass_Item.objects.create(
+        report_num=shrnk_report_newobj,
+        item_number=item_num_adj,
+        quantity=item_quan_adj,
+        scheduled=False,
+        ass_location=assembly_line_ass.assemblyline)
+    shrnk_item_newobj.full_clean()
+    shrnk_item_newobj.save()
+
+    totalallocated = 0
+
+    AllocateWhseItems_Shrnk( shrnk_item_newobj.item_number, shrnk_item_newobj.quantity, totalallocated, shrnk_report_newobj.prod_sched.id )
+    UpdateAssemblyItems( shrnk_report_newobj.prod_sched.id, shrnk_item_newobj.item_number, shrnk_item_newobj.quantity )
+    AddShrnkReportTransac( shrnk_report_newobj.prod_sched.id, shrnk_report_newobj.date_reported, shrnk_report_newobj.item_number, shrnk_report_newobj.quantity, shrnk_item_newobj.ass_location.name )
+    AddShrnkRplItemTransac( shrnk_report_newobj.prod_sched.id, shrnk_report_newobj.date_reported, shrnk_item_newobj.item_number, shrnk_item_newobj.quantity, shrnk_item_newobj.ass_location.name )
+
+def AddSA_Add_Transac(refnum, bin_loc, itemnum, itemquan):
+    sa_add_transac = SA_Add_Transaction.objects.create(
+        reference_number=refnum,
+        transaction_type="System Adjustment",
+        transaction_location=bin_loc,
+        item_number=itemnum,
+        item_quantity=itemquan)
+    sa_add_transac.full_clean()
+    sa_add_transac.save()
+def AddIAF_Report(whse, report_type, report_action, user, item_set):
+    iaf_report = IAF_Report.objects.create(
+        iaf_whse=whse,
+        adjustment_type= IAF_code.objects.get(iaf_adjustment=report_type),
+        iaf_action=report_action,
+        prepared_by=user)
+    iaf_report.full_clean()
+    iaf_report.save()
+
+    for item in item_set:
+        AddIAFItems(iaf_report.report_num, item.item_number, item.bin_location, item.item_quantity, item.iaf_operator, item.total_cost, item.reason)
+        if item.iaf_operator.operator == "Subtract": 
+            AddIAF_Subt_Transac(iaf_report.report_num, report_action, item.bin_location.bin_location, item.item_number, item.item_quantity)
+        else:
+            AddIAF_Add_Transac(iaf_report.report_num, report_action, item.bin_location.bin_location, item.item_number, item.item_quantity)
+def AddIAF_Subt_Transac(refnum, report_action, bin_loc, item_num, item_quan):
+    iaf_subt_transac = IAF_Subt_Transaction.objects.create(
+        reference_number=refnum,
+        transaction_type=report_action,
+        transaction_location=bin_loc,
+        item_number=item_num,
+        item_quantity=item_quan)
+    iaf_subt_transac.full_clean()
+    iaf_subt_transac.save()
+def AddIAF_Add_Transac(refnum, report_action, bin_loc, item_num, item_quan):
+    iaf_add_transac = IAF_Add_Transaction.objects.create(
+        reference_number=refnum,
+        transaction_type=report_action,
+        transaction_location=bin_loc,
+        item_number=item_num,
+        item_quantity=item_quan)
+    iaf_add_transac.full_clean()
+    iaf_add_transac.save()
+def AddIAFItems(report_num, item_num, bin_loc, item_quan, iaf_operator, tot_cost, reason):
+    iaf_item = IAF_Item.objects.create(
+        report_num=IAF_Report.objects.get(report_num=report_num),
+        item_number=item_num,
+        bin_location=bin_loc,
+        item_quantity=item_quan,
+        iaf_operator=iaf_operator,
+        total_cost=tot_cost,
+        reason=reason)
+    iaf_item.full_clean()
+    iaf_item.save()
+
+
 def AnalyzeIssuance(wo_summary):
     itemnum = wo_summary.item_num
     reqQuan = wo_summary.totalreq_quan
@@ -115,9 +248,12 @@ def AnalyzeIssuance(wo_summary):
 
         AddAssemblyDiscItem(itemnum, discQuan, prodsched)
         AddRecIssuanceDiscTransac(itemnum, discQuan, prodsched)
-    else:
+    elif reqQuan == recQuan:
         AddtoAssembly_Item(itemnum, reqQuan, prodsched)
         AddtoAssembly_Transac(itemnum, reqQuan, prodsched)
+    elif reqQuan > recQuan:
+        AddtoAssembly_Item(itemnum, recQuan, prodsched)
+        AddtoAssembly_Transac(itemnum, recQuan, prodsched)
 def AddtoAssembly_Item(itemnum, reqQuan, prodsched):
     prod_sched = WO_Production_Schedule.objects.get(id=prodsched)
     wo_num = Work_Order.objects.get(work_order_number=prod_sched.work_order_number)
@@ -643,7 +779,8 @@ def ReportShrinkage(request):
             DeleteWhseItemBin()
             AddShrnkReportTransac(shrnk_report.prod_sched.id, shrnk_report.date_reported, shrnk_report.item_number, shrnk_report.quantity, shrnk_item.ass_location.name)
             AddShrnkRplItemTransac(shrnk_report.prod_sched.id, shrnk_report.date_reported, shrnk_item.item_number, shrnk_item.quantity, shrnk_item.ass_location.name)
-            
+            DeleteAssemblyItem()
+
             checkcomplete_prodsched_items(shrnk_report.prod_sched.id)
             return redirect('home')
     
@@ -730,6 +867,8 @@ def ReportShrinkage_SelectProdSched(request):
         'assembled',
         'coupled',)
 
+    print(prodsched_list)
+
     prodsched_listquery = WO_Production_Schedule.objects.filter(issued=True)
     prodsched_set = []
     for prod_sched in prodsched_listquery:
@@ -752,7 +891,12 @@ def ReportShrinkage_SelectItem(request, pk=None):
         'assemblyline__name',)
 
     return render(request, template_name,{'ass_item':ass_item})
-        
+def DeleteAssemblyItem():
+    assitem_set = Assembly_Items.objects.order_by('quantity')
+    for assitem in assitem_set:
+        if assitem.quantity == 0:
+            assitem.delete()
+
 @login_required
 @assembly_required
 def ViewShrinkageSummary(request):

@@ -185,44 +185,6 @@
             
         });
 
-        function getWO(status){
-            $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-                var rowelm = this;
-                var wo_status = 0;
-
-                var issued = rowelm.dataset.issued;
-                var assembled = rowelm.dataset.assembled;
-                var coupled = rowelm.dataset.coupled;
-
-                
-
-                if(issued === 'True' & assembled === 'False' & coupled === 'False'){
-                    wo_status = 1;
-                }else if(assembled === 'True' & assembled === 'True' & coupled === 'False'){
-                    wo_status = 2;
-                }else if(coupled === 'True' & assembled === 'True' & coupled === 'True'){
-                    wo_status = 3;
-                }
-
-                var sel_status = status;
-
-                console.log(wo_status+"---"+sel_status);
-
-                if(parseInt(wo_status) === parseInt(sel_status)){
-
-                    $(this).show();
-                }else{
-                    $(this).hide();
-                }
-
-            });
-        }
-
-        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-            $(this).hide();
-        });
-
-
         $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
             $(this).hide();
         });
@@ -284,8 +246,38 @@
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
+        getWO(1);
+
     });
 
+    function getWO(status){
+        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
+            var rowelm = this;
+            var wo_status = 0;
+
+            var issued = rowelm.dataset.issued;
+            var assembled = rowelm.dataset.assembled;
+            var coupled = rowelm.dataset.coupled;
+            var wo_num = rowelm.dataset.wonum;
+
+            if(issued === 'True' & assembled === 'False' & coupled === 'False'){
+                wo_status = 1;
+            }else if(assembled === 'True' & assembled === 'True' & coupled === 'False'){
+                wo_status = 2;
+            }else if(coupled === 'True' & assembled === 'True' & coupled === 'True'){
+                wo_status = 3;
+            }
+
+            var sel_status = status;
+
+            if(parseInt(wo_status) === parseInt(sel_status)){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
+
+        });
+    }
 
 </script>
 {% endblock javascripts %}
