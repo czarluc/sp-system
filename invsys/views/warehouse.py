@@ -5031,3 +5031,136 @@ def EditWarehouseBin_getparts(request):
     "whse_items_set" : whse_items_list, }
 
     return JsonResponse(data) # http response
+
+#--- EXPORT RECEIVED SHIPMENTS
+#--View Accomplished Shipments--
+@login_required
+@warehouse_required
+def ExportReceivedShipment(request):
+    template_name = 'invsys/warehouse/Receiving/ExportReceivedShipment.html'
+
+    rec_shipment_query = Receive_Shipment_Item.objects.all().values(
+        'id',
+        'shipment_po__shipment_num__shipment_num',
+        'shipment_po__shipment_num__date_dr',
+        'shipment_po__shipment_num__date_warehouse',
+        'date_validated',
+        'start_time_validation',
+        'end_time_validation',
+        'validation_time',
+        'shipment_po__po_num__supplier',
+        'shipment_po__shipment_num__ship_category',
+        'shipment_po__po_num__po_number',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'item_quantity',
+        'item_number__uom__uom',
+        'shipment_po__shipment_num__rr_num',
+        'shipment_po__shipment_num__dr_num',
+        'shipment_po__shipment_num__invoice_num',
+        'shipment_po__shipment_num__ship_trucking',
+        'shipment_po__shipment_num__container_num',
+        'shipment_po__shipment_num__container_type',
+        'shipment_po__shipment_num__awl_bl',
+        'shipment_po__shipment_num__notes',)
+
+    export_ship_list = []
+    for rec_shipment in rec_shipment_query:
+        details={}
+        po_num = ''
+        date_val = ''
+        date_whse = ''
+        for i in rec_shipment:
+            if i == 'id':
+                details['rec_num'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__shipment_num':
+                details['shipment_num'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__date_dr':
+                details['date_dr'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__date_warehouse':
+                details['date_whse'] = rec_shipment[i]
+                date_whse = rec_shipment[i]
+            elif i == 'date_validated':
+                details['date_val'] = rec_shipment[i]
+                date_val = rec_shipment[i]
+            elif i == 'start_time_validation':
+                details['start_val'] = rec_shipment[i]
+            elif i == 'end_time_validation':
+                details['end_val'] = rec_shipment[i]
+            elif i == 'validation_time':
+                details['time_val'] = rec_shipment[i]
+            elif i == 'shipment_po__po_num__supplier':
+                details['supplier'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__ship_category':
+                details['ship_cat'] = rec_shipment[i]
+            elif i == 'shipment_po__po_num__po_number':
+                details['po_num'] = rec_shipment[i]
+                po_num = rec_shipment[i]
+            elif i == 'item_number__item_number':
+                details['item_num'] = rec_shipment[i]
+            elif i == 'item_number__item_desc':
+                details['item_desc'] = rec_shipment[i]
+            elif i == 'item_quantity':
+                details['item_quan'] = rec_shipment[i]
+            elif i == 'item_number__uom__uom':
+                details['uom'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__rr_num':
+                details['rr_num'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__dr_num':
+                details['dr_num'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__invoice_num':
+                details['invoice_num'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__ship_trucking':
+                details['ship_trucking'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__container_num':
+                details['container_num'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__container_type':
+                details['container_type'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__awl_bl':
+                details['awl_bl'] = rec_shipment[i]
+            elif i == 'shipment_po__shipment_num__notes':
+                details['notes'] = rec_shipment[i]
+
+        recship_summary_query = Shipment_Summary.objects.filter(shipment_po__po_num__po_number=po_num).values(
+            'issue',)
+
+        for recship_summary in recship_summary_query:
+            details['issue'] = recship_summary.get('issue')
+
+        details['closure_date'] = ""
+
+        try:
+            resolve_po_query = ResolvePO.objects.filter(po_num__po_number=po_num).values(
+                'date_resolved',
+                'notes',)
+
+            for resolve_po in resolve_po_query:
+                details['closure_date'] = resolve_po.get('date_resolved')
+                details['closure_remarks'] = resolve_po.get('notes')
+
+        except ObjectDoesNotExist as DoesNotExist:
+            details['closure_date'] = 'None'
+            details['closure_remarks'] = 'None'
+
+        if details['closure_date'] == "" and details['issue'] == "Non-Issue":
+            details['closure_date'] = 'None'
+            details['closure_remarks'] = 'None'
+        elif details['closure_date'] == "" and details['issue'] != "Non-Issue":
+            details['closure_date'] = 'None'
+            details['closure_remarks'] = 'Still not resolved'
+        
+        details['aging_val_date'] = (date_val-date_whse).days
+
+        if int(details['aging_val_date']) < 0:
+            details['timeliness'] = 'Not yet validated'
+        elif int(details['aging_val_date']) < 2 and int(details['aging_val_date']) >= 0:
+            details['timeliness'] = '0-1 days'
+        elif int(details['aging_val_date']) == 2:
+            details['timeliness'] = '2 days'
+        elif int(details['aging_val_date']) > 2:
+            details['timeliness'] = '>2 days'
+
+        export_ship_list.append(details)
+
+    return render(request, template_name, 
+        {'export_ship_set':export_ship_list})

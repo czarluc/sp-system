@@ -54,6 +54,9 @@ urlpatterns = [
         path('ViewOpenPO/', warehouse.ViewOpenPO, name='ViewOpenPO'),
         path('ViewClosedPO/', warehouse.ViewClosedPO, name='ViewClosedPO'),
         path('ViewResolvedPO/', warehouse.ViewResolvedPO, name='ViewResolvedPO'),
+        
+        path('ExportReceivedShipment/', warehouse.ExportReceivedShipment, name='ExportReceivedShipment'),
+        
         #--Put Away
         path('GeneratePutAwaySchedule/', warehouse.GeneratePutAwaySchedule, name='GeneratePutAwaySchedule'),
         path('GeneratePutAwaySchedule/SelectItem', warehouse.GeneratePutAwaySchedule_SelectItem, name='GeneratePutAwaySchedule_SelectItem'),

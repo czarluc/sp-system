@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %} Export Received Shipments {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>Export Received Shipments</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Received Shipments:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="trans_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Received#</th>
+                        <th scope="col">Shipment#</th>
+                        <th scope="col">Date DR</th>
+                        <th scope="col">Date Whse</th>
+                        <th scope="col">Date Val</th>
+                        <th scope="col">Start Val</th>
+                        <th scope="col">End Val</th>
+                        <th scope="col">Val Time</th>
+                        <th scope="col">Supplier</th>
+                        <th scope="col">Shipment Category</th>
+                        <th scope="col">PO#</th>
+                        <th scope="col">Item#</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">UOM</th>
+                        <th scope="col">RR#</th>
+                        <th scope="col">DR#</th>
+                        <th scope="col">Invoice#</th>
+                        <th scope="col">Ship Trucking</th>
+                        <th scope="col">Container#</th>
+                        <th scope="col">Container Type</th>
+                        <th scope="col">AWB/BL</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Issue</th>
+                        <th scope="col">Closure Date</th>
+                        <th scope="col">Closure Remarks</th>
+                        <th scope="col">Aging Val Days</th>
+                        <th scope="col">Timeliness#</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in export_ship_set %}
+                    <tr class="tablerow" data-ship_num="{{ instance.shipment_num }}" data-po_num="{{ instance.po_num }}" id="ponum-{{forloop.counter}}">
+
+                        <td>{{ instance.rec_num }}</td>
+                        <td>{{ instance.shipment_num }}</td>
+                        <td>{{ instance.date_dr|date:'d-m-Y' }}</td>
+                        <td>{{ instance.date_whse|date:'d-m-Y' }}</td>
+                        <td>{{ instance.date_val|date:'d-m-Y' }}</td>
+                        <td>{{ instance.start_val }}</td>
+                        <td>{{ instance.end_val }}</td>
+                        <td>{{ instance.time_val }}</td>
+                        <td>{{ instance.supplier }}</td>
+                        <td>{{ instance.ship_cat }}</td>
+                        <td>{{ instance.po_num }}</td>
+                        <td>{{ instance.item_num }}</td>
+                        <td>{{ instance.item_desc }}</td>
+                        <td>{{ instance.item_quan }}</td>
+                        <td>{{ instance.uom }}</td>
+                        <td>{{ instance.rr_num }}</td>
+                        <td>{{ instance.dr_num }}</td>
+                        <td>{{ instance.invoice_num }}</td>
+                        <td>{{ instance.ship_trucking }}</td>
+                        <td>{{ instance.container_num }}</td>
+                        <td>{{ instance.container_type }}</td>
+                        <td>{{ instance.awl_bl }}</td>
+                        <td>{{ instance.notes }}</td>
+                        <td>{{ instance.issue }}</td>
+                        <td>{{ instance.closure_date }}</td>
+                        <td>{{ instance.closure_remarks }}</td>
+                        <td>{{ instance.aging_val_date }}</td>
+                        <td>{{ instance.timeliness }}</td>
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+	var minDateFilter = "";// Date range filter
+	var maxDateFilter = "";
+
+$(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+	$.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    var table = $('#trans_table').DataTable({
+    	paging: false, info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    columns: ':visible',
+                    rows: ':visible' 
+                }
+            }, 'csv', 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.date_from").html("<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Received#</option><option>Shipment#</option><option>Date DR</option><option>Date Whse</option><option>Date Val</option><option>Start Val</option><option>End Val</option><option>Val Time</option><option>Supplier</option><option>Shipment Category</option><option>PO#</option><option>Item#</option><option>Item Description</option><option>Quantity</option><option>UOM</option><option>RR#</option><option>DR#</option><option>Invoice#</option><option>Ship Trucking</option><option>Container#</option><option>Container Type</option><option>AWB/BL</option><option>Notes</option><option>Issue</option><option>Closure Date</option><option>Closure Remarks</option><option>Aging Val Days</option><option>Timeliness#</option></select>");
+
+    $('#trans_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_trans').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select_trans').change(function() {
+    	$("#date_from").val('');
+		$("#date_to").val('');
+    	table.columns().search('').draw();
+    });
+
+    $(".date").change(function () {
+    	if ($("#date_from").val()){
+    		minDateFilter = new Date($("#date_from").val());
+    		minDateFilter = moment( minDateFilter , 'DD-MM-YYYY' ).valueOf();
+    	}
+
+    	if ( $("#date_to").val() ){
+    		maxDateFilter = new Date($("#date_to").val());
+    		maxDateFilter = moment( maxDateFilter, 'DD-MM-YYYY' ).valueOf();
+    	}
+
+		$.fn.dataTable.ext.search.push(
+			function(settings, data, dataIndex) {
+				var min = minDateFilter;
+				var max = maxDateFilter;
+				var startDate = moment(data[document.querySelector('#select_trans').selectedIndex], 'DD-MM-YYYY').valueOf();
+
+				if(min && max){
+
+					if( (startDate) >= (min) & (startDate) <= (max) ){
+						return true;
+					}else{
+						console.log( " false ");
+						return false;
+					}
+
+				}else{
+					return true;
+				}
+			}
+		);
+
+		table.draw();
+		$.fn.dataTable.ext.search.pop();
+ 	});
+});
+</script>
+{% endblock javascripts %}
