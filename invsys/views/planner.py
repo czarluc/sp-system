@@ -225,7 +225,8 @@ def ViewWO(request):
         'work_order_number__work_order_number',
         'quantity',
         'date_required',
-        'status',)
+        'status',
+        'issues',)
     prod_list = Work_Order.objects.filter().values(
         'work_order_number',
         'prod_number__prod_number',

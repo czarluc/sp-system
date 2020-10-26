@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
+from django.core.exceptions import ObjectDoesNotExist
 
 from ..decorators import assembly_required
 from ..forms import *
@@ -82,6 +83,7 @@ def FinishCompIssuance(request):
             UpdateProdSched(prodsched)
             AddWOAssembly_List(prodsched, date_received)
             DeleteWhseItemBin()
+            checkcomplete_prodsched_items(prodsched.id)
 
         else:
             print("wo_recitem.errors")
@@ -296,6 +298,32 @@ def ViewCompIssuanceSummary(request):
         'issuance_sum_set':issuance_sum_query,})
 
 
+#-- Check wo items
+def checkcomplete_prodsched_items(prodsched):
+    issues = "None" 
+
+    prodsched_obj = WO_Production_Schedule.objects.get(id=prodsched)
+    wo_items_list = Work_Order_Item_List.objects.filter(work_order_number__work_order_number=prodsched_obj.work_order_number.work_order_number)
+    
+
+    for wo_item in wo_items_list:
+        tot_req = int(prodsched_obj.quantity) * int(wo_item.item_quantity)
+        item_num = wo_item.item_number.item_number
+        ass_quan = 0
+
+        try:
+            assembly_item = Assembly_Items.objects.get(reference_number=prodsched, item_number__item_number=item_num)
+            ass_quan = int(assembly_item.quantity)
+
+        except ObjectDoesNotExist as DoesNotExist:
+            ass_quan = 0
+
+        if tot_req != ass_quan:
+            issues = "Incomplete Items"
+
+    prodsched_obj.issues = issues
+    prodsched_obj.save()
+
 #--Assembly Updates
 @login_required
 @assembly_required
@@ -335,7 +363,14 @@ def FinishAssembly(request):
 def FinishAssembly_SelectProdSched(request):
     template_name = 'invsys/assembly/AssemblyUpdates/FinishAssembly_SelectProdSched.html'
 
-    wo_asslist = WO_Assembly.objects.filter(cleared=False).values(
+    prodsched_noissue_query = WO_Production_Schedule.objects.filter(issues="None").values(
+        'id',)
+
+    prodsched_noissue_list = []
+    for prodsched_noissue in prodsched_noissue_query:
+        prodsched_noissue_list.append(prodsched_noissue.get('id'))
+
+    wo_asslist = WO_Assembly.objects.filter(cleared=False, prod_sched__id__in=prodsched_noissue_list).values(
         'prod_sched__id',
         'prod_sched__work_order_number__work_order_number',
         'prod_sched__work_order_number__prod_number__prod_number',
@@ -392,7 +427,14 @@ def FinishCoupling(request):
 def FinishCoupling_SelectProdSched(request):
     template_name = 'invsys/assembly/AssemblyUpdates/FinishCoupling_SelectProdSched.html'
 
-    wo_couplist = WO_Coupling.objects.filter(cleared=False).values(
+    prodsched_noissue_query = WO_Production_Schedule.objects.filter(issues="None").values(
+        'id',)
+
+    prodsched_noissue_list = []
+    for prodsched_noissue in prodsched_noissue_query:
+        prodsched_noissue_list.append(prodsched_noissue.get('id'))
+
+    wo_couplist = WO_Coupling.objects.filter(cleared=False, prod_sched__id__in=prodsched_noissue_list).values(
         'prod_sched__id',
         'prod_sched__work_order_number__work_order_number',
         'prod_sched__work_order_number__prod_number__prod_number',
@@ -449,7 +491,15 @@ def FinishTesting(request):
         return redirect('home')
 def FinishTesting_SelectProdSched(request):
     template_name = 'invsys/assembly/AssemblyUpdates/FinishTesting_SelectProdSched.html'
-    wo_testlist = WO_Testing.objects.filter(cleared=False).values(
+
+    prodsched_noissue_query = WO_Production_Schedule.objects.filter(issues="None").values(
+        'id',)
+
+    prodsched_noissue_list = []
+    for prodsched_noissue in prodsched_noissue_query:
+        prodsched_noissue_list.append(prodsched_noissue.get('id'))
+
+    wo_testlist = WO_Testing.objects.filter(cleared=False, prod_sched__id__in=prodsched_noissue_list).values(
         'prod_sched__id',
         'prod_sched__work_order_number__work_order_number',
         'prod_sched__work_order_number__prod_number__prod_number',
@@ -593,6 +643,8 @@ def ReportShrinkage(request):
             DeleteWhseItemBin()
             AddShrnkReportTransac(shrnk_report.prod_sched.id, shrnk_report.date_reported, shrnk_report.item_number, shrnk_report.quantity, shrnk_item.ass_location.name)
             AddShrnkRplItemTransac(shrnk_report.prod_sched.id, shrnk_report.date_reported, shrnk_item.item_number, shrnk_item.quantity, shrnk_item.ass_location.name)
+            
+            checkcomplete_prodsched_items(shrnk_report.prod_sched.id)
             return redirect('home')
     
         return redirect('home')

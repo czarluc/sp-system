@@ -1877,6 +1877,7 @@ def FinishPartReqIssuance(request):
             
             CheckPartReq_IssuanceSchedule(partreqissuesched)
             DeleteWhseItemBin()
+            checkcomplete_prodsched_items(partreq_summary.prod_sched.id)
         else:
             print("partreq_summary.errors")
             print(partreq_summary.errors)
@@ -2022,6 +2023,31 @@ def FinishPartReqIssuance_SelectItem(request, pk=None):
 
     return render(request, template_name,{'partreq_issuance_list':partreq_issuance_list})
 
+#-- Check wo items
+def checkcomplete_prodsched_items(prodsched):
+    issues = "None" 
+
+    prodsched_obj = WO_Production_Schedule.objects.get(id=prodsched)
+    wo_items_list = Work_Order_Item_List.objects.filter(work_order_number__work_order_number=prodsched_obj.work_order_number.work_order_number)
+    
+
+    for wo_item in wo_items_list:
+        tot_req = int(prodsched_obj.quantity) * int(wo_item.item_quantity)
+        item_num = wo_item.item_number.item_number
+        ass_quan = 0
+
+        try:
+            assembly_item = Assembly_Items.objects.get(reference_number=prodsched, item_number__item_number=item_num)
+            ass_quan = int(assembly_item.quantity)
+
+        except ObjectDoesNotExist as DoesNotExist:
+            ass_quan = 0
+
+        if tot_req != ass_quan:
+            issues = "Incomplete Items"
+
+    prodsched_obj.issues = issues
+    prodsched_obj.save()
 
 #Component Return
 #--Generate Component Return Schedule--
