@@ -82,6 +82,10 @@
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:GenerateCompIssuanceSchedule' %}">Generate Component Issuance Schedule</a>
                     </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewOngoingCompIssuance' %}">View Ongoing Component Issuance</a>
+                    </li>
                     
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewCompIssuanceSummary' %}">Component Issuance Summary</a>
@@ -128,7 +132,7 @@
                     </li>
                     
                     <li>
-                      <a class="nav-link" href="{% url 'warehouse:ViewCycleCountSummary' %}">Part Request Issuance Summary</a>
+                      <a class="nav-link" href="{% url 'warehouse:ViewPartReqSummary' %}">Part Request Issuance Summary</a>
                     </li>
                 </ul>
           </li>
@@ -359,10 +363,7 @@
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
             <a href="#nope" data-toggle="collapse" data-target="#drop7" class="nav-link"><img src="{% static 'invsys/Navbar/Main/PartRequest.png' %}" width="30" height="30" class="d-inline-block align-top">   Part Request Issuance<span class="caret"></span></a>
-              <ul id="drop7" class="collapse" data-parent="#sideNavParent">                    
-                  <li>
-                    <a class="nav-link" href="{% url 'warehouse:FinishPartReqIssuance' %}">Verify Part Request Issuance</a>
-                  </li>
+              <ul id="drop7" class="collapse" data-parent="#sideNavParent">
                   
                   <li>
                     <a class="nav-link" href="{% url 'assembly:ViewPartReqSummary' %}">Part Request Issuance Summary</a>

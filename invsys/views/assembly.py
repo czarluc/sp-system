@@ -417,7 +417,7 @@ def ViewCompIssuanceSummary(request):
     for issuance in issuance_list:
         schednum_list.append(issuance.get('schedule_num__schedule_num'))
 
-    issuance_sum_query = WO_Issuance_Summary.objects.filter(schedule_num__schedule_num__in=schednum_list).values(
+    issuance_sum_query = WO_Issuance_Summary.objects.filter(schedule_num__schedule_num__in=schednum_list, prod_sched__id__in=prodsched_filter).values(
         'schedule_num__schedule_num',
         'prod_sched__work_order_number__work_order_number',
         'prod_sched__id',

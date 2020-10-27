@@ -92,7 +92,7 @@
                 <div class="card">
                     
                     <div class="card-header card-header-tabs card-header-info">
-                        <h4 class="card-title">Work Orders received in Assembly at:<label id="label_reqdate"></label></h4>
+                        <h4 class="card-title">Work Orders received in Assembly at <div id="label_reqdate" style="display:inline-block"></div></h4>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive"> <!--Work Order List-->
@@ -166,7 +166,6 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
@@ -198,27 +197,25 @@
             
         $( "#datepicker" ).change(function () {
             var dateText = $(this).val();
-            $('#label_reqdate').innerHTML = dateText;
+            $('#label_reqdate').html(dateText + ":");
             getWO();
         });
 
-        function getWO(){
-            $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-                var rowelm = this;
-                var rec_date = rowelm.dataset.rec_date;
-                var date_sel = $("#datepicker").val();
+        $('#datepicker').val(new Date().toISOString().slice(0, 10));
 
-                if(date_sel === rec_date){
-                    $(this).show();
-                }else{
-                    $(this).hide();
-                }
-
-            });
-        }
-
+        $('#label_reqdate').html($("#datepicker").val() + ":");
+        
         $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-            $(this).hide();
+            var rowelm = this;
+            var rec_date = rowelm.dataset.rec_date;
+            var date_sel = $("#datepicker").val();
+            $('#label_reqdate').html(date_sel + ":");
+
+            if(date_sel === rec_date){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
         });
 
 
@@ -253,6 +250,7 @@
                     $(this).hide();
                 }
             });
+
             toastr.info('Production Schedule '+ prodsched + " from Work Order Number " + wonum + "is selected.");
 
             document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -275,16 +273,12 @@
             $(window.opener.document).find('#sched_quan').val(schedquan);
             $(window.opener.document).find('#id_date_received').val(sched_date);
             
-            window.opener.showreqitem(prodsched);
-
-            toastr.success('Production Schedule '+ prodsched + " from Work Order Number " + wonum + "is selected for Update.");
-
+            window.opener.showtoast("prodsched", prodsched, wonum);
             var goBack = window.open('', 'Fin_Ass');
             goBack.focus();
-            window.close();
+            window.close();            
 
         });
-
 
         $("#wo_table").DataTable({info: false,
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
@@ -295,5 +289,23 @@
         });
 
     });
+
+    function getWO(){
+        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
+            var rowelm = this;
+            var rec_date = rowelm.dataset.rec_date;
+            var date_sel = $("#datepicker").val();
+
+            if(date_sel === rec_date){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
+
+        });
+    }
+
+    
+
 </script>
 {% endblock javascripts %}

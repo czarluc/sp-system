@@ -235,6 +235,12 @@
             $(window.opener.document).find('#prod_class').val(prodclass);
             $(window.opener.document).find('#sched_quan').val(schedquan);
 
+            alert('Production Schedule '+ prodsched + " from Work Order Number " + wonum + " has reported with shrinkage");
+
+            window.opener.showtoast("prodsched");
+            var goBack = window.open('', 'Report_Shrnk');
+            goBack.focus();
+            window.close();    
 
         });
 

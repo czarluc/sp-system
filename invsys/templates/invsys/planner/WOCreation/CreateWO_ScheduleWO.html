@@ -67,10 +67,12 @@
         background-color:red;
     }
     .default, .fc-agenda .default .fc-event-time, .default a {
-    background-color: #5cb85c;/* background color */
-    border-color: #5cb85c;/* border color (often same as background-color) */
-    color: #292b2c;/* text color */
-    }     
+        background-color: #5cb85c;/* background color */
+        border-color: #5cb85c;/* border color (often same as background-color) */
+        color: #292b2c;/* text color */
+    }
+    .hideClass { display:none; }
+    .showClass { display:block; }
 </style>
 {% endblock stylesheets %}
     
@@ -79,34 +81,32 @@
     {% csrf_token %}
     <h2> Work Order Production Scheduler </h2>
     {% for instance in woquery %}
-    <div class="form-row align-items-center">
-        <div class="col-lg-6">
 
-            <div class="card">
-                <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">Work Order {{ instance.work_order_number }} Product Details:</h4>
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Work Order {{ instance.work_order_number }} Product Details:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="prod_number">Product Number:</label>
+                        <input type="hidden" class="form-control" required="" id="wo_num" value="{{ instance.work_order_number }}" readonly>
+                        <input type="text" name="prod_number" class="form-control" required="" id="prod_number" value="{{ instance.prod_number__prod_number }}" readonly>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="form-row align-items-center">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="prod_number">Product Number:</label>
-                                <input type="hidden" class="form-control" required="" id="wo_num" value="{{ instance.work_order_number }}" readonly>
-                                <input type="text" name="prod_number" class="form-control" required="" id="prod_number" value="{{ instance.prod_number__prod_number }}" readonly>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="prod_quan">Product Quantity:</label>
-                                <input type="text" name="prod_quan" class="form-control" id="prod_quan" value="{{ instance.prod_quantity }}" readonly>
-                            </div>
-                        </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="prod_quan">Product Quantity:</label>
+                        <input type="text" name="prod_quan" class="form-control" id="prod_quan" value="{{ instance.prod_quantity }}" readonly>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-6">
+    <div class="row">
+        <div class="col-4">
 
             <div class="card">
                 <div class="card-header card-header-tabs card-header-info">
@@ -129,12 +129,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-
-    <div class="row">
-        <div class="col-4">
             <div class="card">
                 <div class="card-header card-header-tabs card-header-info">
                     <h4 class="card-title">Work Order Details:</h4>
@@ -144,14 +139,16 @@
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="id_customer">Work Order Number:</label>
+
                                 <input type="text" name="wonum" maxlength="200" class="form-control" required="" id="wo_num" value="{{ instance.work_order_number }}" readonly>
+
                                 <input type="hidden" name="prod_sched" class="form-control" maxlength="200" required="" id="event_id">
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="id_work_order_number">Quantity:</label>
-                                <input type="text" name="prod_sched" class="form-control" maxlength="200" required="" id="quantity">
+                                <input type="text" name="prod_sched" class="form-control" maxlength="200" id="quantity">
                             </div>
                         </div>
                     </div>
@@ -159,39 +156,61 @@
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="id_work_order_number">Required Date:</label>
-                                <input type="date" name="prod_sched" class="form-control" maxlength="200" required="" id="event_date">
+                                <input type="date" name="prod_sched" class="form-control" maxlength="200" id="event_date">
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <button type="button" id="btn_add" class="btn btn-block btn-warning">Schedule</button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" id="btn_delete" class="btn btn-block btn-danger">Delete</button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                        </div>
-                        <div class="col-6">
-                            <button type="button" id="btn_update" class="btn btn-block btn-info">Update</button>
-                        </div>
-                    </div>
-                    <div class="row">
+                    <div class="row" style="text-align:center;">
+                        <button type="button" id="btn_add" class="btn btn-warning" style="margin:auto;">Schedule</button>
+                        <button type="button" id="btn_delete" class="btn btn-danger" style="margin:auto;">Delete</button>
+                        <button type="button" id="btn_update" class="btn btn-info" style="margin:auto;">Update</button>
                     </div>
                 </div>
             </div>
+
             <div class="col-12">
                 <button type="submit" id="btn_save" class="btn btn-block btn-success">Save Schedules</button>
             </div>
+
         </div>
         <div class="col-8">
             <div class="card">
                 <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">Work Order Details:</h4>
+                    <h4 class="card-title">Assembly Schedule:</h4>
                 </div>
                 <div class="card-body">
+
+                    <div class="form-row align-items-center">
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id='status_selector' class='browser-default custom-select'>
+                                    <option value='all'>All</option>
+                                    <option value='Waiting for Schedule'>Waiting for Schedule</option>
+                                    <option value='Waiting for Issuance'>Ongoing Issuance</option>
+                                    <option value='In Assembly'>In Assembly</option>
+                                    <option value='In Coupling'>In Coupling</option>
+                                    <option value='In Testing'>In Testing</option>
+                                    <option value='Finished'>Waiting for Receiving</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label>Product Class</label>
+                                <select id='prod_class_selector' class='browser-default custom-select'>
+                                    <option value='all'>All</option>
+                                    {% for prod_class in prod_class_set %}
+                                    <option value="{{ prod_class.prod_class }}">{{ prod_class.prod_class }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <button type="button" id="btn_filter" class="btn btn-warning">Filter</button>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <div id='calendar'>
                             
@@ -219,6 +238,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let eventObjects, shown_Events, hidden_Events
     $(document).ready(function(){
 
         toasterOptions();
@@ -241,6 +261,8 @@
                 "hideMethod": "fadeOut"
             };
         };
+
+        toastr.info("Please schedule the created Work-Order.");
 
         $(document).on('click', '.btn-primary.Schedule', function(e){
             var wonum = $('#wo_num').val();
@@ -303,7 +325,7 @@
         var calendar =  $('#calendar').fullCalendar({
             header: {
                 left: 'title',
-                center: 'agendaDay,agendaWeek,month',
+                center: 'basicWeek,month',
                 right: 'prev,next today'
             },
             editable: true,
@@ -315,94 +337,189 @@
             axisFormat: 'h:mm',
             allDaySlot: false,
             selectHelper: true,
-            droppable: true, // this allows things to be dropped onto the calendar !!!
-            drop: function(date, allDay) { // this function is called when something is dropped
-
-                // retrieve the dropped element's stored Event Object
-                var originalEventObject = $(this).data('eventObject');
-
-                // we need to copy it, so that multiple events don't have a reference to the same object
-                var copiedEventObject = $.extend({}, originalEventObject);
-
-                // assign it the date that was reported
-                copiedEventObject.start = date;
-                copiedEventObject.allDay = allDay;
-
-                // render the event on the calendar
-                // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-                $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
-
-                // is the "remove after drop" checkbox checked?
-                if ($('#drop-remove').is(':checked')) {
-                    // if so, remove the element from the "Draggable Events" list
-                    $(this).remove();
+            eventLimit: true,
+            views: {
+                month: {
+                    eventLimit: 3
+                },
+                basicWeek:{
+                    eventLimit: 10
                 }
-
             },
+            contentHeight: 'auto',
+            aspectRatio: 1.35,
 
             events: [
-                {% for event in pending_prod_sched %}
+                {% for event in prodsched_set %}
                     {
-                        title: "{{ event.work_order_number__work_order_number}}",
-                        start: '{{ event.date_required|date:"Y-m-d" }}',
-                        end: '{{ event.date_required|date:"Y-m-d" }}',
-                        quantity: '{{ event.quantity }}',
-                        className: 'default'
-                    },
-                {% endfor %}
-                {% for event in scheduled_prod_sched %}
-                    {
-                        title: "{{ event.work_order_number__work_order_number}}",
-                        start: '{{ event.date_required|date:"Y-m-d" }}',
-                        end: '{{ event.date_required|date:"Y-m-d" }}',
-                        quantity: '{{ event.quantity }}',
+                        title: "{{ event.wo_num}}",
+                        start: '{{ event.date_latest|date:"Y-m-d" }}',
+                        end: '{{ event.date_latest|date:"Y-m-d" }}',
+                        quantity: '{{ event.prod_quan }}',
+                        prodsched: '{{ event.id }}',
+                        prod_status: '{{ event.status }}',
+                        new_sched: "no",
+                        prod_class: '{{ event.prod_class }}',
                         className: 'default'
                     },
                 {% endfor %}
             ],
             eventClick: function(calEvent, jsEvent, view) {
-                $("#event_id").val(calEvent._id);
-                $("#wo_num").val(calEvent.title);
-                $("#quantity").val(calEvent.quantity);
+                
+                if (calEvent.prodsched){ //not created
 
-                // change the border color just for fun
-                var eventObject = $('#calendar').fullCalendar( 'clientEvents', calEvent._id );
-                if (eventObject != null)
-                {
-                    eventObject[0].borderColor = "blue";
-                    $('#calendar').fullCalendar( 'updateEvent', eventObject[0] );
-                }
+                }else{ //newly created
 
-                var eventObject = $('#calendar').fullCalendar( 'clientEvents', function(evt) {
-                    return evt._id != calEvent._id;
-                });
+                    $("#event_id").val(calEvent._id);
+                    $("#wo_num").val(calEvent.title);
+                    $("#quantity").val(calEvent.quantity);
 
-                for(var i=0; i<eventObject.length; i++){
+                    // change the border color
+                    var eventObject = $('#calendar').fullCalendar( 'clientEvents', calEvent._id );
                     if (eventObject != null){
-                        eventObject[i].borderColor = "white";
-                        $('#calendar').fullCalendar( 'updateEvent', eventObject[i] );
+
+                        eventObject[0].borderColor = "blue";
+                        $('#calendar').fullCalendar( 'updateEvent', eventObject[0] );
+
                     }
-                }           
+                    filter_events();
+
+                    toastr.info("Work Order " + calEvent.title + " scheduled at " + moment(calEvent.start).format('DD-MM-YYYY') + " is selected.");
+                }
             
             },
             eventRender: function(event, element) {
                 element.find('.fc-content').prepend("<span>WO Num:</span>"); 
-                element.find('.fc-content').append("<br/><span>Quantity:</span>" + event.quantity); 
+                element.find('.fc-content').append("<br/><span>Quantity:</span>" + event.quantity);
             } 
         });
-    });    
+
+        eventObjects = $('#calendar').fullCalendar( 'clientEvents');
+        shown_Events = eventObjects;
+
+    });
+    
+    $(document).on('click', '#btn_filter', function(e){
+        filter_events();
+    });
+
+    function filter_events(){
+        var status_filter = $("#status_selector").val();
+        var prodclass_filter = $("#prod_class_selector").val();
+
+        eventObjects = eventObjects.filter(function (el, i, x) {
+            return i === x.findIndex(function (obj) {
+                return obj._id === el._id;
+            });
+        });
+
+        shown_Events = []
+
+        console.log(eventObjects);
+
+        eventObjects.forEach(function(item) {
+            if ( (status_filter === "all") && (prodclass_filter === "all") ){
+                shown_Events.push(item)
+            } else if ( (status_filter === item.prod_status) && (prodclass_filter === "all") ){
+                shown_Events.push(item)
+            } else if ( (status_filter === "all") && (prodclass_filter === item.prod_class) ){
+                shown_Events.push(item)
+            } else if ( (status_filter === item.prod_status) && (prodclass_filter === item.prod_class) ){
+                shown_Events.push(item)
+            } else if ( item.new_sched === "new_sched" ){
+                shown_Events.push(item)
+            } else{
+                //do nothing
+            }
+        });
+
+        $('#calendar').fullCalendar( 'removeEvents');
+
+        shown_Events.forEach(function(item) {
+
+            if ( item.new_sched === "no" ){
+
+                $('#calendar').fullCalendar('renderEvent',
+                {
+                    id: item._id,
+                    title: item.title,
+                    start: item.start,
+                    end: item.end,
+                    allDay: true,
+                    quantity: item.quantity,
+                    prodsched: item.prodsched,
+                    prod_status: item.prod_status,
+                    new_sched: "no",
+                    prod_class: item.prod_class, 
+                    className: 'default'
+                },
+                true // make the event "stick"
+                );
+
+            }else{
+
+                $('#calendar').fullCalendar('renderEvent',
+                {
+                    id: item._id,
+                    title: item.title,
+                    start: item.start,
+                    end: item.end,
+                    allDay: true,
+                    quantity: item.quantity,
+                    prodsched: item.prodsched,
+                    prod_status: item.prod_status,
+                    new_sched: "new_sched",
+                    prod_class: item.prod_class,
+                    className: 'warning'
+                },
+                true // make the event "stick"
+                );
+
+            }
+
+        });
+    }
 
     $(document).on('click', '#btn_delete', function(e){
         var event_id = $("#event_id").val();
+        var event_title = $("#wo_num").val();
         var event = $("#calendar").fullCalendar('clientEvents',event_id);
+        var quantity = $("#quantity").val();
 
-        event[0].title = event_title;
+        if ( event_id ){
 
-        $('#calendar').fullCalendar('removeEvents' , function(ev){  
-            return (ev._id == event[0]._id);
-        });
+            req_quan = calculate_remquan(parseInt(quantity)*-1);
 
-        toastr.warning('Work Order Number ' + wonum + ' scheduled at '+ event[0].start+ " with quantity "+ event[0].quantity + " is deleted.");
+            event[0].title = event_title;
+
+            toastr.warning("Work Order " + event_title + " scheduled at " + moment(event[0].start).format('DD-MM-YYYY') + " with quantity "+ event[0].quantity + " is deleted.");
+
+            $('#calendar').fullCalendar('removeEvents' , function(ev){  
+                return (ev._id == event[0]._id);
+            });
+
+            updated_arr = []
+
+            eventObjects.forEach(function(item) {
+
+                if ( item._id === event_id ){
+                    //do nothing since event is deleted. it will be skipped
+                }else{
+                    updated_arr.push(item);
+                }
+
+            });
+
+            eventObjects = updated_arr;
+
+            filter_events();
+            reset_inputs();
+
+        } else{
+            toastr.error("Please select a Work Order schedule.");
+        }
+        
+        
     });
 
     $(document).on('click', '#btn_add', function(e){
@@ -410,86 +527,224 @@
         var wo_num = $("#wo_num").val();
         var quantity = $("#quantity").val();
 
-        $('#calendar').fullCalendar('renderEvent',
-                        {
-            title:wo_num,
-            allDay: true,
-            start: event_date,
-            end: event_date,
-            className: 'warning',
-            quantity: quantity,
-            prod_cat: "new_sched"
-        },
-        true // make the event "stick"
-        );
+        req_quan = calculate_remquan(quantity);
 
-        toastr.success('Work Order Number ' + wonum + ' is scheduled at '+ event_date+ " with quantity "+ quantity);
+        if( req_quan >= 0 && event_date && quantity > 0){
+            
+            $('#calendar').fullCalendar('renderEvent',
+            {
+                title:wo_num,
+                start: event_date,
+                end: event_date,
+                allDay: true,
+                quantity: quantity,
+                new_sched: "new_sched",
+                className: 'warning'           
+                
+            },
+            true // make the event "stick"
+            );
+
+            newObjects = $('#calendar').fullCalendar( 'clientEvents');
+            
+            newObjects.forEach(function(item) {
+                if ( item.new_sched === "new_sched" ){
+                    if ( eventExists(item._id) ){ //new event is already in the array
+                        //do nothing
+                    }else{ //add event to master list
+                        eventObjects.push(item);
+                        return;
+                    }
+                }
+            });
+
+            filter_events();
+
+            toastr.success('Work Order Number ' + wo_num + ' is scheduled at '+ event_date+ " with quantity "+ quantity);
+
+            reset_inputs();
+
+        } else{
+            toastr.error("Error in input. <br> Please enter a valid quantity and schedule.");
+        }
+
+        
     });
+
+    function calculate_remquan(quantity){
+        var req_quan = parseInt($("#wo_required_quan").val());
+        var sched_quan = parseInt($("#wo_schedule_quan").val());
+
+        req_quan -= parseInt(quantity);
+        sched_quan += parseInt(quantity);
+
+        if( req_quan >= 0 ){
+            $("#wo_required_quan").val(req_quan);
+            $("#wo_schedule_quan").val(sched_quan);
+        }        
+
+        return req_quan;
+    }
+
+
+    function eventExists(event_id){
+        eventObjects.forEach(function(item) {
+            if(item._id === event_id ){
+                return true;
+            }
+        });
+
+        return false;
+    }
+
+    function update_calculate(event_id, quantity){
+        var old_quan = 0;
+        var back_req_quan = parseInt($("#wo_required_quan").val());
+        var back_sched_quan = parseInt($("#wo_schedule_quan").val());
+
+        var eventObject = $('#calendar').fullCalendar( 'clientEvents', event_id );
+        if (eventObject != null){
+            old_quan = eventObject[0].quantity;
+        }
+
+        back_req_quan += parseInt(old_quan);
+        back_sched_quan -= parseInt(old_quan);
+
+        back_req_quan -= parseInt(quantity);
+        back_sched_quan += parseInt(quantity);
+
+        if( back_req_quan >= 0 ){
+            $("#wo_required_quan").val(back_req_quan);
+            $("#wo_schedule_quan").val(back_sched_quan);
+        }        
+
+        return back_req_quan;
+    }
 
     $(document).on('click', '#btn_update', function(e){
         var event_id = $("#event_id").val();
-        var event_title = $("#event_title").val();
+        var event_title = $("#wo_num").val();
         var event_date = $("#event_date").val();
-        var wo_num = $("#wo_num").val();
+        var quantity = $("#quantity").val();
 
-        var eventObject = $('#calendar').fullCalendar( 'clientEvents', event_id );
-        if (eventObject != null)
-        {
-            eventObject[0].title = event_title;
-            eventObject[0].start = event_date;
-            eventObject[0].end = event_date;
-            eventObject[0].quantity = wo_num;
+        if ( event_id ){
+
+            req_quan = update_calculate(event_id, quantity);
+
+            if( req_quan >= 0 && event_date && quantity > 0){
+
+                var eventObject = $('#calendar').fullCalendar( 'clientEvents', event_id );
+                if (eventObject != null){
+
+                    eventObject[0].title = event_title;
+                    eventObject[0].start = event_date;
+                    eventObject[0].end = event_date;
+                    eventObject[0].quantity = quantity;
+
+                    $('#calendar').fullCalendar( 'updateEvent', eventObject[0] );
+                }
+
+                eventObjects.forEach(function(item) {
+
+                    if ( item._id === event_id ){
+                        item.title = event_title;
+                        item.start = event_date;
+                        item.end = event_date;
+                        item.quantity = quantity;
+                    }
+
+                });
+                
+                filter_events();
+
+                toastr.info('Work Order Number ' + event_title + ' scheduled at '+ moment(event[0].start).format('DD-MM-YYYY') + " with quantity "+ event[0].quantity + " is updated.");
+
+                reset_inputs();
+
+            } else{
+                toastr.error("Error in update. <br> Please enter a valid quantity and schedule.");
+            }
 
 
-            $('#calendar').fullCalendar( 'updateEvent', eventObject[0] );
+        } else{
+            toastr.error("Please select a Work Order schedule.");
         }
         
-
-        toastr.info('Work Order Number ' + wonum + ' scheduled at '+ event[0].start+ " with quantity "+ event[0].quantity + " is updated.");
-        
-        return eventObject;
     });
+
+    function reset_inputs(){
+        $("#event_id").val('');
+        $("#wo_num").val('');
+        $("#event_date").val('');
+        $("#quantity").val('');
+    }
+
+    function get_newsched(event_objects){
+        var new_sched_event = [];
+
+        event_objects.forEach(function(item) {
+            if ( item.new_sched === "new_sched" ){
+                new_sched_event.push(item);
+            }
+        });
+
+        return new_sched_event;
+
+    }
 
     $('#prodsched_form').submit(function() {
         event.preventDefault();
 
-        var new_sched = $("#calendar").fullCalendar('clientEvents', function(evt) {
-            return evt.prod_cat == "new_sched";
-        });
+        var req_quan = parseInt($("#wo_required_quan").val());
 
-        var sched_list = [];
-        new_sched.forEach(function(item) {
-            var sched_details = [];
-            sched_details.push(item.title,moment(item.start).format("YYYY-MM-DD"),item.quantity);
-            sched_list.push(sched_details);
-        });
+        if ( req_quan == 0 ){
 
-        alert("ogt");
+            eventObjects = eventObjects.filter(function (el, i, x) {
+                return i === x.findIndex(function (obj) {
+                    return obj._id === el._id;
+                });
+            });
 
-        $.ajax({
-            method: "POST",
-            url: "{% url 'planner:add_schedule' %}",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-            },
-            data: {'prod_sched_set[]': JSON.stringify(sched_list),
-                  'wo_num': $("#sample_data").val()},
-            dataType: 'json',
+            new_sched_arr = get_newsched(eventObjects);
 
-          success: function(data){
-                return;
+            var sched_list = [];
+            new_sched_arr.forEach(function(item) {
+                var sched_details = [];
+                sched_details.push(item.title,moment(item.start).format("YYYY-MM-DD"),item.quantity);
+                sched_list.push(sched_details);
+            });
 
-          },
-          error: function(error_data){
-              console.log("error");
-              console.log(error_data);
-          }
-        });
-        
-        console.log("did the ajax");
+            alert("Work Order schedules saved");
 
-        $(this).unbind('submit').submit();
+            $.ajax({
+                method: "POST",
+                url: "{% url 'planner:add_schedule' %}",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                },
+                data: {'prod_sched_set[]': JSON.stringify(sched_list),
+                      'wo_num': $("#sample_data").val()},
+                dataType: 'json',
+
+              success: function(data){
+                    return;
+
+              },
+              error: function(error_data){
+                  console.log("error");
+                  console.log(error_data);
+              }
+            });
+            
+            console.log("did the ajax");
+
+            $(this).unbind('submit').submit();
+
+        } else{
+            toastr.error("Error in scheduling. <br> Please schedule all quantities.");
+        }
+
     });
 
 </script>

@@ -233,25 +233,7 @@ class PutaAwaySummaryForm(forms.ModelForm):
 class WorkOrderForm(forms.ModelForm):
     class Meta:
         model = Work_Order
-        fields = ('work_order_number','customer','order_type','work_order_class','fo_number','barcode','tid_number','prod_number','prod_quantity','customer_order_date','otd_customer_req_date','otp_commitment_date','required_completion_date','finished_completion_date','creation_date','notes',)
-        labels = {
-            'work_order_number':'Work Order Number:',
-            'customer':'Customer',
-            'order_type':'Order Type',
-            'work_order_class':'Class',
-            'fo_number':'FO#',
-            'barcode':'Barcode',
-            'tid_number':'TID#',
-            'prod_number':'Product Number',
-            'prod_quantity':'Product Quantity',
-            'customer_order_date':'Customer Order Date',
-            'otd_customer_req_date':'OTD Customer Required Date',
-            'otp_commitment_date':'OTP Customer Commitment Date',
-            'required_completion_date':'Required Completion Date',
-            'finished_completion_date':'Finished Completion Date',
-            'creation_date':'Creation Date',
-            'notes':'Notes',
-        }
+        fields = ('work_order_number','customer','order_type','work_order_class','fo_number','tid_number','prod_number','prod_quantity','customer_order_date','otd_customer_req_date','otp_commitment_date','required_completion_date','finished_completion_date','creation_date','notes',)
 WorkOrderItemFormset = modelformset_factory(
     Work_Order_Item_List,
         fields=('item_number','item_quantity',),

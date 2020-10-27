@@ -12,6 +12,18 @@
     #bom_table tr td:nth-child(1), #bom_table th:nth-child(1){
     display: none;
     }
+    #bom_table tr { 
+        color: white;
+    }
+    .table-striped tbody tr.noissue td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.issue td { 
+    background-color: #d9534f;
+    }
+    .table-striped tbody tr.check td { 
+    background-color: #f0ad4e;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -55,7 +67,7 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label>Proposed Quantity</label>
-                        <input type ="text" class="form-control" id="name5"/>
+                        <input type ="number" class="form-control" id="name5"/>
                    </div>
                 </div>
             </div>
@@ -117,7 +129,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive"> <!--Bill of Materials-->
-                    <table class="table table-hover table-striped w-auto" id="bom_table">
+                    <table class="table table-hover table-striped w-auto wrap" id="bom_table">
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Product Number</th>
@@ -135,8 +147,8 @@
                                 <td>{{ instance.item_number__item_number }}</td>
                                 <td>{{ instance.item_number__item_desc }}</td>
                                 <td>{{ instance.quantity }}</td>
-                                <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-totrequan" value="" readonly style="text-align:center"></td>
-                                <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-stockquan" value="" readonly style="text-align:center"></td>
+                                <td><span id="bom-{{forloop.counter}}-totrequan" style="text-align:center"></span></td>
+                                <td><span id="bom-{{forloop.counter}}-stockquan" style="text-align:center"></span></td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -231,8 +243,36 @@
             $('#name2').val(desc);
             $('#name3').val(prodtype);
             $('#name4').val(prodclass);
+            $('#name5').val('');
 
             toastr.info('Product ' + prodnum + " is selected.");
+            toastr.warning("Please enter a proposed quantity of the product.");
+
+            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+
+                $(this).attr('class', 'tablerow bom_table');
+
+                var bomrow = this;
+                var stockquan = 0
+
+                var rowid = bomrow.id;
+                var itemprod_num = bomrow.dataset.prod_num;
+                var item_num = bomrow.dataset.itemnum;
+                var itemreq = bomrow.dataset.item_quan;
+                var stockquan = getstockinstances(item_num, stockquan);
+
+                this.dataset.stockquan = stockquan;
+
+                if (itemprod_num === prodnum){
+                    $('#'+rowid+'-totrequan').text(0);
+                    $('#'+rowid+'-stockquan').text(stockquan);
+                    $(this).show();
+                    $(this).attr('class', 'tablerow bom_table check');
+                }else {
+                    $(this).hide();
+                }
+            });
+
         });
 
 
@@ -255,7 +295,7 @@
                     if (!(parseInt(stockquan) < parseInt(totitemreq))){
                         window.opener.cloneMore('form', itemnum, itemreq);
                     }else{
-                        alert("Please enter a required quantity lower than the stock quantity");
+                        alert("Please enter a required quantity lower than the stock quantity or select an alternative part");
                     }
                 }                     
             });
@@ -264,8 +304,7 @@
             $(window.opener.document).find('#id_prod_quantity').val(prodquan);
             $(window.opener.document).find('#id_prod_class').val(prodclass);
 
-            toastr.success('Product ' + prodnum + " is selected to the Work Order.");
-
+            window.opener.showtoast("product", prodnum, prodquan);
             var goBack = window.open('', 'Create_WO');
             goBack.focus();
             window.close();
@@ -282,6 +321,8 @@
                 var bomrow = this;
                 var stockquan = 0
 
+                $(this).attr('class', 'tablerow bom_table');
+
                 var rowid = bomrow.id;
                 var itemprod_num = bomrow.dataset.prod_num;
                 var item_num = bomrow.dataset.itemnum;
@@ -293,9 +334,15 @@
                 this.dataset.stockquan = stockquan;
 
                 if (itemprod_num === prodnum){
-                    $('#'+rowid+'-totrequan').val(totitemreq);
-                    $('#'+rowid+'-stockquan').val(stockquan);
+                    $('#'+rowid+'-totrequan').text(totitemreq);
+                    $('#'+rowid+'-stockquan').text(stockquan);
                     $(this).show();
+
+                    if ( totitemreq < stockquan ){
+                        $(this).attr('class', 'tablerow bom_table noissue');
+                    }else{
+                        $(this).attr('class', 'tablerow bom_table issue');
+                    }
                 }else {
                     $(this).hide();
                 }

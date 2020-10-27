@@ -159,7 +159,12 @@
             $(window.opener.document).find('#id_item-ass_locationTEXT').val(assline);
             $(window.opener.document).find('#avail_quan').val(avail_quan);
 
-            alert(itemnum+" has been received with a quantity of "+quan);                 
+            alert(item_num + " has reported from shrinkage with a quantity of "+ req_quan);
+
+            window.opener.showtoast("item");
+            var goBack = window.open('', 'Report_Shrnk');
+            goBack.focus();
+            window.close();                 
         });
 
         $("#bom_table").DataTable({

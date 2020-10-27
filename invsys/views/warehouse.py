@@ -2245,6 +2245,38 @@ def checkcomplete_prodsched_items(prodsched):
     prodsched_obj.save()
 
 
+#PART REQUEST ISSUANCE
+@login_required
+@warehouse_required
+def ViewPartReqSummary(request):
+    template_name = 'invsys/assembly/PartRequest/ViewPartReqSummary.html'
+    
+    req_sched_list = Request_Schedule.objects.all().values(
+        'schedule_num',
+        'date_scheduled',
+        'cleared',
+        'issues',
+        'notes',)
+    
+    req_sum_list = Request_Summary.objects.all().values(
+        'schedule_num__schedule_num',
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'totalreq_quan',
+        'totalrec_quan',
+        'discrepancy_quantity',
+        'status',
+        'date_received',
+        'bin_location__bin_location',
+        'ass_location__name',)
+
+    return render(request, template_name, 
+        {'req_sched_set':req_sched_list,
+        'req_sum_set':req_sum_list,})
+
+
 #Component Return
 #--Generate Component Return Schedule--
 @login_required
@@ -5363,3 +5395,43 @@ def ExportReceivedShipment(request):
 
     return render(request, template_name, 
         {'export_ship_set':export_ship_list})
+
+#--View Ongoing Comp Issuance--
+@login_required
+@warehouse_required
+def ViewOngoingCompIssuance(request):
+    template_name = 'invsys/warehouse/CompIssuance/ViewOngoingCompIssuance.html'
+
+    issuancesched_query = WO_Issuance_Schedule.objects.filter(cleared=False).values(
+        'schedule_num',
+        'date_scheduled',
+        'notes',
+        'cleared',
+        'issues',)
+
+    issuancesched_list = []
+    for issuancesched in issuancesched_query:
+        issuancesched_list.append(issuancesched.get('schedule_num'))
+
+    issuance_reqitem_query = WO_Issuance_Item.objects.filter(schedule_num__schedule_num__in=issuancesched_list).values(
+        'schedule_num__schedule_num',
+        'prod_sched__id',
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__work_order_number__prod_number__prod_number',
+        'prod_sched__work_order_number__prod_number__prod_desc',
+        'prod_sched__work_order_number__prod_number__prod_class__prod_class',
+        'prod_sched__work_order_number__prod_number__uom__uom',
+        'prod_sched__work_order_number__customer',
+        'prod_sched__quantity',
+        'prod_sched__date_required',
+        'item_num__item_number',
+        'item_num__item_desc',
+        'item_quantity',
+        'bin_location__bin_location',).order_by(
+        'prod_sched__work_order_number__prod_number__prod_class__prod_class',
+        'prod_sched__id',
+        'bin_location__bin_location',)
+
+    return render(request, template_name, 
+        {'issuancesched_set':issuancesched_query, 
+        'issuance_reqitem_set':issuance_reqitem_query})

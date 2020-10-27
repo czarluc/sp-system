@@ -6,8 +6,11 @@
 {% block stylesheets %}
 {% load static %}
 <style type="text/css">
-    input { 
+    input:not([name="notes"]){ 
     text-align: center; 
+    }
+    #part_table tr {
+       text-align: center;   
     }
 </style>
 {% endblock stylesheets %}
@@ -53,12 +56,6 @@
                     <div class="form-group">
                         <label for="id_fo_number">FO#:</label>
                         <input type="text" name="fo_number" maxlength="200" class="form-control" required="" id="id_fo_number">
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="form-group">
-                        <label for="id_barcode">Barcode:</label>
-                        <input type="text" name="barcode" maxlength="200" class="form-control" required="" id="id_barcode">
                     </div>
                 </div>
                 <div class="col-6">
@@ -143,7 +140,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_creation_date">Creation Date:</label>
-                        <input type="date" name="creation_date" required="" class="form-control" id="id_creation_date">
+                        <input type="date" name="creation_date" required="" class="form-control" id="id_creation_date" readonly>
                     </div>
                 </div>
             </div>
@@ -157,12 +154,6 @@
             </div>
         </div>
     </div>
-
-    <style>
-    input[readonly="readonly"] {
-      border:0px;
-    }
-    </style>
 
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
@@ -205,11 +196,43 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         window.name = "Create_WO";
 
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
         });
+
+    $('#id_creation_date').val(new Date().toISOString().slice(0, 10));
+
+    function showtoast ( window, prodnum, prodquan ) {
+        if (window === "product"){
+            toastr.success("Product " + prodnum + " has been selected with a quantity of " + prodquan + ".");
+
+            toastr.info("Please confirm and accomplish inputs.");
+        }
+    }
 
     function updateElementIndex(el, prefix, ndx) {
         var id_regex = new RegExp('(' + prefix + '-\\d+)');

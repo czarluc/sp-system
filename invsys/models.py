@@ -209,7 +209,7 @@ class Work_Order(models.Model):
     order_type = models.CharField(max_length=200, default='')
     work_order_class = models.CharField(max_length=200, default='')
     fo_number = models.CharField(max_length=200, default='')
-    barcode = models.CharField(max_length=200, default='')
+    barcode = models.CharField(max_length=200, default='', blank=True, null=True)
     tid_number = models.CharField(max_length=200, default='')
     prod_number = models.ForeignKey(Product, default='1', blank=True, null=True, on_delete=models.CASCADE)
     prod_quantity = models.IntegerField(blank=True, null=True)

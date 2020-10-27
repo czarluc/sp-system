@@ -210,8 +210,32 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
     $(document).ready(function(){
+        window.name = "Report_Shrnk";
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
         var d = new Date($.now());
         var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
         $('#id_report-date_reported').val(currentdate);
@@ -230,6 +254,16 @@
         var wewewe = window.open(windowurl);
         return false;
     });
+
+    function showtoast ( window ) {
+        if (window === "prodsched"){
+            toastr.info("Please select an item with shrinkage.");
+        }else{
+            toastr.info("Please enter a reason for shrinkage.");
+        }
+    }
+
+    
 
 </script>
 {% endblock javascripts %}

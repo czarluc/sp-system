@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %} View Ongoing Component Issuance Schedules {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
+<style type="text/css">
+    #sched_table tr {
+       text-align: center;   
+    }
+    #req_table tr {
+       text-align: center;   
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> View Ongoing Component Issuance Schedules </h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Component Issuance Schedules:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="sched_table">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Schedule Number</th>
+                        <th scope="col">Date Scheduled</th>
+                        <th scope="col">Notes</th>
+                        <th scope="col">Cleared</th>
+                        <th scope="col">Issues</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in issuancesched_set %}
+                    <tr class="tablerow" id="sched-{{forloop.counter}}">
+                        <td><button type="button" class="btn btn-primary sched" data-sched_num="{{instance.schedule_num}}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
+                        <td>{{ instance.date_scheduled }}</td>
+                        <td>{{ instance.notes }}</td>
+                        <td>{{ instance.cleared }}</td>
+                        <td>{{ instance.issues }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Required Items:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="req_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Work Order Number</th>
+                        <th scope="col">Production Schedule</th>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">Required Item Quantity</th>
+                        <th scope="col">Bin location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in issuance_reqitem_set %}
+                    <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}">
+                        <td>{{ instance.prod_sched__work_order_number__work_order_number }}</td>
+                        <td>{{ instance.prod_sched__id }}</td>
+                        <td>{{ instance.item_num__item_number }}</td>
+                        <td>{{ instance.item_num__item_desc }}</td>
+                        <td>{{ instance.item_quantity }}</td>
+                        <td>{{ instance.bin_location__bin_location }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.4/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/colreorder/1.5.2/js/dataTables.colReorder.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
+
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    var table = $('#sched_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    table.buttons().container()
+        .appendTo( '#sched_table_wrapper .col-md-6:eq(0)' );
+
+    var table2 = $('#req_table').DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-md-6'B><'col-md-2'<'customselect trans'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', 
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: ':visible',
+                        rows: ':visible' 
+                    }
+                },
+                {
+                    text: 'Print',
+                    action: function ( e, dt, node, config ) {
+                    alert( 'Button activated' );
+                    }
+                }, 'pdf' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    $('#req_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
+    });
+
+    $( "#sched_table" ).on("click", ".btn.btn-primary.sched", function () {
+        var btn = this;
+        var sched_num = btn.dataset.sched_num;
+        
+        $('#req_table').find('tr.tablerow').each(function (i, el) {
+            var name = this;
+
+            var item_sched_num = name.dataset.sched_num;
+            if (sched_num === item_sched_num){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+
+        });
+
+        toastr.info('Component Issuance Schedule ' + sched_num + ' is selected.')
+    });
+
+});
+</script>
+{% endblock javascripts %}

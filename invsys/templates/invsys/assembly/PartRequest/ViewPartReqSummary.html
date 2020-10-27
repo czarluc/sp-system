@@ -133,24 +133,12 @@ $(document).ready(function() {
         };
     };
 
-    $(".btn.btn-primary.wo").on("click", function () {
-        toastr.info('Part Request Schedule ' + 4 + " is selected.");
-
-    });
-
     var table = $('#wo_table').DataTable({
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
  
     table.buttons().container()
         .appendTo( '#wo_table_wrapper .col-md-6:eq(0)' );
-
-    var table2 = $('#prodsched_table').DataTable({
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-    });
- 
-    table2.buttons().container()
-        .appendTo( '#prodsched_tablee_wrapper .col-md-6:eq(0)' );
 
     var table3 = $('#issuance_table').DataTable({
         searching: false, paging: false, info: false,
@@ -160,29 +148,26 @@ $(document).ready(function() {
     table3.buttons().container()
         .appendTo( '#issuance_table_wrapper .col-md-6:eq(0)' );
 
-    var table4 = $('#assembly_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    $('#issuance_table').find('tr.tablerow').each(function (i, el) {
+        $(this).hide();
     });
- 
-    table4.buttons().container()
-        .appendTo( '#assembly_table_wrapper .col-md-6:eq(0)' );
 
-    var table5 = $('#coupling_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-    });
- 
-    table5.buttons().container()
-        .appendTo( '#coupling_table_wrapper .col-md-6:eq(0)' );
+    $( "#wo_table" ).on("click", ".btn.btn-primary",function () {
+        var btn = this;
+        var schednum = btn.dataset.schednum;
 
-    var table6 = $('#testing_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        toastr.info('Part Request Schedule ' + schednum + " is selected.");
+        
+        $('#issuance_table').find('tr.tablerow').each(function (i, el) {
+            var issuancesched = this;
+            var issuancesched_schednum = issuancesched.dataset.schednum;
+            if (schednum === issuancesched_schednum){
+                $(this).show();
+            }else {
+                $(this).hide();
+            }
+        });
     });
- 
-    table6.buttons().container()
-        .appendTo( '#testing_table_wrapper .col-md-6:eq(0)' );
 
 } );
  </script>

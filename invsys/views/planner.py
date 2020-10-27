@@ -150,25 +150,117 @@ def CreateWO_ScheduleWO_pk(request, pk=None):
             'prod_number__prod_number', 
             'prod_quantity',)
 
-        pending_prod_sched = WO_Production_Schedule.objects.filter(scheduled=False).values(
+        prod_sched_query = WO_Production_Schedule.objects.filter(received=False).values(
             'id',
             'work_order_number__work_order_number',
+            'work_order_number__prod_number__prod_class__prod_class',
             'quantity',
-            'date_required',)
+            'date_required',
+            'scheduled',
+            'issued',
+            'assembled',
+            'coupled',
+            'tested',
+            'received',
+            'status',)
 
-        scheduled_prod_sched = WO_Production_Schedule.objects.filter(scheduled=True).values(
-            'id',
-            'work_order_number__work_order_number',
-            'quantity',
-            'date_required',)
+        prodsched_list = []
+        for prod_sched in prod_sched_query:
+            details={}
+            prodsched_id = ''
+            for i in prod_sched:
+                if i == 'id':
+                    details['id'] = prod_sched[i]
+                    prodsched_id = prod_sched[i]
+                elif i == 'work_order_number__work_order_number':
+                    details['wo_num'] = prod_sched[i]
+                elif i == 'work_order_number__prod_number__prod_class__prod_class':
+                    details['prod_class'] = prod_sched[i]
+                elif i == 'quantity':
+                    details['prod_quan'] = prod_sched[i]
+                elif i == 'status':
+                    details['status'] = prod_sched[i]
+
+            if prod_sched.get('scheduled') == False and prod_sched.get('issued') == False: #Not yet scheduled for issuance
+                details['date_latest'] = prod_sched.get('date_required')
+            elif prod_sched.get('scheduled') == True and prod_sched.get('issued') == False: #Not yet issued but scheduled
+                details['date_latest'] = getDate_Scheduled(prodsched_id)
+            elif prod_sched.get('issued') == True and prod_sched.get('assembled') == False: #Not yet assembled but issued
+                details['date_latest'] = getDate_Issued(prodsched_id)
+            elif prod_sched.get('assembled') == True and prod_sched.get('coupled') == False: #Not yet coupled but assembled
+                details['date_latest'] = getDate_Assembled(prodsched_id)
+            elif prod_sched.get('coupled') == True and prod_sched.get('tested') == False: #Not yet tested but coupled
+                details['date_latest'] = getDate_Coupled(prodsched_id)
+            elif prod_sched.get('tested') == True and prod_sched.get('received') == False: #Not yet received but tested
+                details['date_latest'] = getDate_Tested(prodsched_id)
+            
+            prodsched_list.append(details)
+
+        prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+            'prod_class',)
 
         return render(request, template_name, 
-            {'woquery':woquery, 
-            'pending_prod_sched':pending_prod_sched,
-            'scheduled_prod_sched':scheduled_prod_sched})
+            {'woquery':woquery,
+            'prodsched_set':prodsched_list,
+            'prod_class_set':prod_class_query})
 
     elif request.method == 'POST':
         return redirect('home')
+
+def getDate_Scheduled(prodsched_id):
+    issuance_query = WO_Issuance_List.objects.filter(prod_sched__id = prodsched_id).values(
+        'schedule_num__date_scheduled')
+    date_latest = ''
+
+    for issuance in issuance_query:
+        date_latest = issuance.get('schedule_num__date_scheduled')
+
+    return date_latest
+
+def getDate_Issued(prodsched_id):
+    fin_issuance_query = WO_Assembly.objects.filter(prod_sched__id=prodsched_id).values(
+        'date_received')
+
+    date_latest = ''
+
+    for fin_issuance in fin_issuance_query:
+        date_latest = fin_issuance.get('date_received')
+
+    return date_latest
+
+def getDate_Assembled(prodsched_id):
+    fin_assembly_query = WO_Coupling.objects.filter(prod_sched__id=prodsched_id).values(
+        'date_received')
+
+    date_latest = ''
+
+    for fin_assembly in fin_assembly_query:
+        date_latest = fin_assembly.get('date_received')
+
+    return date_latest
+
+def getDate_Coupled(prodsched_id):
+    fin_coupled_query = WO_Testing.objects.filter(prod_sched__id=prodsched_id).values(
+        'date_received')
+
+    date_latest = ''
+
+    for fin_coupled in fin_coupled_query:
+        date_latest = fin_coupled.get('date_received')
+
+    return date_latest
+
+def getDate_Tested(prodsched_id):
+    fin_tested_query = WO_Finished.objects.filter(prod_sched__id=prodsched_id).values(
+        'date_received')
+
+    date_latest = ''
+
+    for fin_tested in fin_tested_query:
+        date_latest = fin_tested.get('date_received')
+
+    return date_latest
+
 
 def add_schedule(request):
     prod_sched_set = json.loads(request.POST.get('prod_sched_set[]'))
