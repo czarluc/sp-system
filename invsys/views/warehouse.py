@@ -5432,6 +5432,21 @@ def ViewOngoingCompIssuance(request):
         'prod_sched__id',
         'bin_location__bin_location',)
 
+    issuance_item_list = [] 
+    for issuance_reqitem in issuance_reqitem_query:
+        details = {}
+        prod_class = ''
+        for i in issuance_reqitem:
+            details[i] = issuance_reqitem[i]
+
+        prod_class = issuance_reqitem.get('prod_sched__work_order_number__prod_number__prod_class__prod_class')
+        assline_assignment_obj = Assembly_Line_Assignment.objects.get(prod_class__prod_class=prod_class)
+        assline = assline_assignment_obj.assemblyline.name
+
+        details['ass_line'] = assline
+
+        issuance_item_list.append(details)
+
     return render(request, template_name, 
         {'issuancesched_set':issuancesched_query, 
-        'issuance_reqitem_set':issuance_reqitem_query})
+        'issuance_reqitem_set':issuance_item_list})

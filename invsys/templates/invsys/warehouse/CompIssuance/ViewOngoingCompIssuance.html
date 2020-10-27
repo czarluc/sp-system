@@ -68,6 +68,7 @@
                         <th scope="col">Item Description</th>
                         <th scope="col">Required Item Quantity</th>
                         <th scope="col">Bin location</th>
+                        <th scope="col">Assembly Line</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,6 +80,7 @@
                         <td>{{ instance.item_num__item_desc }}</td>
                         <td>{{ instance.item_quantity }}</td>
                         <td>{{ instance.bin_location__bin_location }}</td>
+                        <td>{{ instance.ass_line }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
