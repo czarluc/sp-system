@@ -64,6 +64,10 @@
                     </li>
 
                     <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewOngoingPutAway' %}">View Ongoing Put Away</a>
+                    </li>
+
+                    <li>
                       <a class="nav-link" href="{% url 'warehouse:FinishPutAway' %}">Finish Put Away</a>
                     </li>
 
@@ -126,6 +130,10 @@
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:GeneratePartRequestSchedule' %}">Generate Part Request Issuance Schedule</a>
                     </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewOngoingPartReqIssuance' %}">View Ongoing Part Request Issuance</a>
+                    </li>
                     
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:FinishPartReqIssuance' %}">Finish Part Request Issuance</a>
@@ -141,6 +149,10 @@
                 <ul id="drop8" class="collapse" data-parent="#sideNavParent">
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:GenerateCompReturnSchedule' %}">Generate Component Return Schedule</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewOngoingCompReturn' %}">View Ongoing Component Return</a>
                     </li>
                     
                     <li>

@@ -5403,18 +5403,18 @@ def ExportReceivedShipment(request):
 def ViewOngoingCompIssuance(request):
     template_name = 'invsys/warehouse/CompIssuance/ViewOngoingCompIssuance.html'
 
-    issuancesched_query = WO_Issuance_Schedule.objects.filter(cleared=False).values(
+    issuance_sched_query = WO_Issuance_Schedule.objects.filter(cleared=False).values(
         'schedule_num',
         'date_scheduled',
         'notes',
         'cleared',
         'issues',)
 
-    issuancesched_list = []
-    for issuancesched in issuancesched_query:
-        issuancesched_list.append(issuancesched.get('schedule_num'))
+    issuance_sched_list = []
+    for issuance_sched in issuance_sched_query:
+        issuance_sched_list.append(issuance_sched.get('schedule_num'))
 
-    issuance_reqitem_query = WO_Issuance_Item.objects.filter(schedule_num__schedule_num__in=issuancesched_list).values(
+    issuance_item_query = WO_Issuance_Item.objects.filter(schedule_num__schedule_num__in=issuance_sched_list).values(
         'schedule_num__schedule_num',
         'schedule_num__date_scheduled',
         'prod_sched__id',
@@ -5437,13 +5437,13 @@ def ViewOngoingCompIssuance(request):
         'bin_location__bin_location',)
 
     issuance_item_list = [] 
-    for issuance_reqitem in issuance_reqitem_query:
+    for issuance_item in issuance_item_query:
         details = {}
         prod_class = ''
-        for i in issuance_reqitem:
-            details[i] = issuance_reqitem[i]
+        for i in issuance_item:
+            details[i] = issuance_item[i]
 
-        prod_class = issuance_reqitem.get('prod_sched__work_order_number__prod_number__prod_class__prod_class')
+        prod_class = issuance_item.get('prod_sched__work_order_number__prod_number__prod_class__prod_class')
         assline_assignment_obj = Assembly_Line_Assignment.objects.get(prod_class__prod_class=prod_class)
         assline = assline_assignment_obj.assemblyline.name
 
@@ -5452,5 +5452,113 @@ def ViewOngoingCompIssuance(request):
         issuance_item_list.append(details)
 
     return render(request, template_name, 
-        {'issuancesched_set':issuancesched_query, 
+        {'issuancesched_set':issuance_sched_query, 
         'issuance_reqitem_set':issuance_item_list})
+
+
+#--View Ongoing Put Away--
+@login_required
+@warehouse_required
+def ViewOngoingPutAway(request):
+    template_name = 'invsys/warehouse/PutAway/ViewOngoingPutAway.html'
+
+    putaway_sched_query = Put_Away_Schedule.objects.filter(cleared=False).values(
+        'schedule_num',
+        'date_scheduled',
+        'notes',
+        'cleared',
+        'issues',)
+
+    putaway_sched_list = []
+    for putaway_sched in putaway_sched_query:
+        putaway_sched_list.append(putaway_sched.get('schedule_num'))
+
+    putaway_item_query = Put_Away_Items.objects.filter(schedule_num__schedule_num__in=putaway_sched_list).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+
+        'reference_number',
+        'item_num__item_number',
+        'item_num__item_desc',
+        'item_num__item_cat__item_cat',
+        'item_num__prod_class__prod_class',
+        'required_quantity',
+        'bin_location__bin_location',).order_by(
+        'required_quantity',
+        'item_num__prod_class__prod_class',
+        'item_num__item_cat__item_cat',
+        'bin_location__bin_location',)
+
+    return render(request, template_name, 
+        {'putaway_sched_set':putaway_sched_query, 
+        'putaway_item_set':putaway_item_query})
+
+
+#--View Ongoing Part Req Issuance--
+@login_required
+@warehouse_required
+def ViewOngoingPartReqIssuance(request):
+    template_name = 'invsys/warehouse/PartRequest/ViewOngoingPartReqIssuance.html'
+
+    partreq_sched_query = Request_Schedule.objects.filter(cleared=False).values(
+        'schedule_num',
+        'date_scheduled',
+        'notes',
+        'cleared',
+        'issues',)
+
+    partreq_sched_list = []
+    for partreq_sched in partreq_sched_query:
+        partreq_sched_list.append(partreq_sched.get('schedule_num'))
+
+    partreq_item_query = Request_Item.objects.filter(schedule_num__schedule_num__in=partreq_sched_list).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+
+        'prod_sched__id',
+        'prod_sched__work_order_number__work_order_number',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'item_number__item_cat__item_cat',
+        'quantity',
+        'location_from__bin_location',
+        'location_to__name',).order_by(
+        'location_to__name',
+        'location_from__bin_location',)
+
+    return render(request, template_name, 
+        {'partreq_sched_set':partreq_sched_query, 
+        'partreq_item_set':partreq_item_query})
+
+#--View Ongoing Comp Return--
+@login_required
+@warehouse_required
+def ViewOngoingCompReturn(request):
+    template_name = 'invsys/warehouse/CompReturn/ViewOngoingCompReturn.html'
+
+    compreturn_sched_query = ComponentReturn_Schedule.objects.filter(cleared=False).values(
+        'schedule_num',
+        'date_scheduled',
+        'notes',
+        'cleared',
+        'issues',)
+
+    compreturn_sched_list = []
+    for compreturn_sched in compreturn_sched_query:
+        compreturn_sched_list.append(compreturn_sched.get('schedule_num'))
+
+    compreturn_item_query = ComponentReturn_Item.objects.filter(schedule_num__schedule_num__in=compreturn_sched_list).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+
+        'prod_sched__id',
+        'prod_sched__work_order_number__work_order_number',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'item_number__item_cat__item_cat',
+        'quantity',
+        'location_from__name',).order_by('location_from__name',)
+
+    return render(request, template_name, 
+        {'compreturn_sched_set':compreturn_sched_query, 
+        'compreturn_item_set':compreturn_item_query})
