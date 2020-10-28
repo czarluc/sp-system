@@ -40,7 +40,7 @@
                 <tbody>
                 {% for instance in issuancesched_set %}
                     <tr class="tablerow" id="sched-{{forloop.counter}}">
-                        <td><button type="button" class="btn btn-primary sched" data-sched_num="{{instance.schedule_num}}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
+                        <td><button type="button" class="btn btn-primary sched" data-sched_num="{{instance.schedule_num}}" data-date_sched="{{ instance.date_scheduled }}" data-notes="{{ instance.notes }}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
                         <td>{{ instance.date_scheduled }}</td>
                         <td>{{ instance.notes }}</td>
                         <td>{{ instance.cleared }}</td>
@@ -73,7 +73,7 @@
                 </thead>
                 <tbody>
                 {% for instance in issuance_reqitem_set %}
-                    <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}">
+                    <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}" data-date_scheduled="{{ instance.schedule_num__date_scheduled }}" data-wo_num="{{ instance.prod_sched__work_order_number__work_order_number }}" data-prod_sched="{{ instance.prod_sched__id }}" data-prod_num="{{ instance.prod_sched__work_order_number__prod_number__prod_number }}" data-prod_desc="{{ instance.prod_sched__work_order_number__prod_number__prod_desc }}" data-prod_class="{{ instance.prod_sched__work_order_number__prod_number__prod_class__prod_class }}" data-uom="{{ instance.prod_sched__work_order_number__prod_number__uom__uom }}" data-cust="{{ instance.prod_sched__work_order_number__customer }}" data-prod_quan="{{ instance.prod_sched__quantity }}" data-date_req="{{ instance.prod_sched__date_required }}" data-item_num="{{ instance.item_num__item_number }}" data-item_desc="{{ instance.item_num__item_desc }}" data-item_quan="{{ instance.item_quantity }}" data-bin_loc="{{ instance.bin_location__bin_location }}" data-ass_line="{{ instance.ass_line }}">
                         <td>{{ instance.prod_sched__work_order_number__work_order_number }}</td>
                         <td>{{ instance.prod_sched__id }}</td>
                         <td>{{ instance.item_num__item_number }}</td>
@@ -110,6 +110,13 @@
 
 <script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.3/JsBarcode.all.min.js" integrity="sha512-TLB7v1Y4YHGy/EHUu5VZ2bl6sC/WvXh/NFdjEZ7JmbpsUG87dirXAOFSAS3O6Tn3rsZljFTcTdMz9PDM4mV26g==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha512-NFUcDlm4V+a2sjPX7gREIXgCSFja9cHtKPOL1zj6QhnE0vcY695MODehqkaGYTLyL2wxe/wtr4Z49SvqXq12UQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.5/jspdf.plugin.autotable.min.js" integrity="sha512-ul1YfUNJC8jMkS+CC2vKEb1BcpFaGfvp9aE5RuwQmzvZEvxLV/fQusijuEIdOfSaR+3vG8LNUdz81easFoWTOw==" crossorigin="anonymous"></script>
+
+
 <script>
 $(document).ready(function() {
     toasterOptions();
@@ -155,7 +162,19 @@ $(document).ready(function() {
                 {
                     text: 'Print',
                     action: function ( e, dt, node, config ) {
-                    alert( 'Button activated' );
+                        var check_rows = 0;
+
+                        $('#req_table').find('tr.tablerow').each(function (i, el) {
+                            if ($(this).is(":visible")){
+                                check_rows += 1;
+                            }
+                        });
+
+                        if( check_rows > 0 ){
+                            startdl_pdf();
+                        }else{
+                            toastr.error('Please select an Component Issuance Schedule.');
+                        }
                     }
                 }, 'pdf' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
@@ -187,5 +206,337 @@ $(document).ready(function() {
     });
 
 });
+
+    function startdl_pdf(){
+        var compissue_list = new Array();
+        date_scheduled = '';
+        prev_prodsched = '';
+        now_prodsched = '';
+        var new_arr = new Array();
+        var same_arr = new Array();
+        var item_list = new Array();
+        var counter = 1;
+
+        $('#req_table').find('tr.tablerow').each(function (i, el) {
+            if ($(this).is(":visible")){
+                var item = this;
+
+                item_list.push( { 
+                    'sched_num':item.dataset.sched_num,'wo_num':item.dataset.wo_num,
+                    'prod_sched':item.dataset.prod_sched,
+
+                    'prod_num':item.dataset.prod_num, 'prod_desc':item.dataset.prod_desc,
+                    'prod_class':item.dataset.prod_class, 'uom':item.dataset.uom, 
+                    'cust':item.dataset.cust, 'prod_quan':item.dataset.prod_quan,
+                    'date_req':item.dataset.date_req, 
+
+                    'item_num':item.dataset.item_num, 'item_desc':item.dataset.item_desc,
+                    'item_quan':item.dataset.item_quan, 'bin_loc':item.dataset.bin_loc,
+                    'ass_line':item.dataset.ass_line
+                });      
+            }
+        });
+
+        item_list.forEach(function(item) {
+            date_scheduled = item.date_scheduled;
+            now_prodsched = item.prod_sched;
+
+            if( prev_prodsched === '' ){
+
+                new_arr = new Array();
+
+                new_arr.push({ 
+                    'sched_num':item.sched_num, 'date_scheduled':item.date_scheduled,
+                    'wo_num':item.wo_num, 'prod_sched':item.prod_sched,
+
+                    'prod_num':item.prod_num, 'prod_desc':item.prod_desc,
+                    'prod_class':item.prod_class, 'uom':item.uom, 
+                    'cust':item.cust, 'prod_quan':item.prod_quan,
+                    'date_req':item.date_req, 
+
+                    'item_num':item.item_num, 'item_desc':item.item_desc,
+                    'item_quan':item.item_quan, 'bin_loc':item.bin_loc,
+                    'ass_line':item.ass_line
+                });
+
+                same_arr = new_arr;
+
+                prev_prodsched = item.prod_sched;
+
+            } else if( now_prodsched === prev_prodsched ){
+
+                same_arr.push({ 
+                    'sched_num':item.sched_num, 'date_scheduled':item.date_scheduled,
+
+                    'wo_num':item.wo_num, 'prod_sched':item.prod_sched,
+
+                    'prod_num':item.prod_num, 'prod_desc':item.prod_desc,
+                    'prod_class':item.prod_class, 'uom':item.uom, 
+                    'cust':item.cust, 'prod_quan':item.prod_quan,
+                    'date_req':item.date_req, 
+
+                    'item_num':item.item_num, 'item_desc':item.item_desc,
+                    'item_quan':item.item_quan, 'bin_loc':item.bin_loc,
+                    'ass_line':item.ass_line
+                });
+
+                prev_prodsched = item.prod_sched;
+
+                if (parseInt(counter) == parseInt(item_list.length) ) {
+                    compissue_list.push( same_arr );
+                }
+
+            } else { //new product
+
+                compissue_list.push( same_arr );
+                new_arr = new Array();
+                same_arr = new Array();
+
+                new_arr.push({ 
+                    'sched_num':item.sched_num, 'date_scheduled':item.date_scheduled,
+                    'wo_num':item.wo_num, 'prod_sched':item.prod_sched,
+
+                    'prod_num':item.prod_num, 'prod_desc':item.prod_desc,
+                    'prod_class':item.prod_class, 'uom':item.uom, 
+                    'cust':item.cust, 'prod_quan':item.prod_quan,
+                    'date_req':item.date_req, 
+
+                    'item_num':item.item_num, 'item_desc':item.item_desc,
+                    'item_quan':item.item_quan, 'bin_loc':item.bin_loc,
+                    'ass_line':item.ass_line
+                });
+
+                same_arr = new_arr;
+
+                prev_prodsched = item.prod_sched;
+
+            }
+
+            counter+=1;
+
+        });
+
+        toastr.info('Component Issuance Schedule ' + compissue_list[0][0].sched_num + ' is selected.');
+
+        dl_pdf( compissue_list ); //pass schednum & issuance_list
+
+    }
+
+    function dl_pdf(compissue_list){
+        var doc = new jsPDF('l', 'mm', 'a4');
+
+        var counter = 1;
+
+        var tot_pages = compissue_list.length;
+
+
+        //LEGIT
+        compissue_list.forEach(function(item_list) { // array of tables
+
+            doc = add_header(doc, item_list[0]);
+            doc = add_prod_details(doc, item_list[0])
+
+            doc.setFontSize(10);
+            doc.setFontType('normal');
+            doc.setTextColor(0, 0, 0);
+            doc.setDrawColor(0, 0, 0);
+
+            doc.text('Parts to Issue', 14, 65);             
+            
+            var item_columns = ["Part Number", "Part Description", "Part Quantity", 
+                "Bin Location", "Assembly Line"];
+
+            var item_rows = []
+
+            item_list.forEach(function(item) { //new table
+
+                var item_details = [item.item_num,
+                    item.item_desc, 
+                    item.item_quan,
+                    item.bin_loc, 
+                    item.ass_line];  
+
+                item_rows.push(item_details);
+
+            });
+
+            let autoTableOptions = {
+                startY: 57+10, //false
+                theme: 'striped', //striped, plain, grid
+                showHead: 'everyPage', //false, 'everyPage', 'firstPage'
+                styles: {
+                    fontSize: 10, //14px
+                    textColor: [0, 0, 0],
+                    valign: 'middle', //top, middle, bottom
+                    halign: 'center', //left, center, right
+                    fontStyle: 'normal', //normal, bold, italic, bolditalic
+                    useCss: true,
+                    lineWidth: number = 0.01,
+                    lineColor: Color = 'black',
+                },
+                headerStyles: { fillColor: [186, 186, 186] }
+
+            };
+
+            doc.autoTable(item_columns, item_rows, autoTableOptions);
+
+            pageInfo = doc.internal.getCurrentPageInfo();
+            console.log(pageInfo);
+            console.log();
+
+            doc.text('Page ' + doc.internal.getNumberOfPages() + " of " + tot_pages + " - Work-Order " + item_list[0].wo_num, (doc.internal.pageSize.width / 2) - 20, (doc.internal.pageSize.height) - 10 );
+
+
+            if (parseInt(counter) == parseInt(compissue_list.length) ) {
+            }else{
+               doc.addPage(); 
+            }
+            
+
+            counter+=1;
+
+        });
+
+        doc.save("CompIssue_"+ compissue_list[0][0].sched_num +'.pdf');
+
+    }
+
+    function add_header(doc, item_detail){
+
+        //Row 1
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+        doc.setTextColor(0, 0, 0);
+        doc.setDrawColor(0, 0, 0);
+        doc.rect(14, 15, 56, 20);
+        doc.text('XYLEM Water Systems', 16, 22);
+        doc.text('International, Inc.', 16, 27);
+        doc.text('LISP II, Calamba, Laguna', 16, 32);
+
+        doc.rect(70, 15, 150, 20);
+        doc.setFontSize(20);
+        doc.setFontType('bold');
+        doc.text(105, 25, 'Work-Order Component');
+        doc.text(115, 32, 'Issuance Schedule');
+
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+
+        doc.rect(220, 15, 30, 10);
+        doc.text(222, 22, 'Schedule No.');
+        doc.rect(250, 15, 32.8, 10);
+        doc.text(252, 22, item_detail.sched_num); //SCHEDULE NUMBER
+
+        doc.rect(220, 25, 30, 10);
+        doc.text(222, 32, 'Date Scheduled:'); //DATE SCHEDULED
+        doc.rect(250, 25, 32.8, 10);
+        doc.text(252, 32, moment(item_detail.date_scheduled).format('DD-MM-YYYY')); //DATE SCHEDULED
+
+        return doc;
+        
+    }
+
+    function add_prod_details(doc, item_detail){
+
+        //Row 1
+        doc.setFontSize(10);
+        doc.setFontType('normal');
+        doc.setTextColor(0, 0, 0);
+        doc.setDrawColor(0, 0, 0);
+
+        doc.text('Work-Order Schedule', 14, 40);
+
+        var prod_columns = ["Work Order Number", "Schedule", "Product Number", 
+            "Product Description", "Product Class", "UOM",
+            "Customer", "Quantity", "Date Required"];
+        var prod_rows = [
+            [item_detail.wo_num,
+            item_detail.prod_sched, 
+            item_detail.prod_num,
+            item_detail.prod_desc, 
+            item_detail.prod_class, 
+            item_detail.uom,
+            item_detail.cust,
+            item_detail.prod_quan,
+            item_detail.date_req]
+        ];
+
+        let autoTableOptions = {
+            startY: 32+10, //false
+            theme: 'grid', //striped, plain, grid
+            showHead: 'everyPage', //false, 'everyPage', 'firstPage'
+            styles: {
+                fontSize: 10, //14px
+                textColor: [0, 0, 0],
+                valign: 'middle', //top, middle, bottom
+                halign: 'center', //left, center, right
+                fontStyle: 'normal', //normal, bold, italic, bolditalic
+                useCss: true,
+                lineWidth: number = 0.01,
+                lineColor: Color = 'black',
+            },
+            headerStyles: { fillColor: [156, 156, 156] }
+        };
+
+        doc.autoTable(prod_columns, prod_rows, autoTableOptions);
+
+        
+        /*
+        doc.text(25, 50, item_detail.wo_num);
+        doc.text(55, 50, item_detail.prod_sched);
+        doc.text(25, 50, item_detail.prod_num);
+        doc.text(55, 50, item_detail.prod_desc);
+        doc.text(25, 50, item_detail.prod_class);
+        doc.text(55, 50, item_detail.uom);
+        doc.text(55, 50, item_detail.cust);
+        doc.text(25, 50, item_detail.prod_quan);
+        doc.text(55, 50, item_detail.date_req);
+        
+        doc.rect(20, 15, 50, 20);
+        doc.text('XYLEM Water Systems', 22, 22);
+        doc.text('International, Inc.', 22, 27);
+        doc.text('LISP II, Calamba, Laguna', 22, 32);
+        */
+
+        return doc;
+
+    }
+
+/*
+let autoTableOptions = {
+        html: table,
+        startY: 100, //false
+        //margin: {top: 30},
+        theme: 'plain', //striped, plain, grid
+        cellWidth: 'auto',
+        useCss: true,
+        margin: {bottom:20},
+        showHead: 'everyPage', //false, 'everyPage', 'firstPage'
+        styles: {
+            fontSize: 10.5, //14px
+            font: 'helvetica', //helvetica, times, courier
+            lineColor: [0, 0, 0], //or single value ie. lineColor: 255,
+            lineWidth: .75, //1px
+            cellPadding: 1.5,
+            textColor: [0, 0, 0],
+            fillColor: [255, 255, 255], //false for transparent or number or array of number
+            valign: 'middle', //top, middle, bottom
+            halign: 'left', //left, center, right
+            cellWidth: 'auto', //'auto', 'wrap' or a number
+            overflow: 'visible', //visible, hidden, ellipsize or linebreak
+            fontStyle: 'normal', //normal, bold, italic, bolditalic
+            rowPageBreak: 'always', //always, auto, avoid
+            useCss: true,
+        },
+        didDrawPage: function (data) {
+            // Header Content
+            //let pageNumber = doc.internal.getNumberOfPages();
+            if(data.pageNumber === 1) {
+                header(data);
+            }
+        },
+    };
+    */
 </script>
 {% endblock javascripts %}
+

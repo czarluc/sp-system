@@ -2007,9 +2007,9 @@ def AllocateWhseItems_Shrnk(itemnum, totalreq, totalalloc, prod_sched):
     whseitemset = Warehouse_Items.objects.filter(status="In Stock", item_number=itemnum, bin_location__item_cat=itemnum.item_cat, bin_location__prod_class=itemnum.prod_class).order_by('quantity')
     for whsebin in whseitemset:
         if not totalreq == totalalloc:
-            totalalloc, whsebin = SubtractBinStock(whsebin, totalreq, totalalloc, itemnum, prod_sched)
+            totalalloc, whsebin = SubtractBinStock_Shrnk(whsebin, totalreq, totalalloc, itemnum, prod_sched)
             whsebin.save() 
-def SubtractBinStock(whsebin, totalreq, totalalloc, itemnum, prod_sched):
+def SubtractBinStock_Shrnk(whsebin, totalreq, totalalloc, itemnum, prod_sched):
     allocatedbinquan = 0
     binStock = 0
     remainingalloc = 0
@@ -2275,7 +2275,6 @@ def ViewPartReqSummary(request):
     return render(request, template_name, 
         {'req_sched_set':req_sched_list,
         'req_sum_set':req_sum_list,})
-
 
 #Component Return
 #--Generate Component Return Schedule--
@@ -5396,6 +5395,8 @@ def ExportReceivedShipment(request):
     return render(request, template_name, 
         {'export_ship_set':export_ship_list})
 
+
+
 #--View Ongoing Comp Issuance--
 @login_required
 @warehouse_required
@@ -5415,8 +5416,10 @@ def ViewOngoingCompIssuance(request):
 
     issuance_reqitem_query = WO_Issuance_Item.objects.filter(schedule_num__schedule_num__in=issuancesched_list).values(
         'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
         'prod_sched__id',
         'prod_sched__work_order_number__work_order_number',
+
         'prod_sched__work_order_number__prod_number__prod_number',
         'prod_sched__work_order_number__prod_number__prod_desc',
         'prod_sched__work_order_number__prod_number__prod_class__prod_class',
@@ -5424,6 +5427,7 @@ def ViewOngoingCompIssuance(request):
         'prod_sched__work_order_number__customer',
         'prod_sched__quantity',
         'prod_sched__date_required',
+
         'item_num__item_number',
         'item_num__item_desc',
         'item_quantity',
