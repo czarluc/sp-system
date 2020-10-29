@@ -396,6 +396,7 @@
 
         eventObjects = $('#calendar').fullCalendar( 'clientEvents');
         shown_Events = eventObjects;
+        console.log(eventObjects);
 
     });
     
@@ -699,47 +700,57 @@
 
         if ( req_quan == 0 ){
 
-            eventObjects = eventObjects.filter(function (el, i, x) {
-                return i === x.findIndex(function (obj) {
-                    return obj._id === el._id;
+            Swal.fire({
+                title: 'Do you want to save the created Work-Order Schedules?',
+                icon:'success',
+                showDenyButton: true,
+                confirmButtonText: `Yes`,
+                denyButtonText: `No`,
+            }).then((result) => {
+            if (result.isConfirmed) {
+
+                eventObjects = eventObjects.filter(function (el, i, x) {
+                    return i === x.findIndex(function (obj) {
+                        return obj._id === el._id;
+                    });
                 });
+
+                new_sched_arr = get_newsched(eventObjects);
+
+                var sched_list = [];
+                new_sched_arr.forEach(function(item) {
+                    var sched_details = [];
+                    sched_details.push(item.title,moment(item.start).format("YYYY-MM-DD"),item.quantity);
+                    sched_list.push(sched_details);
+                });
+
+                $.ajax({
+                    method: "POST",
+                    url: "{% url 'planner:add_schedule' %}",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                    },
+                    data: {'prod_sched_set[]': JSON.stringify(sched_list),
+                          'wo_num': $("#sample_data").val()},
+                    dataType: 'json',
+
+                  success: function(data){
+                        return;
+
+                  },
+                  error: function(error_data){
+                      console.log("error");
+                      console.log(error_data);
+                  }
+                });
+
+                $(this).unbind('submit').submit();
+
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info');
+            }
             });
-
-            new_sched_arr = get_newsched(eventObjects);
-
-            var sched_list = [];
-            new_sched_arr.forEach(function(item) {
-                var sched_details = [];
-                sched_details.push(item.title,moment(item.start).format("YYYY-MM-DD"),item.quantity);
-                sched_list.push(sched_details);
-            });
-
-            alert("Work Order schedules saved");
-
-            $.ajax({
-                method: "POST",
-                url: "{% url 'planner:add_schedule' %}",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-                },
-                data: {'prod_sched_set[]': JSON.stringify(sched_list),
-                      'wo_num': $("#sample_data").val()},
-                dataType: 'json',
-
-              success: function(data){
-                    return;
-
-              },
-              error: function(error_data){
-                  console.log("error");
-                  console.log(error_data);
-              }
-            });
-            
-            console.log("did the ajax");
-
-            $(this).unbind('submit').submit();
 
         } else{
             toastr.error("Error in scheduling. <br> Please schedule all quantities.");

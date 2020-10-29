@@ -32,7 +32,7 @@
 
 {% block content %}
 <h2> Finish Part Request Schedule</h2>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_finpartreq">
         {% csrf_token %}
 
     <div class="card">
@@ -353,6 +353,28 @@
         var wewewe = window.open(itemurl);
         return false;
     });
+
+    $('#form_finpartreq').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the verified Part Request Schedule '+ $("#partreqissuesched").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
+
+
 
 </script>
 {% endblock javascripts %}

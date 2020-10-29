@@ -5,12 +5,18 @@
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
 {% load static %}
+<style>
+    .img-thumbnail{
+        width: 200px;
+        height: 200px;
+    }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}  
 <h2> Create a Product </h2>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" id="form_createProd">
     {% csrf_token %}
 
     <div class="card">
@@ -25,26 +31,25 @@
                         <input type="text" name="prod_number" maxlength="100" required="" id="id_prod_number" class="form-control">
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-8">
                     <div class="form-group">
                         <label for="id_prod_desc">Prod desc:</label>
                         <input type="text" name="prod_desc" maxlength="100" required="" id="id_prod_desc" class="form-control">
                     </div>
                 </div>
+                
+            </div>
+            <div class="form-row align-items-center">
                 <div class="col-1">
                     <label for="id_uom">Uom:</label>
                 </div>
                 <div class="col-3"> 
-                    <select name="uom" id="id_uom" class="form-control">
-                        <option value="">---------</option>
-
-                        <option value="1" selected="">Kg</option>
-
-                        <option value="2">Pcs</option>
+                    <select name="uom" id="id_uom" class='browser-default custom-select'>
+                        {% for instance in uom_set %}
+                            <option value="{{ instance.id }}">{{ instance.uom }}</option>
+                        {% endfor %}
                     </select>  
                 </div>
-            </div>
-            <div class="form-row align-items-center">
                 <div class="col-4">
                     <div class="form-group">
                     <label for="id_prod_type">Prod type:</label>
@@ -55,35 +60,18 @@
                     <label for="id_prod_class">Prod class:</label>
                 </div>
                 <div class="col-3"> 
-                    <select name="prod_class" id="id_prod_class" class="form-control" class="form-control">
-                        <option value="">---------</option>
-
-                        <option value="1" selected="">GS</option>
-
-                        <option value="2">GISO</option>
-
-                        <option value="3">Jets</option>
-
-                        <option value="4">eSV</option>
-
-                        <option value="5">AC Fire</option>
-
-                        <option value="6">None</option>
-
+                    <select name="prod_class" id="id_prod_class" class='browser-default custom-select'>
+                        {% for instance in prod_class_set %}
+                            <option value="{{ instance.id }}">{{ instance.prod_class }}</option>
+                        {% endfor %}
                     </select>
-                </div>
-                <div class="col-4">
-                    <div class="form-group">
-                        <label for="id_barcode">Barcode:</label>
-                        <input type="text" name="barcode" maxlength="100" required="" id="id_barcode" class="form-control">
-                    </div>
                 </div>
             </div>
             <div class="form-row align-items-center">
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_price">Price:</label>
-                        <input type="number" name="price" id="id_price" class="form-control">
+                        <input type="number" name="price" id="id_price" class="form-control" required>
                     </div>
                 </div>
                 <div class="col-4">
@@ -94,7 +82,7 @@
                 </div>
                 <div class="col-4">
                     <div class="form-group">
-                        <label for="id_orderpoint">Orderpoint:</label> <input type="number" name="orderpoint" id="id_orderpoint" class="form-control" class="form-control">
+                        <label for="id_orderpoint">Orderpoint:</label> <input type="number" name="orderpoint" id="id_orderpoint" class="form-control" class="form-control" required>
                     </div>
                 </div>
             </div>
@@ -102,6 +90,9 @@
                 <div class="col-4">
                     <label for="id_image">Image:</label>
                     <input type="file" name="image" accept="image/*" id="id_image" class="form-control">
+                </div>
+                <div class="col-4" id="div_image">
+                                
                 </div>
             </div>
         </div>
@@ -139,7 +130,7 @@
                 </table>
             </div>
             <div class="col-2">
-                <button type="submit" class="btn btn-block btn-primary">Create</button>
+                <button type="submit" class="btn btn-block btn-success">Create</button>
             </div>
         </div>
     </div>
@@ -150,7 +141,29 @@
 {% block javascripts %}
 <script type="text/javascript">
     $(document).ready(function(){
+
+        $('#id_image').change(function(e) {
+            $("#image_prev").remove();
+
+            readURL(this);
+
+            toastr.success('Picture uploaded.');
         });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function (e) {
+                    $('#div_image').append("<img id='image_prev' class='img-thumbnail' src=" + e.target.result + " />");
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+    });
 
     function updateElementIndex(el, prefix, ndx) {
         var id_regex = new RegExp('(' + prefix + '-\\d+)');
@@ -232,6 +245,26 @@
         e.preventDefault();
         deleteForm('form', $(this));
         return false;
+    });
+
+    $('#form_createProd').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the created Product <br>' + $("#id_prod_number").val() + '?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 
 </script>

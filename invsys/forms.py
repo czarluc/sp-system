@@ -106,12 +106,12 @@ class ItemForm(forms.Form):
 class ItemModelForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ('item_number','item_desc','uom','item_cat','prod_class','barcode','price','notes','orderpoint','image')
+        fields = ('item_number','item_desc','uom','item_cat','prod_class','price','notes','orderpoint','image')
 
 class ProductModelForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ('prod_number','prod_desc','uom','prod_type','prod_class','barcode','price','notes','image')
+        fields = ('prod_number','prod_desc','uom','prod_type','prod_class','price','notes','image')
 
 ProductItemListFormset = modelformset_factory(
     ProductItemList,

@@ -229,38 +229,52 @@
     $('#ship_form').submit(function() {
         event.preventDefault();
 
-        var start_time = $('#val_start').val();
-        var endtime = Math.ceil((Date.now()-Math.floor(Date.now()/1000/60/60/24)*24*60*60*1000)/1000);
-        var validationtime = timeToSeconds(secondsToTime(endtime)) - timeToSeconds(start_time);
+        Swal.fire({
+            title: 'Do you want to save the validated VDR parts from Shipment ' + $("#id_shipment").val() + " with Purchase Order " + $("#id_po_num").val() + '?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+            if (result.isConfirmed) {
 
-        $('#part_table').find('tr.tablerow').each(function (i, el) { //iterate through row
-            
-            var counter = 0;
-            $(this).find('input[type=text]').each(function (i, el) { //iterate through row controls
-                var name = $(this).attr('name');
-                if(name) {
-                    if (counter === 0){
-                        counter++;
-                    } else if(counter === 2){ //val start
-                        counter++;
-                    } else if(counter === 3){ //val end
-                        var currend_time = $(this).val();
-                        if (currend_time === ''){
-                            $(this).val(secondsToTime(endtime));
-                        }                        
-                        counter++;
-                    } else if(counter === 4){ //val time
-                        $(this).val(validationtime);
-                        counter++;
-                    } else {
-                        counter++;
-                    }
-                }
-            });
+                var start_time = $('#val_start').val();
+                var endtime = Math.ceil((Date.now()-Math.floor(Date.now()/1000/60/60/24)*24*60*60*1000)/1000);
+                var validationtime = timeToSeconds(secondsToTime(endtime)) - timeToSeconds(start_time);
 
+                $('#part_table').find('tr.tablerow').each(function (i, el) { //iterate through row
+                    
+                    var counter = 0;
+                    $(this).find('input[type=text]').each(function (i, el) { //iterate through row controls
+                        var name = $(this).attr('name');
+                        if(name) {
+                            if (counter === 0){
+                                counter++;
+                            } else if(counter === 2){ //val start
+                                counter++;
+                            } else if(counter === 3){ //val end
+                                var currend_time = $(this).val();
+                                if (currend_time === ''){
+                                    $(this).val(secondsToTime(endtime));
+                                }                        
+                                counter++;
+                            } else if(counter === 4){ //val time
+                                $(this).val(validationtime);
+                                counter++;
+                            } else {
+                                counter++;
+                            }
+                        }
+                    });
+
+                });
+
+                $(this).unbind('submit').submit();
+
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info');
+            }
         });
-
-        $(this).unbind('submit').submit();
     });
 
     function timeToSeconds(hms) {

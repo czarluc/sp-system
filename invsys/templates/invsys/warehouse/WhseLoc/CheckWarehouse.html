@@ -18,7 +18,7 @@
 <h2>View Warehouse</h2>
 
 <div class="row">
-    <div class="col-6">
+    <div class="col-7">
         <div class="card">
             <div class="card-header card-header-tabs card-header-info">
                 <h4 class="card-title">Warehouse Bins:</h4>
@@ -31,7 +31,6 @@
                                 <th scope="col">Bin Location</th>
                                 <th scope="col">Item Category</th>
                                 <th scope="col">Product Class</th>
-                                <th scope="col">Barcode</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -40,7 +39,6 @@
                                 <td><button type="button" class="btn btn-primary bin_loc" data-bin_loc="{{ instance.bin_location }}" data-item_cat="{{ instance.item_cat__item_cat }}">{{ instance.bin_location }}</button></td>
                                 <td>{{ instance.item_cat__item_cat }}</td>
                                 <td>{{ instance.prod_class__prod_class }}</td>
-                                <td>{{ instance.barcode }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -49,7 +47,7 @@
             </div>
         </div>
     </div>
-     <div class="col-6">
+     <div class="col-5">
         <div class="card">
             <div class="card-header card-header-tabs card-header-info">
                 <h4 class="card-title">Warehouse Bin Status:</h4>
@@ -160,26 +158,100 @@ $(document).ready(function() {
         };
     };
 
-    var table = $('#whse_bin_table').DataTable({
+    
+
+    var table = $('#whse_bin_table').DataTable ({
         pageLength : 5,
         lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
-        dom: "<'row'<'col-lg-6'B>>" +
-        "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
+        dom: "<'row'<'col-2'l><'col-2'<'customselect item'>><'col-3'<'div_itemcat'>><'col-3'<'div_prodclass'>><'col-2'f>>" +
         "<'row'<'col-md-12'rtip>>",
-        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
-        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
 
-    $("div.customselect").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>Bin Location</option><option>Item Category</option><option>Product Class</option><option>Barcode</option></select>");
+    $("div.div_itemcat").html("Item Category Filter" + "<select id="+ "'select_item_cat'" + "class='browser-default custom-select'"+"><option value='all'> All </option> {% for instance in item_cat_set %} <option value=' {{ instance.item_cat }} '>{{ instance.item_cat }}</option> {% endfor %}</select>");
+ 
+    $("div.div_prodclass").html("Product Class Filter" + "<select id="+ "'select_prod_class'" + "class='browser-default custom-select'"+"><option value='all'> All </option> {% for instance in prod_class_set %} <option value=' {{ instance.prod_class }} '>{{ instance.prod_class }}</option> {% endfor %}</select>");
+
+    $("div.customselect.item").html("Filter" + "<select id="+ "'select_item'" + "class='browser-default custom-select'"+"><option value ='-1'>All</option><option value='0'>Warehouse Bin</option></select>");
 
     $('#whse_bin_table_filter label input').unbind().bind('keyup', function() {
-      var colIndex = document.querySelector('#select').selectedIndex;
-      table.column(colIndex).search( this.value ).draw();
+        searchFilter();
     });
 
-    $('#select').change(function() {
-      table.columns().search('').draw();
+    $('#select_item').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var item_cat = $('#select_item_cat').val();
+        var prod_class = $('#select_prod_class').val();
+        if((prod_class === "all") && (item_cat === "all") ){
+            searchFilter();
+        }else{
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please remove the Product Class or Item Category Filter.");
+        }
     });
+
+    $('#select_prod_class').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var main_filter = $('#select_item').val()
+        if((main_filter === "-1")){
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please select a Filter first.");            
+        }else{
+            searchFilter();
+        }
+    });
+
+    $('#select_item_cat').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var main_filter = $('#select_item').val()
+        if((main_filter === "-1")){
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please select a Filter first.");            
+        }else{
+            searchFilter();
+        }
+    });
+
+    function searchFilter(){
+        //Do the first search based from the og filter
+        var colIndex = document.querySelector('#select_item').value;
+        var search = $('#whse_bin_table_filter label input').val(); 
+        if ( colIndex === "-1" ){
+            table.column().search( '' ).draw();
+            $('#whse_bin_table_filter label input').val('');
+            return;
+        }else{
+            table.column(colIndex).search( search ).draw();
+        }
+        
+
+        //Do the second search for the item category filter
+        var item_cat = $('#select_item_cat').val();
+        if( item_cat === "all" ){
+            table.column(1).search( '' ).draw();
+            table.column(colIndex).search( search ).draw();
+        } else{
+            table.columns(1).search(item_cat).draw();
+        }
+
+        //Do the third search for the product class filter
+        var prod_class = $('#select_prod_class').val();
+        if( prod_class === "all" ){
+            table.column(2).search( '' ).draw();
+            table.column(colIndex).search( search ).draw();
+        }else{
+            table.columns(2).search(prod_class).draw();
+        }
+
+        $('#whse_bin_table_filter label input').val(search); 
+
+    }
 
     $('#whse_item_table').DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]

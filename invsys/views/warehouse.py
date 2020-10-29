@@ -39,10 +39,14 @@ class WarehouseSignUpView(CreateView):
 @warehouse_required
 def WarehouseHome(request):
     return render(request, 'invsys/warehouse/warehouse_home.html')
+
 @login_required
 @warehouse_required
 def WarehouseTest(request):
-    return render(request, 'invsys/warehouse/whsetest.html')
+    if request.method == 'GET':
+        return render(request, 'invsys/warehouse/whsetest.html')
+    elif request.method == 'POST':
+        return redirect('warehouse:warehouse_home')
 
 #Check Inventory
 #--Create Item--
@@ -51,7 +55,24 @@ def WarehouseTest(request):
 def CreateItem(request):
     if request.method == 'GET':
         item_form = ItemModelForm(request.GET or None)
-        return render(request, 'invsys/warehouse/CheckInv/CreateItem.html', {'item_form':item_form})
+
+        uom_query = Uom.objects.all().values(
+            'id',
+            'uom')
+
+        item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+            'id',
+            'item_cat')
+
+        prod_class_query = ProdClass.objects.all().values(
+            'id',
+            'prod_class')
+
+        return render(request, 'invsys/warehouse/CheckInv/CreateItem.html', {
+            'item_form':item_form,
+            'uom_set':uom_query,
+            'item_cat_set':item_cat_query,
+            'prod_class_set':prod_class_query})
 
     elif request.method == 'POST' :
         item_form = ItemModelForm(request.POST, request.FILES)
@@ -72,7 +93,21 @@ def CreateProdwithItems(request):
     if request.method == 'GET':
         newproductform = ProductModelForm(request.GET or None)
         formset = ProductItemListFormset(queryset=ProductItemList.objects.none())
-        return render(request, template_name, {'productform': newproductform,'formset': formset,})
+
+        uom_query = Uom.objects.all().values(
+            'id',
+            'uom')
+
+        prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+            'id',
+            'prod_class')
+
+
+        return render(request, template_name, {
+            'productform': newproductform,
+            'formset': formset,
+            'uom_set':uom_query,
+            'prod_class_set':prod_class_query})
     elif request.method == 'POST' :
         newproductform = ProductModelForm(request.POST, request.FILES)
         formset = ProductItemListFormset(request.POST)
@@ -2535,7 +2570,17 @@ def ReportDMMR(request):
         else:
             next_scheduleid = 1
         dmmritem_formset = DMMR_Item_Formset(queryset=DMMR_Item.objects.none())
-        return render(request, template_name, {'dmmr_form': dmmr_form,'dmmritem_formset': dmmritem_formset, 'scheduleid':next_scheduleid})
+        
+        iaf_whse_query = IAF_whse.objects.all().values(
+            'id',
+            'whse')
+
+        return render(request, template_name, {
+            'dmmr_form': dmmr_form,
+            'dmmritem_formset': dmmritem_formset,
+            'scheduleid':next_scheduleid,
+            'iaf_whse_set':iaf_whse_query})
+    
     elif request.method == 'POST' :
         dmmr_form = DMMR_ReportForm(request.POST)
         dmmritem_formset = DMMR_Item_Formset(request.POST, request.FILES)
@@ -2652,7 +2697,17 @@ def ReportDFMR(request):
         else:
             next_scheduleid = 1
         dfmritem_formset = DFMR_Item_Formset(queryset=DFMR_Item.objects.none())
-        return render(request, template_name, {'dfmr_form': dfmr_form,'dfmritem_formset': dfmritem_formset, 'scheduleid':next_scheduleid})
+        
+        iaf_whse_query = IAF_whse.objects.all().values(
+            'id',
+            'whse')
+
+        return render(request, template_name, {
+            'dfmr_form': dfmr_form,
+            'dfmritem_formset': dfmritem_formset,
+            'scheduleid':next_scheduleid,
+            'iaf_whse_set':iaf_whse_query})
+
     elif request.method == 'POST' :
         dfmr_form = DFMR_ReportForm(request.POST)
         dfmritem_formset = DFMR_Item_Formset(request.POST, request.FILES)
@@ -2725,7 +2780,16 @@ def ReportSysAdj(request):
         else:
             next_scheduleid = 1
         saitem_formset = SA_Item_Formset(queryset=SA_Item.objects.none())
-        return render(request, template_name, {'sa_form': sa_form,'saitem_formset': saitem_formset, 'scheduleid':next_scheduleid})
+
+        iaf_whse_query = IAF_whse.objects.all().values(
+            'id',
+            'whse')
+
+        return render(request, template_name, {
+            'sa_form': sa_form,
+            'saitem_formset': saitem_formset,
+            'scheduleid':next_scheduleid,
+            'iaf_whse_set':iaf_whse_query})
     
     elif request.method == 'POST' :
         sa_form = SA_ReportForm(request.POST)
@@ -2819,7 +2883,17 @@ def DismantleProduct(request):
 
         dismprod_prod_form = Dismantle_ProductForm(request.GET or None, prefix='prod')
         dismprod_item_formset = Dismantle_Item_Formset(queryset=Dismantle_Item.objects.none())
-        return render(request, template_name, {'dismprod_form': dismprod_form,'dismprod_prod_form': dismprod_prod_form, 'dismprod_item_formset':dismprod_item_formset, 'scheduleid':next_scheduleid})
+        
+        iaf_whse_query = IAF_whse.objects.all().values(
+            'id',
+            'whse')
+
+        return render(request, template_name, {
+            'dismprod_form': dismprod_form,
+            'dismprod_prod_form': dismprod_prod_form,
+            'dismprod_item_formset':dismprod_item_formset,
+            'scheduleid':next_scheduleid,
+            'iaf_whse_set':iaf_whse_query})
     
     elif request.method == 'POST' :
         dismprod_form = Dismantle_ReportForm(request.POST, prefix='report')
@@ -3001,7 +3075,15 @@ def TransferItem(request):
             next_reportid = 1
         transferitem_formset = Transfer_Item_Formset(queryset=Transfer_Item.objects.none())
         
-        return render(request, template_name, {'transfer_form': transfer_form,'transferitem_formset': transferitem_formset, 'reportid':next_reportid})
+        iaf_whse_query = IAF_whse.objects.all().values(
+            'id',
+            'whse')
+
+        return render(request, template_name, {
+            'transfer_form': transfer_form,
+            'transferitem_formset': transferitem_formset,
+            'reportid':next_reportid,
+            'iaf_whse_set':iaf_whse_query})
 
     elif request.method == 'POST' :
         
@@ -4037,10 +4119,20 @@ def CheckWarehouse(request):
         'status',
         'reference_number')
 
+    item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+        'id',
+        'item_cat')
+
+    prod_class_query = ProdClass.objects.all().values(
+        'id',
+        'prod_class')
+
     return render(request, template_name, {
         'whse_bin_set':whse_bin_query,
         'whse_item_set':whse_item_query,
-        'whse_product_set':whse_product_query})
+        'whse_product_set':whse_product_query,
+        'item_cat_set':item_cat_query,
+        'prod_class_set':prod_class_query})
 
 @login_required
 @warehouse_required
@@ -4246,7 +4338,19 @@ def CheckItem(request):
                 details['reference_number'] = item[i]
         item_list.append(details)
 
-    return render(request, template_name, { 'item_master_set':item_query,'item_loc_set':item_list })
+    item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+            'id',
+            'item_cat')
+
+    prod_class_query = ProdClass.objects.all().values(
+        'id',
+        'prod_class')
+
+    return render(request, template_name, { 
+        'item_master_set':item_query,
+        'item_cat_set':item_cat_query,
+        'prod_class_set':prod_class_query,
+        'item_loc_set':item_list })
 
 @login_required
 @warehouse_required
@@ -4310,7 +4414,14 @@ def CheckProduct(request):
                 details['quantity'] = item[i]                   
         prod_list.append(details)
 
-    return render(request, template_name, {'prod_master_set':prod_query,'prod_loc_set':prod_list})
+    prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+        'id',
+        'prod_class')
+
+    return render(request, template_name, {
+        'prod_master_set':prod_query,
+        'prod_loc_set':prod_list,
+        'prod_class_set':prod_class_query})
 
 @login_required
 @warehouse_required
@@ -4869,7 +4980,19 @@ def ViewItemTransactions(request):
                 details['item_quantity'] = dism_item[i]
         itemtrans_list.append(details)
 
-    return render(request, template_name, {'item_master_set':item_query, "itemtrans_set":itemtrans_list})
+    item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+        'id',
+        'item_cat')
+
+    prod_class_query = ProdClass.objects.all().values(
+        'id',
+        'prod_class')
+
+    return render(request, template_name, {
+        'item_master_set':item_query,
+        "itemtrans_set":itemtrans_list,
+        'item_cat_set':item_cat_query,
+        'prod_class_set':prod_class_query})
 
 @login_required
 @warehouse_required
@@ -5036,7 +5159,14 @@ def ViewProductTransactions(request):
                 details['prod_quantity'] = dism_prod[i]
         prodtrans_list.append(details)
 
-    return render(request, template_name, {'prod_set':prod_query, "prodtrans_set":prodtrans_list})
+    prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+        'id',
+        'prod_class')
+
+    return render(request, template_name, {
+        'prod_set':prod_query,
+        "prodtrans_set":prodtrans_list,
+        'prod_class_set':prod_class_query})
 
 
 #--Edit Item
@@ -5057,7 +5187,18 @@ def EditItem(request):
             'orderpoint',
             'image')
 
-        return render(request, template_name, {'item_master_set':item_query})
+        item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+            'id',
+            'item_cat')
+
+        prod_class_query = ProdClass.objects.all().values(
+            'id',
+            'prod_class')
+
+        return render(request, template_name, {
+            'item_master_set':item_query,
+            'item_cat_set':item_cat_query,
+            'prod_class_set':prod_class_query})
 
     elif request.method == 'POST' :
 
@@ -5093,8 +5234,15 @@ def EditProduct(request):
             'image')
 
         formset = ProductItemListFormset(queryset=ProductItemList.objects.none())
-        
-        return render(request, template_name, {'prod_master_set':prod_query, 'formset': formset,})
+
+        prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+            'id',
+            'prod_class')
+
+        return render(request, template_name, {
+            'prod_master_set':prod_query,
+            'formset': formset,
+            'prod_class_set':prod_class_query})
 
     elif request.method == 'POST' :
 
@@ -5208,7 +5356,18 @@ def EditWarehouseBin(request):
             'prod_class__prod_class',
             'image',)
 
-        return render(request, template_name, {'whsebin_set':whsebin_query})
+        item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+            'id',
+            'item_cat')
+
+        prod_class_query = ProdClass.objects.all().values(
+            'id',
+            'prod_class')
+
+        return render(request, template_name, {
+            'whsebin_set':whsebin_query,
+            'item_cat_set':item_cat_query,
+            'prod_class_set':prod_class_query})
 
     elif request.method == 'POST' :
 

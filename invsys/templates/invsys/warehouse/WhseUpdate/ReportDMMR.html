@@ -18,7 +18,7 @@
 {% block content %}
 <h2> Create a Damaged Materials Report </h2>
     <br>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_dmmr">
         {% csrf_token %}
     
     <div class="card">
@@ -39,11 +39,10 @@
                 </div>
 
                 <div class="col-3">
-                    <select name="iaf_whse" class="form-control" id="id_iaf_whse">
-                        <option value="">---------</option>
-                        <option value="1" selected="">WHSE</option>
-                        <option value="2">88</option>
-                        <option value="3">98</option>
+                    <select name="iaf_whse" class='browser-default custom-select' id="id_iaf_whse">
+                        {% for instance in iaf_whse_set %}
+                        <option value="{{ instance.id }}">{{ instance.whse }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -63,7 +62,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover table-striped w-auto small table-responsive" id="part_table">
+                <table class="table table-hover table-striped w-auto small" id="part_table">
                     <thead class="thead-dark">
                         <tr class="tablehead">
                             <th scope="col">Bin Location ID</th>
@@ -213,6 +212,26 @@
         e.preventDefault();
         deleteForm('form', $(this));
         return false;
+    });
+
+    $('#form_dmmr').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the Damaged Materials Report ' + $("#id_report_num").val() + '?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 </script>
 {% endblock javascripts %}

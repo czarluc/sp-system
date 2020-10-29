@@ -16,7 +16,7 @@
 
 {% load static %}
 <h2> Dismantle a Product </h2>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_dism">
         {% csrf_token %}
 
     <div class="card">
@@ -35,11 +35,10 @@
                     <label for="id_iaf_whse">Warehouse:</label>
                 </div>
                 <div class="col-4">
-                    <select name="report-iaf_whse" class="form-control" id="id_report-iaf_whse">
-                        <option value="">---------</option>
-                        <option value="1" selected="">WHSE</option>
-                        <option value="2">88</option>
-                        <option value="3">98</option>
+                    <select name="report-iaf_whse" class='browser-default custom-select' id="id_report-iaf_whse">
+                        {% for instance in iaf_whse_set %}
+                        <option value="{{ instance.id }}">{{ instance.whse }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-3">
@@ -263,6 +262,26 @@
         e.preventDefault();
         deleteForm('form', $(this));
         return false;
+    });
+
+    $('#form_dism').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the Product Dismantling Report ' + $("#id_report-report_num").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 </script>
 {% endblock javascripts %}

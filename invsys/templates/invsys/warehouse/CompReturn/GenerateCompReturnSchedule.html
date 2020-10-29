@@ -20,7 +20,7 @@
 
 {% block content %}
 <h2>Create a Component Return Schedule</h2>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_gencompreturn">
         {% csrf_token %}
 
     <div class="card">
@@ -196,6 +196,26 @@
         e.preventDefault();
         deleteForm('form', $(this));
         return false;
+    });
+
+    $('#form_gencompreturn').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the created Component Return Schedule '+ $("#id_schedule_num").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 
 </script>

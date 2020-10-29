@@ -81,13 +81,13 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label>DR#:</label>
-                        <input type ="text" name="dr_num" class="form-control" id="id_dr_num">
+                        <input type ="text" name="dr_num" class="form-control" id="id_dr_num" required>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group">
                         <label>RR#:</label>
-                        <input type ="text" name="rr_num" class="form-control" id="id_rr_num">
+                        <input type ="text" name="rr_num" class="form-control" id="id_rr_num" required>
                     </div>
                 </div>                
             </div>
@@ -96,13 +96,13 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label>Invoice#:</label>
-                        <input type ="text" name="invoice_num" class="form-control" id="id_invoice_num">
+                        <input type ="text" name="invoice_num" class="form-control" id="id_invoice_num" required>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group">
                         <label>Trucking: </label>
-                        <input type="text" name="ship_trucking" name="ship_trucking" class="form-control" id="id_ship_trucking">
+                        <input type="text" name="ship_trucking" name="ship_trucking" class="form-control" id="id_ship_trucking" required>
                     </div>
                 </div>
             </div>
@@ -111,13 +111,13 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label>Container Type: </label>
-                        <input type="text" name="container_type" name="container_type" class="form-control" id="id_container_type">
+                        <input type="text" name="container_type" name="container_type" class="form-control" id="id_container_type" required>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group">
                         <label>Container#:</label>
-                        <input type ="text" name="container_num" class="form-control" id="id_container_num">
+                        <input type ="text" name="container_num" class="form-control" id="id_container_num" required>
                     </div>
                 </div>
             </div>
@@ -126,13 +126,13 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label>AWL/BL:</label>
-                        <input type ="text" name="awl_bl" class="form-control" id="id_awl_bl">
+                        <input type ="text" name="awl_bl" class="form-control" id="id_awl_bl" required>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group">
                         <label>Shipment Category: </label>
-                        <input type="text" name="ship_category" name="ship_category" class="form-control" id="id_ship_category">
+                        <input type="text" name="ship_category" name="ship_category" class="form-control" id="id_ship_category" required>
                     </div>
                 </div>
             </div>
@@ -140,13 +140,13 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label>Date DR:</label>
-                        <input type ="date" name="date_dr" class="form-control" id="id_date_dr">
+                        <input type ="date" name="date_dr" class="form-control" id="id_date_dr" required>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group">
                         <label>Date Warehouse: </label>
-                        <input type="date" name="date_warehouse" name="ship_category" class="form-control" id="id_date_warehouse">
+                        <input type="date" name="date_warehouse" name="ship_category" class="form-control" id="id_date_warehouse" required>
                     </div>
                 </div>
             </div>
@@ -289,6 +289,26 @@
             deleteForm('formpo', $(this));
             return false;
         });
+
+    $('#ship_form').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the Inbounded Shipment {{ next_shipmentid }}?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
 
     </script>
 {% endblock javascripts %}

@@ -15,7 +15,7 @@
 
 <h1> Create a Shrinkage Report </h1>
     <br>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_shrnk">
         {% csrf_token %}
 
     <div class="card">
@@ -27,14 +27,14 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_work_order_number">Shrinkage Report ID:</label>
-                        <input type="text" name="shrnk_report" maxlength="200" class="form-control" required="" id="shrnk_report" value="{{ next_reportid }}" readonly>
+                        <input type="text" name="shrnk_report" maxlength="200" class="form-control" required id="shrnk_report" value="{{ next_reportid }}" readonly>
                    </div>
                </div>
 
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_customer">Date Reported:</label>
-                        <input type="text" name="report-date_reported" maxlength="200" class="form-control" required="" id="id_report-date_reported" readonly>
+                        <input type="text" name="report-date_reported" maxlength="200" class="form-control" required id="id_report-date_reported" readonly>
                    </div>
                </div>
 
@@ -60,7 +60,7 @@
                 <div class="col-3">
                     <div class="form-group">
                         <label for="id_work_order_number">Production Schedule ID:</label>
-                        <input type="text" name="report-prod_sched" class="form-control" maxlength="200" required="" id="id_report-prod_sched" readonly>
+                        <input type="text" name="report-prod_sched" class="form-control" maxlength="200" required id="id_report-prod_sched" readonly>
                     </div>
                 </div>
                 <div class="col-1">
@@ -70,7 +70,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_customer">Work Order Number:</label>
-                        <input type="text" name="wonum" maxlength="200" class="form-control" required="" id="wonum" readonly>
+                        <input type="text" name="wonum" maxlength="200" class="form-control" required id="wonum" readonly>
                    </div>
                </div>
             </div>
@@ -78,7 +78,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_work_order_number">Product Number:</label>
-                        <input type="text" name="prod_num" maxlength="200" class="form-control" required="" id="prod_num" readonly>
+                        <input type="text" name="prod_num" maxlength="200" class="form-control" required id="prod_num" readonly>
                    </div>
                </div>
 
@@ -263,7 +263,23 @@
         }
     }
 
-    
+    $('#form_shrnk').submit(function() {
+        event.preventDefault();
 
+        Swal.fire({
+            title: 'Do you want to save the Shrinkage Report?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+    });
 </script>
 {% endblock javascripts %}

@@ -18,7 +18,7 @@
 {% block content %}
     
     <h2> Create a Work Order </h2>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_createWO">
         {% csrf_token %}    
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
@@ -318,6 +318,26 @@
         e.preventDefault();
         deleteForm('form', $(this));
         return false;
+    });
+
+    $('#form_createWO').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the created Work-Order?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 
 </script>

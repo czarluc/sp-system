@@ -15,7 +15,7 @@
 {% block content %}
 <h2>Create Warehouse Bin</h2>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" id="form_createWhseBin">
     {% csrf_token %}
 
     <div class="card">
@@ -136,5 +136,25 @@ $(document).ready(function() {
     }
 
 });
+
+    $('#form_createWhseBin').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the created Warehouse Bin <br>' + $("#id_rack").val() + $("#id_column").val() + $("#id_layer").val() + $("#id_direction").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
 </script>
 {% endblock javascripts %}

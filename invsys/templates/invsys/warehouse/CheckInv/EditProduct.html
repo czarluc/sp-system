@@ -19,7 +19,7 @@
 {% block content %}  
 <h2> Edit a Product </h2>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" id="form_editProduct">
     {% csrf_token %}
 
     <div class="card">
@@ -141,7 +141,6 @@
                         <th scope="col">UOM</th>
                         <th scope="col">Product Type</th>
                         <th scope="col">Product Class</th>
-                        <th scope="col">Barcode</th>
                         <th scope="col">Price</th>
                         <th scope="col">Notes</th>
                     </tr>
@@ -154,7 +153,6 @@
                         <td>{{ instance.uom__uom }}</td>
                         <td>{{ instance.prod_type }}</td>
                         <td>{{ instance.prod_class__prod_class }}</td>
-                        <td>{{ instance.barcode }}</td>
                         <td>{{ instance.price }}</td>
                         <td>{{ instance.notes }}</td>
                     </tr>
@@ -195,29 +193,76 @@ $(document).ready(function() {
         };
     };
 
-    var table = $('#prod_master').DataTable({
-        dom: "<'row'<'col-lg-6'B>>" +
-        "<'row'<'col-md-4'l><'col-md-4'<'customselect prod_master'>><'col-md-4'f>>" +
+    var table = $('#prod_master').DataTable ({
+        dom: "<'row'<'col-md-6'l><'col-md-2'<'customselect prod'>><'col-md-2'<'div_prodclass'>><'col-md-2'f>>" +
         "<'row'<'col-md-12'rtip>>",
-        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
+ 
+    $("div.div_prodclass").html("Product Class Filter" + "<select id="+ "'select_prod_class'" + "class='browser-default custom-select'"+"><option value='all'> All </option> {% for instance in prod_class_set %} <option value=' {{ instance.prod_class }} '>{{ instance.prod_class }}</option> {% endfor %}</select>");
 
-    $("div.customselect.prod_master").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option value='0'>Product Number</option><option value='1'>Product Description</option><option value='2'>UOM</option><option value='3'>Product Type</option><option value='4'>Product Class</option><option value='5'>Barcode</option><option value='6'>Price</option><option value='7'>Notes</option></select>");
+    $("div.customselect.prod").html("Filter" + "<select id="+ "'select_prod'" + "class='browser-default custom-select'"+"><option value ='-1'>All</option><option value='0'>Product Number</option><option value='1'>Product Description</option><option value='2'>UOM</option><option value='3'>Product Type</option><option value='5'>Price</option><option value='6'>Notes</option></select>");
 
     $('#prod_master_filter label input').unbind().bind('keyup', function() {
-      var colIndex = $('#select').val();
-      var srch_item = $('#prod_master_filter label input').val();
-      table.column(colIndex).search(srch_item).draw();
+        searchFilter();
     });
 
-    $('#select').change(function() {
-      table.columns().search('').draw();
+    $('#select_prod').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var prod_class = $('#select_prod_class').val();
+        if(prod_class === "all"){
+            searchFilter();
+        }else{
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please remove the Product Class Filter.");
+        }
     });
+
+    $('#select_prod_class').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var main_filter = $('#select_prod').val()
+        if((main_filter === "-1")){
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please select a Filter first.");            
+        }else{
+            searchFilter();
+        }
+    });
+
+    function searchFilter(){
+        //Do the first search based from the og filter
+        var colIndex = document.querySelector('#select_prod').value;
+        var search = $('#prod_master_filter label input').val(); 
+        if ( colIndex === "-1" ){            
+            table.column().search( '' ).draw();
+            $('#prod_master_filter label input').val('');
+            return;
+        }else{
+            table.column(colIndex).search( search ).draw();
+        }
+
+        //Do the third search for the product class filter
+        var prod_class = $('#select_prod_class').val();
+        if( prod_class === "all" ){
+            table.column(4).search( '' ).draw();
+            table.column(colIndex).search( search ).draw();
+        }else{
+            table.columns(4).search(prod_class).draw();
+        }
+
+        $('#prod_master_filter label input').val(search); 
+
+    }
 
 
 
     $("#prod_master").on("click", ".btn.btn-primary.prod_num", function(){
         $("#image_prev").remove();
+        reset_table();
 
         var btn = this;
 
@@ -361,6 +406,29 @@ $(document).ready(function() {
         return false;
     });
 
+    function reset_table(){
+        $('.remove-form-row').click();
+    }
+
+    $('#form_editProduct').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the changes in the Product <br>' + $("#prod_num").val() + " ?",
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
 
 
 </script>

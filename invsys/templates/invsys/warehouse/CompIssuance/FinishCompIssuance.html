@@ -38,7 +38,7 @@
 {% block content %}
     
     <h2> Finish Component Issuance </h2>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_fincompissue">
         {% csrf_token %}
 
 
@@ -737,6 +737,27 @@
         deleteForm('formsetitem', $(this));
         return false;
     });
+
+    $('#form_fincompissue').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the verified Component Issuance Schedule '+ $("#compissuesched").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
+
 
 </script>
 {% endblock javascripts %}

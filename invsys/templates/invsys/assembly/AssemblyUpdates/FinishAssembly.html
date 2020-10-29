@@ -33,7 +33,7 @@
 
 <h2> Finish Work Order Assembly </h2>
     <br>
-    <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="">
+    <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="" id="form_finass">
         {% csrf_token %}
 
     <div class="card">
@@ -300,6 +300,26 @@
             toastr.info("Please confirm and accomplish inputs.");
         }
     }
+
+    $('#form_finass').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the Assembly Update?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
 
 </script>
 {% endblock javascripts %}

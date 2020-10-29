@@ -23,7 +23,7 @@
 
 <h2> Finish Work Order Testing </h2>
     <br>
-    <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="">
+    <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="" id="form_fintest">
         {% csrf_token %}
 
     <div class="card">
@@ -287,6 +287,26 @@
             toastr.info("Please confirm and accomplish inputs.");
         }
     }
+
+    $('#form_fintest').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the Assembly Update?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
 
 </script>
 {% endblock javascripts %}

@@ -26,7 +26,7 @@
 
 {% block content %}
 <h2> Finish Component Return Schedule</h2>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_fincompreturn">
         {% csrf_token %}
 
     <div class="card">
@@ -334,6 +334,26 @@
         itemurl += schednum;
         var wewewe = window.open(itemurl);
         return false;
+    });
+
+    $('#form_fincompreturn').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the verified Component Return Schedule '+ $("#compreturnissuesched").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 
 </script>

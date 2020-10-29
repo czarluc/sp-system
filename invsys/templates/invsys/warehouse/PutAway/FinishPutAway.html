@@ -29,7 +29,7 @@
 
 {% block content %}
 <h2> Finish a Put Away Schedule</h2>
-    <form class="form-horizontal" method="POST" action="">
+    <form class="form-horizontal" method="POST" action="" id="form_finputaway">
         {% csrf_token %}
 
     <div class="card">
@@ -331,6 +331,26 @@
         itemurl += schednum;
         var wewewe = window.open(itemurl);
         return false;
+    });
+
+    $('#form_finputaway').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the verified Put Away Schedule '+ $("#id_sched_num").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 
 </script>

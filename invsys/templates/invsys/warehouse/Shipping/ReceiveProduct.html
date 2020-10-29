@@ -24,7 +24,7 @@
 <h2> Receive a Product </h2>
     <br>
 
-    <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="">
+    <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="" id="form_recprod">
         {% csrf_token %}
 
     <div class="card">
@@ -173,10 +173,10 @@
                                 </div>
                                     <h4> or </h4>
                                 <div class="col-3.5">
-                                    <button id="camera--take" class="btn btn-block btn-info">Take a picture</button>
+                                    <button type="button" id="camera--take" class="btn btn-block btn-info">Take a picture</button>
                                 </div>
                                 <div class="col-1.5">
-                                    <button id="camera--trigger" class="btn btn-block btn-warning">Capture</button>
+                                    <button type="button" id="camera--trigger" class="btn btn-block btn-warning">Capture</button>
                                 </div>
                             </div>
                                                     
@@ -322,6 +322,26 @@
     $(document).on('click', '.add-prodsched', function(e){
         var newwin = window.open("{% url 'warehouse:ReceiveProduct_SelectProdSched' %}");
         return false;
+    });
+
+    $('#form_recprod').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the received Product from <br>' + "Work-Order " + $("#wonum").val() + " Schedule " + $("#id_prod_sched").val() + '?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
     });
 
 </script>

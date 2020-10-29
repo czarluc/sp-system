@@ -18,7 +18,7 @@
 {% block content %}
 <h1> Update Purchase Orders </h1>
 
-<form class="form-horizontal" method="POST" action="">
+<form class="form-horizontal" method="POST" action="" id="form_updatePO">
         {% csrf_token %}
 
     <div class="card">
@@ -363,6 +363,26 @@ function Filter_PO_Num(po_row_sorted){
     }
     return po_num_only;
 }
+
+    $('#form_updatePO').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the imported Purchase Orders?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
 
 </script>
  

@@ -18,7 +18,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive"> <!--Shrnk Items-->
-            <table class="table table-hover table-striped table-bordered" id="item_master">
+            <table class="table table-hover table-striped table-bordered" id="prod_master">
                 <thead class="thead-dark">
                     <tr>
                         <th scope="col">Product Number</th>
@@ -116,25 +116,72 @@ $(document).ready(function() {
 
     $.fn.dataTable.moment( 'DD-MM-YYY' );
 
-    var table1 = $('#item_master').DataTable({
-        dom: "<'row'<'col-lg-6'B>>" +
-        "<'row'<'col-md-4'l><'col-md-4'<'customselect item_master'>><'col-md-4'f>>" +
+    var table = $('#prod_master').DataTable ({
+        dom: "<'row'<'col-md-6'l><'col-md-2'<'customselect prod'>><'col-md-2'<'div_prodclass'>><'col-md-2'f>>" +
         "<'row'<'col-md-12'rtip>>",
-        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+ 
+    $("div.div_prodclass").html("Product Class Filter" + "<select id="+ "'select_prod_class'" + "class='browser-default custom-select'"+"><option value='all'> All </option> {% for instance in prod_class_set %} <option value=' {{ instance.prod_class }} '>{{ instance.prod_class }}</option> {% endfor %}</select>");
+
+    $("div.customselect.prod").html("Filter" + "<select id="+ "'select_prod'" + "class='browser-default custom-select'"+"><option value ='-1'>All</option><option value='0'>Product Number</option><option value='1'>Product Description</option><option value='2'>UOM</option><option value='3'>Product Type</option><option value='5'>Price</option><option value='6'>Notes</option></select>");
+
+    $('#prod_master_filter label input').unbind().bind('keyup', function() {
+        searchFilter();
     });
 
-    $("div.customselect.item_master").html("<select id="+ "'select_item'" + "class='browser-default custom-select'"+"><option>Product Number</option><option>Product Description</option><option>UOM</option><option>Product Type</option><option>Product Class</option><option>Barcode</option><option>Price</option><option>Notes</option></select>");
-
-    $('#item_master_filter label input').unbind().bind('keyup', function() {
-      var colIndex = document.querySelector('#select_item').selectedIndex;
-      table1.column(colIndex).search( this.value ).draw();
+    $('#select_prod').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var prod_class = $('#select_prod_class').val();
+        if(prod_class === "all"){
+            searchFilter();
+        }else{
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please remove the Product Class Filter.");
+        }
     });
 
-    $('#select_item').change(function() {
-      table1.columns().search('').draw();
+    $('#select_prod_class').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var main_filter = $('#select_prod').val()
+        if((main_filter === "-1")){
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please select a Filter first.");            
+        }else{
+            searchFilter();
+        }
     });
 
-    var table = $('#trans_table').DataTable({
+    function searchFilter(){
+        //Do the first search based from the og filter
+        var colIndex = document.querySelector('#select_prod').value;
+        var search = $('#prod_master_filter label input').val(); 
+        if ( colIndex === "-1" ){            
+            table.column().search( '' ).draw();
+            $('#prod_master_filter label input').val('');
+            return;
+        }else{
+            table.column(colIndex).search( search ).draw();
+        }
+
+        //Do the third search for the product class filter
+        var prod_class = $('#select_prod_class').val();
+        if( prod_class === "all" ){
+            table.column(4).search( '' ).draw();
+            table.column(colIndex).search( search ).draw();
+        }else{
+            table.columns(4).search(prod_class).draw();
+        }
+
+        $('#prod_master_filter label input').val(search); 
+
+    }
+
+    var table1 = $('#trans_table').DataTable({
         paging: false, info: false,
         dom: "<'row'<'col-lg-6'B>>" +
         "<'row'<'col-md-4'l><'col-md-4'<'customselect trans'>><'col-md-4'f>>" +
@@ -145,7 +192,7 @@ $(document).ready(function() {
                     columns: ':visible',
                     rows: ':visible' 
                 }
-            }, 'csv', 'pdf' ],
+            }, 'csv' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
@@ -153,18 +200,18 @@ $(document).ready(function() {
 
     $('#trans_table_filter label input').unbind().bind('keyup', function() {
       var colIndex = document.querySelector('#select_trans').selectedIndex;
-      table.column(colIndex).search( this.value ).draw();
+      table1.column(colIndex).search( this.value ).draw();
     });
 
     $('#select_trans').change(function() {
-      table.columns().search('').draw();
+      table1.columns().search('').draw();
     });
 
     $('#trans_table').find('tr.tablerow').each(function (i, el) {
         $(this).hide();
     });
 
-    $( "#item_master" ).on("click", ".btn.btn-primary",function () {
+    $( "#prod_master" ).on("click", ".btn.btn-primary",function () {
         var btn = this;
         var prod_num = btn.dataset.prod_num;
         $('#trans_table').find('tr.tablerow').each(function (i, el) {

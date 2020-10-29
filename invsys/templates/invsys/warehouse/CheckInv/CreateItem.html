@@ -3,12 +3,19 @@
 {% block title %} Create an Item {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+    .img-thumbnail{
+        width: 200px;
+        height: 200px;
+    }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
 <h2>Create an Item</h2>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" id="form_createItem">
     {% csrf_token %}
 
     <div class="card">
@@ -20,89 +27,65 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_item_number">Item number:</label>
-                        <input type="text" name="item_number" maxlength="100" required="" class="form-control" id="id_item_number">
+                        <input type="text" name="item_number" maxlength="100" required="" class="form-control" id="id_item_number" required>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-8">
                     <div class="form-group">
                         <label for="id_item_desc">Item desc:</label>
-                        <input type="text" name="item_desc" maxlength="100" required="" class="form-control" id="id_item_desc">
+                        <input type="text" name="item_desc" maxlength="100" required="" class="form-control" id="id_item_desc" required>
                     </div>
-                </div>
-                <div class="col-1">
-                    <label for="id_uom">Uom:</label>
-                </div>
-                <div class="col-3"> 
-                    <select name="uom" id="id_uom" class="form-control">
-                        <option value="">---------</option>
-                        <option value="1" selected="">Kg</option>
-                        <option value="2">Pcs</option>
-                    </select>   
                 </div>
             </div>
             <div class="form-row align-items-center">
                 <div class="col-1">
+                    <label for="id_uom">Uom:</label>
+                </div>
+                <div class="col-3"> 
+                    <select name="uom" id="id_uom" class='browser-default custom-select'>
+                        {% for instance in uom_set %}
+                            <option value="{{ instance.id }}">{{ instance.uom }}</option>
+                        {% endfor %}
+                    </select>   
+                </div>
+                <div class="col-1">
                     <label for="id_item_cat">Item cat:</label>
                 </div>
                 <div class="col-3"> 
-                    <select name="item_cat" id="id_item_cat" class="form-control">
-                        <option value="">---------</option>
-
-                        <option value="1" selected="">Sleeve</option>
-
-                        <option value="2">Tie Rod</option>
-
-                        <option value="3">Spacer</option>
-
-                        <option value="4">Small Components</option>
-
-                        <option value="5">Shallow Well Fittings</option>
-
-                        <option value="6">Product</option>
+                    <select name="item_cat" id="id_item_cat" class='browser-default custom-select'>
+                        {% for instance in item_cat_set %}
+                            <option value="{{ instance.id }}">{{ instance.item_cat }}</option>
+                        {% endfor %}
                     </select> 
                 </div>
                 <div class="col-1">
                     <label for="id_prod_class">Prod class:</label>
                 </div>
                 <div class="col-3"> 
-                    <select name="prod_class" id="id_prod_class" class="form-control">
-                        <option value="">---------</option>
-
-                        <option value="1" selected="">GS</option>
-
-                        <option value="2">GISO</option>
-
-                        <option value="3">Jets</option>
-
-                        <option value="4">eSV</option>
-
-                        <option value="5">AC Fire</option>
-
-                        <option value="6">None</option>
-
+                    <select name="prod_class" id="id_prod_class" class='browser-default custom-select'>
+                        {% for instance in prod_class_set %}
+                            <option value="{{ instance.id }}">{{ instance.prod_class }}</option>
+                        {% endfor %}
                     </select>
-                </div>
-                <div class="col-4">
-                    <div class="form-group">
-                        <label for="id_barcode">Barcode:</label>
-                        <input type="text" name="barcode" maxlength="100" required="" id="id_barcode" class="form-control">
-                    </div>
                 </div>
             </div>
             <div class="form-row align-items-center">
                 <div class="col-4">
                     <div class="form-group">
-                        <label for="id_price">Price:</label> <input type="number" name="price" id="id_price" class="form-control">
+                        <label for="id_price">Price:</label>
+                        <input type="number" name="price" id="id_price" class="form-control">
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="form-group">
-                        <label for="id_notes">Notes:</label> <input type="text" name="notes" maxlength="200" required="" id="id_notes" class="form-control">
+                        <label for="id_orderpoint">Orderpoint:</label>
+                        <input type="number" name="orderpoint" id="id_orderpoint" class="form-control">
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="form-group">
-                        <label for="id_orderpoint">Orderpoint:</label> <input type="number" name="orderpoint" id="id_orderpoint" class="form-control">
+                        <label for="id_notes">Notes:</label>
+                        <input type="text" name="notes" maxlength="200" required="" id="id_notes" class="form-control">
                     </div>
                 </div>
             </div>
@@ -111,12 +94,63 @@
                     <label for="id_image">Image:</label>
                     <input type="file" name="image" accept="image/*" id="id_image" class="form-control">
                 </div>
+                <div class="col-4" id="div_image">
+                                
+                </div>
             </div>
+            <button type="submit" class="btn btn-success">Save</button>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
+    
 </form>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+
+        $('#id_image').change(function(e) {
+            $("#image_prev").remove();
+
+            readURL(this);
+
+            toastr.success('Picture uploaded.');
+        });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function (e) {
+                    $('#div_image').append("<img id='image_prev' class='img-thumbnail' src=" + e.target.result + " />");
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+    });
+
+    $('#form_createItem').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the created Item<br>'+ $("#id_item_number").val() + '?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
+    
+</script>
+{% endblock javascripts %}

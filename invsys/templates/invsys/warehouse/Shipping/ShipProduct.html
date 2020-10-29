@@ -14,29 +14,29 @@
 
 {% block content %}
 <h2> Ship out a Work Order </h2>
-<form class="form-horizontal" method="POST" action="">
-	{% csrf_token %}
-	<div class="card">
+<form class="form-horizontal" method="POST" action="" id="form_shipprod">
+    {% csrf_token %}
+    <div class="card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Item Details:</h4>
         </div>
         <div class="card-body">
 
-        	<div class="form-row align-items-center">
+            <div class="form-row align-items-center">
                 <div class="col-4">
-                	<div class="form-group">
-	                	<label for="id_wo_num">Wo num:</label>
-	                	<input type="text" name="wo_num" id="id_wo_num" class="form-control" readonly>
-	                </div>
+                    <div class="form-group">
+                        <label for="id_wo_num">Wo num:</label>
+                        <input type="text" name="wo_num" id="id_wo_num" class="form-control" readonly>
+                    </div>
                 </div>
                 <div class="col-2">
-		            <button class="btn btn-success add-wonum"><i class="fas fa-file-medical"></i></button>
+                    <button class="btn btn-success add-wonum"><i class="fas fa-file-medical"></i></button>
                 </div>
                 <div class="col-4">
-                	<div class="form-group">
-	                	<label for="id_ship_out_num">Ship out num:</label>
-	                	<input type="text" name="ship_out_num" maxlength="200" id="id_ship_out_num" class="form-control">
-	                </div>
+                    <div class="form-group">
+                        <label for="id_ship_out_num">Ship out num:</label>
+                        <input type="text" name="ship_out_num" maxlength="200" id="id_ship_out_num" class="form-control">
+                    </div>
                 </div>
             </div>
 
@@ -90,19 +90,39 @@
 <script type="text/javascript">
     $(document).ready(function(){
         window.name = "Ship_Prod";
-	    
-	    $(document).on('click', '.add-wonum', function(e){
-	        var newwin = window.open("{% url 'warehouse:ShipProduct_SelectWONum' %}");
-	        return false;
-	    });
+        
+        $(document).on('click', '.add-wonum', function(e){
+            var newwin = window.open("{% url 'warehouse:ShipProduct_SelectWONum' %}");
+            return false;
+        });
 
     });
 
-	function showprod_sched(prod_sched, prod_quan, status) { //selector - .form-row:last | prefix - form
+    function showprod_sched(prod_sched, prod_quan, status) { //selector - .form-row:last | prefix - form
         $('#prodsched_table').prepend('<tr><td>'+prod_sched+'</td><td>'+prod_quan+'</td><td>'+status+'</td></tr>');
         
         return false;
     }
+
+    $('#form_shipprod').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the shipped Products from <br> Work-Order ' + $("#id_wo_num").val() + '?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
 
 </script>
 {% endblock javascripts %}
