@@ -310,6 +310,7 @@ def ViewWO(request):
         'barcode',
         'tid_number',
         'prod_number__prod_number',
+        'prod_number__prod_class__prod_class',
         'prod_quantity',
         'notes',)
     prod_sched_list = WO_Production_Schedule.objects.filter().values(
@@ -332,11 +333,16 @@ def ViewWO(request):
         'work_order_number__work_order_number',
         'item_number__item_number',
         'item_quantity',)
+
+    prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+            'prod_class',)
+
     return render(request, 'invsys/planner/WOCreation/ViewWO.html', 
         {'wo_set':wo_list,
         'prod_sched_set':prod_sched_list, 
         'prod_set':prod_list,
-        'wo_item_set':wo_item_list,})
+        'wo_item_set':wo_item_list,
+        'prod_class_set':prod_class_query})
 
 @login_required
 @planner_required
@@ -631,21 +637,26 @@ def CheckPart(request):
         'quantity',
         'status',
         'reference_number',)
-    print(whse_item_list)
     whsebin_query = []
     for whsebin in whse_item_list:
         whsebin_query.append(whsebin.get("bin_location__bin_location"))
-    print(whsebin_query)
     whse_bin_list = Warehouse.objects.filter(bin_location__in=whsebin_query).values(
         'bin_location',
         'item_cat__item_cat',
         'prod_class__prod_class',
         'barcode',)
-    print(whse_bin_list)
+
+    prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+            'prod_class',)
+
+    item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+        'item_cat')
     return render(request, 'invsys/planner/CheckInv/CheckPart.html', 
         {'whse_bin_set':whse_bin_list,
         'whse_item_set':whse_item_list, 
-        'item_set':item_list,})
+        'item_set':item_list,
+        'prod_class_set':prod_class_query,
+        'item_cat_set':item_cat_query})
 
 #Check Product
 @login_required
@@ -701,11 +712,15 @@ def CheckProduct(request):
             details['avail_quan'] = avail_quan
         prod_bom_list.append(details)
 
+    prod_class_query = ProdClass.objects.all().exclude(prod_class="None").values(
+        'prod_class',)
+
     return render(request, 'invsys/planner/CheckInv/CheckProduct.html', 
         {'whse_bin_set':whse_bin_list,
         'whse_prod_set':whse_prod_list, 
         'prod_set':prod_list,
-        'prod_bom_set':prod_bom_list})
+        'prod_bom_set':prod_bom_list,
+        'prod_class_set':prod_class_query})
 
 def getItemStock(item_num):
     whse_item_query = Warehouse_Items.objects.filter(item_number__item_number=item_num, status="In Stock")

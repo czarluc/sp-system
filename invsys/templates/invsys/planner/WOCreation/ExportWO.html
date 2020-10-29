@@ -14,7 +14,7 @@
 
 <div class="card">
     <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Work Orders:</h4>
+        <h4 class="card-title">Created Work Orders:</h4>
     </div>
     <div class="card-body">
         <div class="table-responsive"> <!--Shrnk Items-->
@@ -120,21 +120,33 @@ $(document).ready(function() {
                     columns: ':visible',
                     rows: ':visible' 
                 }
-            }, 'csv', 'pdf' ],
+            }],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
-    $("div.date_from").html("<input type='date' class='date form-control' id='date_from'>");
-    $("div.date_to").html("<input type='date' class='date form-control' id='date_to'>");
+    $("div.date_from").html("From"+"<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("To"+"<input type='date' class='date form-control' id='date_to'>");
 
-    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>WO#</option><option>Customer</option><option>Order Type</option><option>WO Class</option><option>FO#</option><option>TID#</option><option>Product#</option><option>Customer Order Date</option><option>OTD Customer Date</option><option>OTP Commitment Date</option><option>Required Completion Date</option><option>Finished Completion Date</option><option>Creation Date</option><option>Notes</option><option>Reference#</option><option>Product Quantity</option><option>Date Required</option><option>Item Number</option><option>Item Quantity</option><option>Total Item Quantity</option></select>");
+    $("div.customselect.trans").html(" Filter "+"<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>WO#</option><option>Customer</option><option>Order Type</option><option>WO Class</option><option>FO#</option><option>TID#</option><option>Product#</option><option>Customer Order Date</option><option>OTD Customer Date</option><option>OTP Commitment Date</option><option>Required Completion Date</option><option>Finished Completion Date</option><option>Creation Date</option><option>Notes</option><option>Reference#</option><option>Product Quantity</option><option>Date Required</option><option>Item Number</option><option>Item Quantity</option><option>Total Item Quantity</option></select>");
 
     $('#trans_table_filter label input').unbind().bind('keyup', function() {
       var colIndex = document.querySelector('#select_trans').selectedIndex;
       table.column(colIndex).search( this.value ).draw();
     });
 
+    $("div.date_from").hide();
+    $("div.date_to").hide();
+
     $('#select_trans').change(function() {
+        var filter_val = $('#select_trans').val();
+
+        if( ( filter_val === "Customer Order Date" ) || ( filter_val === "OTD Customer Date" ) || ( filter_val === "OTP Commitment Date" ) || ( filter_val === "Required Completion Date" ) || ( filter_val === "Finished Completion Date" ) || ( filter_val === "Creation Date" ) ){
+            $("div.date_from").show();
+            $("div.date_to").show();
+        }else{
+            $("div.date_from").hide();
+            $("div.date_to").hide();
+        }
         $("#date_from").val('');
         $("#date_to").val('');
         table.columns().search('').draw();

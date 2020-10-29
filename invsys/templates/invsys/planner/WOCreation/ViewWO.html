@@ -82,9 +82,9 @@
                             <th scope="col">Order Type</th>
                             <th scope="col">Order Class</th>
                             <th scope="col">FO#</th>
-                            <th scope="col">Barcode</th>
                             <th scope="col">TID#</th>
                             <th scope="col">Product Number</th>
+                            <th scope="col">Product Class</th>
                             <th scope="col">Product Quantity</th>
                             <th scope="col">Notes</th>
                         </tr>
@@ -98,9 +98,9 @@
                             <td>{{ instance.order_type }}</td>
                             <td>{{ instance.work_order_class }}</td>
                             <td>{{ instance.fo_number }}</td>
-                            <td>{{ instance.barcode }}</td>
                             <td>{{ instance.tid_number }}</td>
                             <td>{{ instance.prod_number__prod_number }}</td>
+                            <td>{{ instance.prod_number__prod_class__prod_class }}</td>
                             <td>{{ instance.prod_quantity }}</td>
                             <td>{{ instance.notes }}</td>
                         </tr>
@@ -153,8 +153,8 @@
         <div class="card-body">
 
         <div class="container">
-            <div class="row" id="btn_pdf">
-                <button class="btn btn-warning pdf" type="button">download pdf</button>
+            <div class="row" id="row_pdf">
+                <button class="btn btn-warning pdf" id="btn_pdf" type="button">download pdf</button>
                 <div id="barcode_container">
                     <img id="barcode" hidden>
                     <div id="qrcode" hidden></div>
@@ -202,7 +202,7 @@
                 </div>
             </div>
             
-            <form role="form">
+            <form role="form" id="wizard_form">
                 <div class="panel panel-info setup-content" id="step-1">
                     <div class="panel-heading">
                          <h3 class="panel-title" id="stp1_header">Scheduled</h3>
@@ -575,7 +575,7 @@
 
             </div>
         </div>
-    </div>    
+    </div>
 
 {% endblock content %}
 
@@ -598,8 +598,38 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.3/JsBarcode.all.min.js" integrity="sha512-TLB7v1Y4YHGy/EHUu5VZ2bl6sC/WvXh/NFdjEZ7JmbpsUG87dirXAOFSAS3O6Tn3rsZljFTcTdMz9PDM4mV26g==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha512-NFUcDlm4V+a2sjPX7gREIXgCSFja9cHtKPOL1zj6QhnE0vcY695MODehqkaGYTLyL2wxe/wtr4Z49SvqXq12UQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+    let prod_class_list
 $(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    getProdClass_list();
+
+    function getProdClass_list(){
+
+
+
+    }
 
     var navListItems = $('div.setup-panel div button'),
         allWells = $('.setup-content'),
@@ -607,6 +637,7 @@ $(document).ready(function() {
         allPrevBtn = $('.prevBtn');
 
     allWells.hide();
+    $("#btn_pdf").hide();
 
     navListItems.click(function (e) {
         e.preventDefault();
@@ -668,31 +699,6 @@ $(document).ready(function() {
             prevStepWizard = $('div.setup-panel div button[href="#' + curStepBtn + '"]').parent().prev().children("button");
 
         prevStepWizard.removeAttr('disabled').trigger('click');
-    });
-
-    $("#sched_table").on('click', '.get-form.prod_sched', function(e){
-        $('#btn1').trigger('click');
-        resetWizard();
-        var button = this;
-
-        $.ajax({
-            method: "POST",
-            url: "{% url 'planner:ViewWO_getDetails' %}",
-            data: {'wo_num': button.dataset.wo_num,
-                  'prod_sched': button.dataset.prod_sched,
-                  'csrfmiddlewaretoken': '{{ csrf_token }}'},
-
-            success: function(data){
-                populateWizard(data);
-            },
-            error: function(error_data){
-                alert("error");
-            }
-        });
-
-        $('.btn-warning.pdf').attr('data-prod_sched',button.dataset.prod_sched);
-
-        document.getElementById("status_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
     });
 
     function populateWizard(data){
@@ -822,6 +828,7 @@ $(document).ready(function() {
     }
 
     function resetWizard(){
+        $("#btn_pdf").hide();
         $("#stp2_issued_by").val("");
         $("#stp2_date_issued").val("");
         $("#stp2_verified_by").val("");
@@ -872,6 +879,8 @@ $(document).ready(function() {
     }); 
 
     $('#wo_table').on('click', '.btn-primary.wo', function(e){
+        resetWizard();
+        allWells.hide();
         document.getElementById("sched_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         var wo_num = this.dataset.wo_num;
         $('#sched_table').find('tr.tablerow').each(function (i, el) {
@@ -882,14 +891,66 @@ $(document).ready(function() {
                 $(this).hide();
             }
         });
+
+        toastr.info("Work Order " + wo_num + " is selected.");
+
     });
 
     var table = $('#wo_table').DataTable({
+        dom: "<'row'<'col-md-6'l><'col-md-2'<'customselect wo'>><'col-md-2'<'div_prodclass'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
  
-    table.buttons().container()
-        .appendTo( '#wo_table_wrapper .col-md-6:eq(0)' );
+    $("div.div_prodclass").html("Product Class Filter" + "<select id="+ "'select_prod_class'" + "class='browser-default custom-select'"+"><option value='all'> All </option> {% for instance in prod_class_set %} <option value=' {{ instance.prod_class }} '>{{ instance.prod_class }}</option> {% endfor %}</select>");
+
+    $("div.customselect.wo").html("Filter" + "<select id="+ "'select_wo'" + "class='browser-default custom-select'"+"><option value ='-1'>All</option><option value ='0'>Work Order Number</option><option value ='1'>Customer</option><option value ='2'>Order Type</option><option value ='3'>Order Class</option><option value ='4'>FO#</option><option value ='5'>TID#</option><option value ='6'>Product Number</option><option value ='8'>Product Quantity</option><option value ='9'>Notes</option></select>");
+
+    $('#wo_table_filter label input').unbind().bind('keyup', function() {
+        searchFilter();
+    });
+
+    $('#select_wo').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var prod_class = $('#select_prod_class').val();
+        if(prod_class === "all"){
+            searchFilter();
+        }else{
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please remove the Product Class Filter.");
+        }
+    });
+
+    $('#select_prod_class').change(function() {
+        searchFilter(); 
+    });
+
+    function searchFilter(){
+        //Do the first search based from the og filter
+        var colIndex = document.querySelector('#select_wo').value;
+        var search = $('#wo_table_filter label input').val(); 
+        if ( colIndex === "-1" ){
+            table.column().search( '' ).draw();
+            $('#wo_table_filter label input').val('');
+            return;
+        }else{
+            table.column(colIndex).search( search ).draw();
+        }
+
+        //Do the third search for the product class filter
+        var prod_class = $('#select_prod_class').val();
+        if( prod_class === "all" ){
+            table.column(7).search( '' ).draw();
+            table.column(colIndex).search( search ).draw();
+        }else{
+            table.columns(7).search(prod_class).draw();
+        }
+
+        $('#wo_table_filter label input').val(search); 
+
+    }
 
     var table2 = $('#sched_table').DataTable({
         searching: false, paging: false, info: false,
@@ -915,6 +976,36 @@ $(document).ready(function() {
     table4.buttons().container()
         .appendTo( '#bom_table_wrapper .col-md-6:eq(0)' );
 
+    $("#sched_table").on('click', '.get-form.prod_sched', function(e){
+        $('#btn1').trigger('click');
+        resetWizard();
+        $("#btn_pdf").show();
+        var button = this;
+
+        $.ajax({
+            method: "POST",
+            url: "{% url 'planner:ViewWO_getDetails' %}",
+            data: {'wo_num': button.dataset.wo_num,
+                  'prod_sched': button.dataset.prod_sched,
+                  'csrfmiddlewaretoken': '{{ csrf_token }}'},
+
+            success: function(data){
+                populateWizard(data);
+            },
+            error: function(error_data){
+                alert("error");
+            }
+        });
+
+        toastr.info("Work Order Schedule " + button.dataset.prod_sched + " is selected.");
+
+        $('.btn-warning.pdf').attr('data-prod_sched',button.dataset.prod_sched);
+        $('.btn-warning.pdf').attr('data-wo_num',button.dataset.wo_num);
+
+
+        document.getElementById("status_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
     $(document).on('click', '.btn-warning.pdf', function(e){
         var button = this;
 
@@ -931,6 +1022,9 @@ $(document).ready(function() {
                 alert("error");
             }
         });
+
+        toastr.success("Work Order " + button.dataset.wo_num + " Schedule " + button.dataset.prod_sched + " is downloaded.");
+
     });
 
     function dl_pdf(data, prod_sched){
@@ -956,8 +1050,8 @@ $(document).ready(function() {
                 doc.setFontSize(10);
                 doc.setFontType('normal');
                 doc.text(190, 40, item.work_order_number__customer); //CUSTOMER
-                doc.text(240, 40, item.work_order_number__tid_number); //TID
-                doc.text(270, 40, item.work_order_number__work_order_class); //CLASS
+                doc.text(235, 40, item.work_order_number__tid_number); //TID
+                doc.text(265, 40, item.work_order_number__work_order_class); //CLASS
                 doc.text(140, 40, item.work_order_number__order_type); //ORDER TYPE
                 doc.text(138, 62, item.work_order_number__prod_number__prod_desc); //PROD DESC
 
@@ -1090,8 +1184,8 @@ $(document).ready(function() {
         
         //Row 2
         doc.text(180, 40, 'FOR:'); //CUSTOMER
-        doc.text(230, 40, 'TID:'); //TID
-        doc.text(260, 40, 'CLASS:'); //CLASS
+        doc.text(225, 40, 'TID:'); //TID
+        doc.text(250, 40, 'CLASS:'); //CLASS
 
         
         //Row 3
