@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} View Ongoing Component Issuance Schedules {% endblock %} 
+{% block title %} View Ongoing Put Away Schedules {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
@@ -19,11 +19,11 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<h2> View Ongoing Component Issuance Schedules </h2>
+<h2> View Ongoing Put Away Schedules </h2>
 
 <div class="card">
     <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Component Issuance Schedules:</h4>
+        <h4 class="card-title">Ongoing Put Away Schedules:</h4>
     </div>
     <div class="card-body">
         <div class="table-responsive"> <!--Shrnk Items-->
@@ -38,13 +38,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for instance in issuancesched_set %}
+                {% for instance in putaway_sched_set %}
                     <tr class="tablerow" id="sched-{{forloop.counter}}">
+
                         <td><button type="button" class="btn btn-primary sched" data-sched_num="{{instance.schedule_num}}" data-date_sched="{{ instance.date_scheduled }}" data-notes="{{ instance.notes }}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
                         <td>{{ instance.date_scheduled }}</td>
                         <td>{{ instance.notes }}</td>
                         <td>{{ instance.cleared }}</td>
                         <td>{{ instance.issues }}</td>
+
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -62,25 +64,27 @@
             <table class="table table-hover table-striped table-bordered nowrap" id="req_table">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col">Work Order Number</th>
-                        <th scope="col">Production Schedule</th>
+                        <th scope="col">Reference Number</th>
                         <th scope="col">Item Number</th>
                         <th scope="col">Item Description</th>
-                        <th scope="col">Required Item Quantity</th>
+                        <th scope="col">Item Category</th>
+                        <th scope="col">Product Class</th>
+                        <th scope="col">Put Away Item Quantity</th>
                         <th scope="col">Bin location</th>
-                        <th scope="col">Assembly Line</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for instance in issuance_reqitem_set %}
-                    <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}" data-date_scheduled="{{ instance.schedule_num__date_scheduled }}" data-wo_num="{{ instance.prod_sched__work_order_number__work_order_number }}" data-prod_sched="{{ instance.prod_sched__id }}" data-prod_num="{{ instance.prod_sched__work_order_number__prod_number__prod_number }}" data-prod_desc="{{ instance.prod_sched__work_order_number__prod_number__prod_desc }}" data-prod_class="{{ instance.prod_sched__work_order_number__prod_number__prod_class__prod_class }}" data-uom="{{ instance.prod_sched__work_order_number__prod_number__uom__uom }}" data-cust="{{ instance.prod_sched__work_order_number__customer }}" data-prod_quan="{{ instance.prod_sched__quantity }}" data-date_req="{{ instance.prod_sched__date_required }}" data-item_num="{{ instance.item_num__item_number }}" data-item_desc="{{ instance.item_num__item_desc }}" data-item_quan="{{ instance.item_quantity }}" data-bin_loc="{{ instance.bin_location__bin_location }}" data-ass_line="{{ instance.ass_line }}">
-                        <td>{{ instance.prod_sched__work_order_number__work_order_number }}</td>
-                        <td>{{ instance.prod_sched__id }}</td>
+                {% for instance in putaway_item_set %}
+                    <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}" data-date_scheduled="{{ instance.schedule_num__date_scheduled }}" data-ref_num="{{ instance.reference_number }}" data-item_num="{{ instance.item_num__item_number }}" data-item_desc="{{ instance.item_num__item_desc }}" data-item_cat="{{ instance.item_num__item_cat__item_cat }}" data-prod_class="{{ instance.item_num__prod_class__prod_class }}" data-item_quan="{{ instance.required_quantity }}" data-bin_loc="{{ instance.bin_location__bin_location }}">
+
+                        <td>{{ instance.reference_number }}</td>
                         <td>{{ instance.item_num__item_number }}</td>
                         <td>{{ instance.item_num__item_desc }}</td>
-                        <td>{{ instance.item_quantity }}</td>
+                        <td>{{ instance.item_num__item_cat__item_cat }}</td>
+                        <td>{{ instance.item_num__prod_class__prod_class }}</td>
+                        <td>{{ instance.required_quantity }}</td>
                         <td>{{ instance.bin_location__bin_location }}</td>
-                        <td>{{ instance.ass_line }}</td>
+
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -173,7 +177,7 @@ $(document).ready(function() {
                         if( check_rows > 0 ){
                             startdl_pdf();
                         }else{
-                            toastr.error('Please select an Component Issuance Schedule.');
+                            toastr.error('Please select an Put Away Schedule.');
                         }
                     }
                 }, 'pdf' ],
@@ -202,7 +206,7 @@ $(document).ready(function() {
 
         });
 
-        toastr.info('Component Issuance Schedule ' + sched_num + ' is selected.')
+        toastr.info('Put Away Schedule ' + sched_num + ' is selected.')
     });
 
 });
@@ -221,18 +225,12 @@ $(document).ready(function() {
             if ($(this).is(":visible")){
                 var item = this;
 
-                item_list.push( { 
-                    'sched_num':item.dataset.sched_num,'wo_num':item.dataset.wo_num,
-                    'prod_sched':item.dataset.prod_sched,
-
-                    'prod_num':item.dataset.prod_num, 'prod_desc':item.dataset.prod_desc,
-                    'prod_class':item.dataset.prod_class, 'uom':item.dataset.uom, 
-                    'cust':item.dataset.cust, 'prod_quan':item.dataset.prod_quan,
-                    'date_req':item.dataset.date_req, 
-
-                    'item_num':item.dataset.item_num, 'item_desc':item.dataset.item_desc,
-                    'item_quan':item.dataset.item_quan, 'bin_loc':item.dataset.bin_loc,
-                    'ass_line':item.dataset.ass_line
+                item_list.push( {
+                    'sched_num': item.dataset.sched_num, 'date_scheduled': item.dataset.date_scheduled, 
+                    'ref_num': item.dataset.ref_num, 'item_num': item.dataset.item_num,
+                    'item_desc': item.dataset.item_desc, 'prod_class': item.dataset.prod_class,
+                    'item_quan': item.dataset.item_quan, 'bin_loc': item.dataset.bin_loc,
+                    'item_cat': item.dataset.item_cat
                 });      
             }
         });
@@ -241,84 +239,21 @@ $(document).ready(function() {
             date_scheduled = item.date_scheduled;
             now_prodsched = item.prod_sched;
 
-            if( prev_prodsched === '' ){
+            new_arr.push({
+                'sched_num': item.sched_num, 'date_scheduled': item.date_scheduled, 
+                'ref_num': item.ref_num, 'item_num': item.item_num,
+                'item_desc': item.item_desc, 'prod_class': item.prod_class,
+                'item_quan': item.item_quan, 'bin_loc': item.bin_loc,
+                'item_cat': item.item_cat
+            });
 
-                new_arr = new Array();
-
-                new_arr.push({ 
-                    'sched_num':item.sched_num, 'date_scheduled':item.date_scheduled,
-                    'wo_num':item.wo_num, 'prod_sched':item.prod_sched,
-
-                    'prod_num':item.prod_num, 'prod_desc':item.prod_desc,
-                    'prod_class':item.prod_class, 'uom':item.uom, 
-                    'cust':item.cust, 'prod_quan':item.prod_quan,
-                    'date_req':item.date_req, 
-
-                    'item_num':item.item_num, 'item_desc':item.item_desc,
-                    'item_quan':item.item_quan, 'bin_loc':item.bin_loc,
-                    'ass_line':item.ass_line
-                });
-
-                same_arr = new_arr;
-
-                prev_prodsched = item.prod_sched;
-
-                if (parseInt(counter) == parseInt(item_list.length) ) {
-                    compissue_list.push( same_arr );
-                }
-
-            } else if( now_prodsched === prev_prodsched ){
-
-                same_arr.push({ 
-                    'sched_num':item.sched_num, 'date_scheduled':item.date_scheduled,
-
-                    'wo_num':item.wo_num, 'prod_sched':item.prod_sched,
-
-                    'prod_num':item.prod_num, 'prod_desc':item.prod_desc,
-                    'prod_class':item.prod_class, 'uom':item.uom, 
-                    'cust':item.cust, 'prod_quan':item.prod_quan,
-                    'date_req':item.date_req, 
-
-                    'item_num':item.item_num, 'item_desc':item.item_desc,
-                    'item_quan':item.item_quan, 'bin_loc':item.bin_loc,
-                    'ass_line':item.ass_line
-                });
-
-                prev_prodsched = item.prod_sched;
-
-                if (parseInt(counter) == parseInt(item_list.length) ) {
-                    compissue_list.push( same_arr );
-                }
-
-            } else { //new product
-
-                compissue_list.push( same_arr );
-                new_arr = new Array();
-                same_arr = new Array();
-
-                new_arr.push({ 
-                    'sched_num':item.sched_num, 'date_scheduled':item.date_scheduled,
-                    'wo_num':item.wo_num, 'prod_sched':item.prod_sched,
-
-                    'prod_num':item.prod_num, 'prod_desc':item.prod_desc,
-                    'prod_class':item.prod_class, 'uom':item.uom, 
-                    'cust':item.cust, 'prod_quan':item.prod_quan,
-                    'date_req':item.date_req, 
-
-                    'item_num':item.item_num, 'item_desc':item.item_desc,
-                    'item_quan':item.item_quan, 'bin_loc':item.bin_loc,
-                    'ass_line':item.ass_line
-                });
-
-                same_arr = new_arr;
-
-                prev_prodsched = item.prod_sched;
-
+            if (parseInt(counter) == parseInt(item_list.length) ) {
+                compissue_list.push( new_arr );
             }
 
             counter+=1;
 
-        });
+        });        
 
         dl_pdf( compissue_list ); //pass schednum & issuance_list
 
@@ -336,34 +271,37 @@ $(document).ready(function() {
         compissue_list.forEach(function(item_list) { // array of tables
 
             doc = add_header(doc, item_list[0]);
-            doc = add_prod_details(doc, item_list[0])
+            //doc = add_prod_details(doc, item_list[0])
 
             doc.setFontSize(10);
             doc.setFontType('normal');
             doc.setTextColor(0, 0, 0);
             doc.setDrawColor(0, 0, 0);
 
-            doc.text('Parts to Issue', 14, 65);             
+            doc.text('Parts to Put-Away', 14, 40);     
             
-            var item_columns = ["Part Number", "Part Description", "Part Quantity", 
-                "Bin Location", "Assembly Line"];
+            var item_columns = ["Reference Number", "Item Number", "Item Description", 
+                "Item Category", "Product Class", "Required Quantity", "Bin Location"];
 
             var item_rows = []
 
             item_list.forEach(function(item) { //new table
 
-                var item_details = [item.item_num,
-                    item.item_desc, 
+                var item_details = [
+                    item.ref_num,
+                    item.item_num,
+                    item.item_desc,
+                    item.item_cat,                    
+                    item.prod_class,
                     item.item_quan,
-                    item.bin_loc, 
-                    item.ass_line];  
+                    item.bin_loc,];  
 
                 item_rows.push(item_details);
 
             });
 
             let autoTableOptions = {
-                startY: 57+10, //false
+                startY: 32+10, //false
                 theme: 'striped', //striped, plain, grid
                 showHead: 'everyPage', //false, 'everyPage', 'firstPage'
                 styles: {
@@ -386,7 +324,7 @@ $(document).ready(function() {
             console.log(pageInfo);
             console.log();
 
-            doc.text('Page ' + doc.internal.getNumberOfPages() + " of " + tot_pages + " - Work-Order " + item_list[0].wo_num, (doc.internal.pageSize.width / 2) - 20, (doc.internal.pageSize.height) - 10 );
+            doc.text('Page ' + doc.internal.getNumberOfPages() + " of " + tot_pages + " - Put Away Schedule " + item_list[0].sched_num, (doc.internal.pageSize.width / 2) - 20, (doc.internal.pageSize.height) - 10 );
 
 
             if (parseInt(counter) == parseInt(compissue_list.length) ) {
@@ -399,9 +337,9 @@ $(document).ready(function() {
 
         });
 
-        doc.save("CompIssue_"+ compissue_list[0][0].sched_num +'.pdf');
+        doc.save("PutAway_"+ compissue_list[0][0].sched_num +'.pdf');
 
-        toastr.success('Component Issuance Schedule ' + compissue_list[0][0].sched_num + ' is downloaded.');
+        toastr.success('Put Away Schedule ' + compissue_list[0][0].sched_num + ' is downloaded.');
 
     }
 
@@ -420,8 +358,7 @@ $(document).ready(function() {
         doc.rect(70, 15, 150, 20);
         doc.setFontSize(20);
         doc.setFontType('bold');
-        doc.text(105, 25, 'Work-Order Component');
-        doc.text(115, 32, 'Issuance Schedule');
+        doc.text(105, 27, 'Put Away Schedule');
 
         doc.setFontSize(10);
         doc.setFontType('normal');
@@ -440,6 +377,7 @@ $(document).ready(function() {
         
     }
 
+    /*
     function add_prod_details(doc, item_detail){
 
         //Row 1
@@ -485,7 +423,6 @@ $(document).ready(function() {
         doc.autoTable(prod_columns, prod_rows, autoTableOptions);
 
         
-        /*
         doc.text(25, 50, item_detail.wo_num);
         doc.text(55, 50, item_detail.prod_sched);
         doc.text(25, 50, item_detail.prod_num);
@@ -500,11 +437,12 @@ $(document).ready(function() {
         doc.text('XYLEM Water Systems', 22, 22);
         doc.text('International, Inc.', 22, 27);
         doc.text('LISP II, Calamba, Laguna', 22, 32);
-        */
 
         return doc;
 
     }
+    */
+
 
 /*
 let autoTableOptions = {
@@ -543,4 +481,3 @@ let autoTableOptions = {
     */
 </script>
 {% endblock javascripts %}
-
