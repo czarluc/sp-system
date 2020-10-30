@@ -272,6 +272,15 @@
             };
         };
 
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
+
         $('#ship_table').find('tr.tablerow').each(function (i, el) {
             $(this).hide();
         });

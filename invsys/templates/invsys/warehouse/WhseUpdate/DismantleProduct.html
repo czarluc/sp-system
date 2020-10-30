@@ -64,7 +64,7 @@
                     </div>
                 </div>
                 <div class="col-1">
-                    <button class="btn btn-success add-prod_num">+</button>
+                    <button class="btn btn-success add-prod_num" id="btn_sel_prod">+</button>
                 </div>
                 <div class="col-4">
                     <div class="form-group">
@@ -173,15 +173,84 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let dismprod_selItem;
     $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        window.name = "dismprod";
+
         $('#part_table tr.tablerow:last').hide();
 
         var d = new Date($.now());
         var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
         $('#id_report-date_reported').val(currentdate);
 
-        });
+    });
+
+    function deleteForm(prefix, row) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            row.remove();
+            var forms = $('#part_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+    }
+    
+    $(document).on('click', '.add-prod_num', function(e){
+        if ( dismprod_selItem && !dismprod_selItem.closed ){
+            dismprod_selItem.focus();
+            return false;                
+        }else{
+            dismprod_selItem = window.open("{% url 'warehouse:DismantleProduct_SelectProduct' %}");
+
+            var parent_prod_sched = $("#id_prod-prod_sched").val();
+            var parent_prod_num = $("#prod_num").val();
+            var parent_bin_loc = $("#id_prod-bin_locationTEXT").val();
+            var part_list = []
+
+            if( !(parent_prod_sched === "") ){
+                part_list.push([parent_prod_sched, parent_prod_num, parent_bin_loc])
+            }
+            console.log(part_list);
+            dismprod_selItem.part_list = part_list;
+
+            
+            return false;
+        }
+    });
+
+    function showToast(prod_sched, prod_num, bin_loc){
+        toastr.success("Product "+prod_num + " from Work Order Schedule "+prod_sched+" in Warehouse Bin " + bin_loc +" has been reported.");
+    }
 
     function updateElementIndex(el, prefix, ndx) {
         var id_regex = new RegExp('(' + prefix + '-\\d+)');
@@ -196,7 +265,7 @@
         var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
         var currentnum = total - 1
         var counter = 0
-        console.log(lastrowtbl);
+
         $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
             var name = $(this).attr('name');
             if(name) {
@@ -234,29 +303,6 @@
         $('#part_table tr.tablerow:last').hide();
         return false;
     }
-
-    function deleteForm(prefix, btn) {
-        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
-        if (total > 1){
-            btn.closest('#part_table tr.tablerow').remove();
-            var forms = $('#part_table tr.tablerow');
-            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
-            for (var i=0, formCount=forms.length; i<formCount; i++) {
-
-                $(forms.get(i)).find(':input[type=text]').each(function() {
-                    updateElementIndex(this, prefix, i);
-                });
-            }
-            total--;
-            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
-        }
-        return false;
-    }
-    
-    $(document).on('click', '.add-prod_num', function(e){
-        var newwin = window.open("{% url 'warehouse:DismantleProduct_SelectProduct' %}");
-        return false;
-    });
     
     $(document).on('click', '.remove-form-row', function(e){
         e.preventDefault();

@@ -13,12 +13,15 @@
     #whse_table tr td:nth-child(1), #whse_table th:nth-child(1){
         display: none;
     }
+    .dataTable tbody tr.highlight {
+        background-color: #87CEFA !important;
+    }
 </style>
 {% endblock stylesheets %}
 
 {% block content %}
 <h2>Select an Item to Report for Defective</h2>
-
+    
     <div class="card" id="report_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Item Transfer Details:</h4>
@@ -121,7 +124,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label>Transfer Quantity</label>
-                        <input type ="text" class="form-control" id="item_quan"/>
+                        <input type="number" class="form-control" id="item_quan"/>
                    </div>
                 </div>
             </div>
@@ -134,9 +137,8 @@
                 </div>
             </div>
             <div class="form-row align-items-center">
-                <div class="col-lg-2">
-                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
-                </div>
+                <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
+                <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
             </div>
         </div>
     </div>
@@ -185,7 +187,7 @@
 
     <div class="card" id="curr_whse_card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Warehouse Bins:</h4>
+            <h4 class="card-title"> Current Warehouse Bins of the Item:</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -201,7 +203,7 @@
                     </thead>
                     <tbody>
                     {% for instance in whse_bin_set %}
-                        <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-item_num="{{instance.item_number__item_number}}">                           
+                        <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-item_num="{{instance.item_number__item_number}}" data-bin_loc="{{instance.bin_location__bin_location}}">                           
                             <td><button type="button" class="btn btn-primary currwhse" data-bin_id="{{instance.bin_location__id}}" data-bin_loc="{{instance.bin_location__bin_location}}" data-stock="{{ instance.quantity }}">{{ instance.bin_location__bin_location }}</button></td>
                             <td>{{ instance.bin_location__item_cat__item_cat }}</td>
                             <td>{{ instance.bin_location__prod_class__prod_class }}</td>
@@ -224,7 +226,7 @@
 
             <div class="card" id="whse_bin_card">
                 <div class="card-header card-header-tabs card-header-info">
-                    <h4 class="card-title">New Warehouse Bin:</h4>
+                    <h4 class="card-title">Warehouse Bin to Transfer:</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -239,7 +241,7 @@
                             </thead>
                             <tbody>
                             {% for instance in new_whse_bin_set %}
-                                <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-item_cat="{{instance.item_cat__item_cat}}" data-prod_class="{{instance.prod_class__prod_class}}">                           
+                                <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-item_cat="{{instance.item_cat__item_cat}}" data-prod_class="{{instance.prod_class__prod_class}}" data-bin_loc="{{instance.bin_location}}">                           
                                     <td><button type="button" class="btn btn-primary new_whse" data-bin_id="{{instance.id}}" data-bin_loc="{{instance.bin_location}}">{{ instance.bin_location }}</button></td>
                                     <td>{{ instance.item_cat__item_cat }}</td>
                                     <td>{{ instance.prod_class__prod_class }}</td>
@@ -271,7 +273,7 @@
                             </thead>
                             <tbody>
                             {% for instance in new_whse_item_set %}
-                                <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-bin_id="{{instance.bin_location__id}}" data-bin_loc="{{instance.bin_location__bin_location}}" data-stock="{{ instance.quantity }}">                     
+                                <tr class="tablerow" id="whse_item-{{forloop.counter}}" data-bin_id="{{instance.bin_location__id}}" data-bin_loc="{{instance.bin_location__bin_location}}" data-stock="{{ instance.quantity }}" data-item_num="{{ instance.item_number__item_number }}">                     
                                     <td>{{ instance.bin_location__bin_location }}</td>
                                     <td>{{ instance.item_number__item_number }}</td>
                                     <td>{{ instance.quantity }}</td>
@@ -285,16 +287,18 @@
 
         </div>
     </div>
-
 </div>
-
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
-<script>          
+<script>
+    $(window).on('load', function() {
+        document.getElementById("item_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
     $(document).ready(function(){
         toasterOptions();
         function toasterOptions() {
@@ -317,9 +321,14 @@
             };
         };
 
-        $(window).on('load', function() {
-            document.getElementById("item_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
-        });
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
 
         $("#to_loc").hide();
 
@@ -420,6 +429,8 @@
             $('#prod_class').val(prod_class);
             $('#item_price').val(item_price);
 
+            var item_list = window.opener.pass_Items();
+            disable_Items( item_list );
 
             $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
                 var whse_bin_row = this;
@@ -461,9 +472,16 @@
 
                 var whse_itemcat = whse_bin_row.dataset.item_cat;
                 var whse_prodclass = whse_bin_row.dataset.prod_class;
+                var whse_bin_loc = whse_bin_row.dataset.bin_loc;
                 
                 if ($('#item_cat').val() === whse_itemcat){
                     if ($('#prod_class').val() === whse_prodclass){
+                        if ( $('#from_bin_loc').val() === whse_bin_loc ){
+                            $(this).find('.btn.btn-primary.new_whse').each(function (i, el) {
+                                $(this).attr('disabled', true);
+                            });
+                            $(this).attr('class', 'tablerow highlight');
+                        }
                         $(this).show();                    
                     }
                 }else{
@@ -518,6 +536,8 @@
             var from_bin_id = $('#from_bin_id').val();
             var from_bin_loc = $('#from_bin_loc').val();
 
+            var from_stock = $("#from_stock").val();
+
             var to_bin_id = $('#to_bin_id').val();
             var to_bin_loc = $('#to_bin_loc').val();
 
@@ -526,14 +546,123 @@
 
             var tot_cost = parseInt(item_quan) * parseInt(item_price);
 
-            //Add from_bin
-            window.opener.cloneMore('form', from_bin_id, from_bin_loc, item_num, item_quan, tot_cost, reason, 2, "Subtract");
+            if ( !( item_num === "" )){
+                if( !( from_bin_id === "" )){
+                    if( !( to_bin_id === "" )){
+                        if( parseInt(item_quan) > 0 && !(reason === "") ){
+                            if( parseInt(item_quan) <= parseInt(from_stock) ){
+                                //Add from_bin
+                                window.opener.cloneMore('form', from_bin_id, from_bin_loc, item_num, item_quan, tot_cost, reason, 2, "Subtract");
 
-            //Add to_bin
-            window.opener.cloneMore('form', to_bin_id, to_bin_loc, item_num, item_quan, tot_cost, reason, 1, "Add");
+                                //Add to_bin
+                                window.opener.cloneMore('form', to_bin_id, to_bin_loc, item_num, item_quan, tot_cost, reason, 1, "Add");
 
-            alert(item_num+" has been reported for transfer with a quantity of "+item_quan);
+                                toastr.success(item_num+" has been reported for transfer with a quantity of "+item_quan);
+
+                                resetfields();
+                                resetdisable();
+
+                                $("#from_loc").show();
+                                $("#to_loc").hide();
+                            }else{
+                                toastr.error('Enter a transfer quantity lower than the available stock.');
+                            }
+                        }else{
+                            toastr.error('Enter a quantity to transfer and a reason.');
+                        }
+                    }else{
+                        toaster.error("Please select a new Warehouse Bin.");
+                    }
+                }else{
+                    toaster.error("Please select a current Warehouse Bin.");
+                }
+            }else{
+                toaster.error("Please select a part first.");
+            }            
         });
+
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'transf');
+            goBack.focus();
+            window.close();
+        });
+
+
+
+        function resetfields(){
+            $("#item_num").val('');
+            $("#item_desc").val('');
+            $("#item_cat").val('');
+            $("#prod_class").val('');
+            $("#uom").val('');
+            $("#item_price").val('');
+            $("#from_bin_id").val('');
+            $("#from_bin_loc").val('');
+            $("#from_stock").val('');
+            $("#to_bin_id").val('');
+            $("#to_bin_loc").val('');
+            $("#item_quan").val('');
+            $("#reason").val('');
+
+            $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
+                $(this).hide();
+            });
+
+            $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
+                $(this).hide();
+            });
+
+            $('#new_whse_item_table').find('tr.tablerow').each(function (i, el) {
+                $(this).hide();
+            });
+
+        }
+
+        function resetdisable(){
+            $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
+                $(this).find('.btn.btn-primary.new_whse').each(function (i, el) {
+                    $(this).attr('disabled', false);
+                });
+                $(this).attr('class', 'tablerow');
+            });
+
+            $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
+                $(this).find('.btn.btn-primary.currwhse').each(function (i, el) {
+                    $(this).attr('disabled', false);
+                });
+                $(this).attr('class', 'tablerow');                
+            });
+        }
+
+        function disable_Items( item_list ){
+
+            item_list.forEach(function(item) {
+
+                var bin_loc = item[0];
+                var item_num = item[1];
+
+                if ( $("#item_num").val() === item_num ){ //check if the selcted item is already in the schedule. if yes disable the bin locations. if no do nothing
+
+                    $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
+                        var row = this;
+                        var whse_binloc = row.dataset.bin_loc
+
+                        if( bin_loc === whse_binloc ){
+                            $(this).find('.btn.btn-primary.currwhse').each(function (i, el) {
+                                $(this).attr('disabled', true);
+                            });
+                            $(this).attr('class', 'tablerow highlight');
+                        }
+
+                    });
+
+                }
+
+
+            });
+
+        }
+
     });
 </script>
 {% endblock javascripts %}

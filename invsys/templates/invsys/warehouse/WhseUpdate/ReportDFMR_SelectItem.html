@@ -10,6 +10,12 @@
     input:([name="reason"]){ 
     text-align: center; 
     }
+    #whse_table.dataTable tbody tr.highlight {
+        background-color: #87CEFA !important;
+    }
+    #whse_table tr td:nth-child(1), #whse_table th:nth-child(1){
+        display: none;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -86,7 +92,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label>Defective Quantity</label>
-                        <input type ="text" class="form-control" id="name11"/>
+                        <input type ="number" class="form-control" id="name11"/>
                    </div>
                </div>
             </div>
@@ -99,14 +105,13 @@
                 </div>
             </div>
             <div class="form-row align-items-center">
-                <div class="col-lg-1">
-                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
-                </div>
+                <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
+                <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
             </div>
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="whse_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Warehouse Search:</h4>
         </div>
@@ -147,15 +152,24 @@
                 </table> 
             </div>
         </div>
-    </div>         
-
+    </div>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
-<script>          
+<script>
+    $(window).on('load', function() {
+        document.getElementById("whse_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        if(part_list.length > 0){
+            part_list.forEach(function(item) {
+                selectPart( item );
+            });
+        }
+    });
+
     $(document).ready(function(){
         toasterOptions();
         function toasterOptions() {
@@ -178,50 +192,20 @@
             };
         };
 
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
+
         var table = $('#whse_table').DataTable({
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
-        $('#cmbAssLine').change(function() {
-            if ($(this).val() === '2') {
-                alert("GISO Assembly");
-            }
-        });
-
-
-        /*
-        $( "#datepicker" ).datepicker({
-            onSelect: function(dateText, inst) { 
-                document.getElementById('label_reqdate').innerHTML = dateText;
-                getWO()
-            }
-        });
-
-        function getWO(){
-            $('#wo_table').find('tr.tablerow').each(function (i, el) {
-                var rowelm = this;
-                var date_req = rowelm.dataset.date_req;
-                var date_sel = document.getElementById('label_reqdate').innerHTML
-
-                if(date_sel === date_req){
-                    $(this).show();
-                }else{
-                    $(this).hide();
-                }
-
-                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-                    $(this).hide();
-                });
-
-            });
-        }
-        
-        $('#wo_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
-        });
-        */
-
-        $( ".btn.btn-primary.wo" ).on("click", function () {
+        $( '#whse_table' ).on("click", ".btn.btn-primary.wo", function () {
             var btn = this;
 
             var bin_id = btn.dataset.bin_id;
@@ -247,6 +231,12 @@
             toastr.info('Item ' + item_num + ' from Warehouse Bin ' + bin_loc + " is selected.");
 
         });
+
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'dfmr');
+            goBack.focus();
+            window.close();
+        });
         
         $(".btn.btn-success.btn-lg").on("click", function () {
             var btn = this;
@@ -258,14 +248,102 @@
             var tot_cost = parseInt(item_price) * parseInt(item_quan)
             var reason = $('#name12').val();
 
-            alert(item_num+" has been reported for defective with a quantity of "+item_quan);   
+            var stock_quan = $('#name10').val(); 
 
-            window.opener.cloneMore('form', bin_id, bin_loc, item_num, item_quan, tot_cost, reason)
+            if ( !( bin_loc === "" ) && !( item_num === "" ) ){
+                if ( checkifDisabled(bin_loc, item_num) ){
+                    toastr.error("Item "+item_num + " from Warehouse Bin " + bin_loc +" has already been reported.");
+                }else{
 
+                    if( parseInt(item_quan) > 0 && !(reason === "") ){
+
+                        if( parseInt(item_quan) <= parseInt(stock_quan) ){
+
+                            window.opener.cloneMore('form', bin_id, bin_loc, item_num, item_quan, tot_cost, reason);
+
+                            $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                                var btn = this;
+                                if ( bin_loc === btn.dataset.bin_loc ){
+                                    if ( item_num === btn.dataset.item_num ){
+                                        $(this).attr('disabled', true);
+                                        $(this).closest('tr').attr('class', 'tablerow highlight');
+                                    }                            
+                                }
+                            });
+
+                            toastr.success("Item "+item_num + " from Warehouse Bin " + bin_loc +" has been reported for defective with a quantity of "+item_quan);
+                            resetfields();
+
+                        }else{
+                            toastr.error('Enter a defective quantity lower than the stock quantity.');
+                        }                        
+                    }else{
+                        toastr.error('Enter a defective quantity and a reason.');
+                    }
+                    
+                }
+            }else{
+                toastr.error('Select a defective part first.');
+            }
         });
 
+        function resetfields(){
+            $("#name1").val('');
+            $("#name2").val('');
+            $("#name3").val('');
+            $("#name4").val('');
+            $("#name5").val('');
+            $("#name6").val('');
+            $("#name7").val('');
+            $("#name8").val('');
+            $("#name9").val('');
+            $("#name10").val('');
+            $("#name11").val('');
+            $("#name12").val('');
+        }
+
+        function checkifDisabled(bin_loc, item_num){
+            var status = false;
+            $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                var btn = this;
+                if ( bin_loc === btn.dataset.bin_loc ){
+                    if ( item_num === btn.dataset.item_num ){
+                        if($(this).is(":disabled")){
+                            status = true;
+                        }else{
+                            status = false;
+                        }
+                    }               
+                }
+            });
+            return status;
+        }
 
     });
+
+    function selectPart(part_details){
+        $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( part_details[0] === btn.dataset.bin_loc ){
+                if ( part_details[1] === btn.dataset.item_num ){
+                    $(this).attr('disabled', true);
+                    $(this).closest('tr').attr('class', 'tablerow highlight');
+                }
+            }
+        });
+    }
+
+    function deselectPart( bin_loc, item_num ){
+        $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( bin_loc === btn.dataset.bin_loc ){
+                if ( item_num === btn.dataset.item_num ){
+                    $(this).attr('disabled', false);
+                    $(this).closest('tr').attr('class', 'tablerow');
+                }
+            }
+        });
+    }
 
 
 </script>

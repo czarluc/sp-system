@@ -5,9 +5,8 @@
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}    
 <style>
-    input[readonly] {
-      border:0px;
-      background-color: transparent;
+    input:not([name="notes"]){ 
+    text-align: center; 
     }
     #part_table tr td:nth-child(1), #part_table th:nth-child(1) {
         display: none;
@@ -146,7 +145,7 @@
                 <div class="col-6">
                     <div class="form-group">
                         <label>Date Warehouse: </label>
-                        <input type="date" name="date_warehouse" name="ship_category" class="form-control" id="id_date_warehouse" required>
+                        <input type="date" name="date_warehouse" name="ship_category" class="form-control" id="id_date_warehouse" readonly required>
                     </div>
                 </div>
             </div>
@@ -200,16 +199,128 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let inbound_selectPO;
         $(document).ready(function(){
+            toasterOptions();
+            function toasterOptions() {
+                toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "1500",
+                    "hideDuration": "1500",
+                    "timeOut": "1500",
+                    "extendedTimeOut": "1500",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                };
+            };
 
             window.name = "inbound_shipment";
+            $('#id_date_warehouse').val(new Date().toISOString().slice(0, 10));
 
-            $(document).on('click', '.add-form-row.ponum', function(e){
-                var wewewe = window.open("{% url 'warehouse:InboundShipment_SelectPONum' %}");
+
+            function deleteForm(prefix, btn) {
+                var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+                if (total > 1){
+                    //reenable to child window
+                    var row = btn.closest('tr.tablerow');
+                    var row_id = row.attr('id').split("-");
+                    var id_counter = '';
+                    var counter = 1;
+
+                    row_id.forEach(function(item) {
+                        if( counter === row_id.length ){
+                            id_counter = item;
+                        }
+                        counter += 1;
+                    });
+
+                    row.find('input[type=text]').each(function (i, el) {
+                        var input_id = $(this).attr('id');
+                        if ( input_id === "id_formpo-"+id_counter+"-po_num" ){
+                            console.log("true");
+                            if ( inbound_selectPO && !inbound_selectPO.closed ){
+                                inbound_selectPO.deselectPO( $("#id_formpo-"+id_counter+"-po_num").val() );
+                                toastr.info("Purchase Order "+$("#id_formpo-"+id_counter+"-po_num").val()+ " has been removed from the Shipment.");                 
+                            }else{ //window already closed
+
+                            }
+                        }
+                    });
+
+                    //delete row 
+                    btn.closest('#po_table tr.tablerow').remove();
+                    var forms = $('#po_table tr.tablerow');
+                    $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+                    for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                        $(forms.get(i)).find(':input[type=text]').each(function() {
+                            updateElementIndex(this, prefix, i);
+                        });
+
+                        $(forms.get(i)).each(function() {
+                            updateElementIndex(this, prefix, i);
+                        });
+
+                    }
+                    total--;
+                    $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+
+
+                }
+                return false;
+            }
+
+            $(document).on('click', '.remove-form-row', function(e){
+                e.preventDefault();
+                deleteForm('formpo', $(this));
                 return false;
             });
 
+        });
+
+        $(document).on('click', '.add-form-row.ponum', function(e){
+            if ( inbound_selectPO && !inbound_selectPO.closed ){
+                inbound_selectPO.focus();
+                return false;                
+            }else{
+                inbound_selectPO = window.open("{% url 'warehouse:InboundShipment_SelectPONum' %}");
+
+                //send out current list of selected PO
+                var po_list = []                
+                $('#po_table').find('tr.tablerow').each(function (i, el) { //loop through rows
+                    $(this).find('input[type=text]').each(function (i, el) { //loop through row elements
+                        var id_list = $(this).attr('id').split("-");
+                        var input_type = '';
+                        var counter = 1;
+
+                        id_list.forEach(function(item) {
+                            if( counter === id_list.length ){
+                                input_type = item;
+                            }
+                            counter += 1;
+                        });
+
+                        if( input_type === "po_num" ){
+                            if( !($(this).val() === "") ){
+                                po_list.push( $(this).val() );
+                            }                                                   
+                        }
+                    });
+                });                
+                inbound_selectPO.po_list = po_list;
+
+                return false;
+            }
         });
 
         function updateElementIndex(el, prefix, ndx) {
@@ -264,31 +375,6 @@
 
             return false;
         }
-
-
-        function deleteForm(prefix, btn) {
-        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
-        if (total > 1){
-            btn.closest('#po_table tr.tablerow').remove();
-            var forms = $('#po_table tr.tablerow');
-            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
-            for (var i=0, formCount=forms.length; i<formCount; i++) {
-
-                $(forms.get(i)).find(':input[type=text]').each(function() {
-                    updateElementIndex(this, prefix, i);
-                });
-            }
-            total--;
-            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
-        }
-        return false;
-    }
-                    
-        $(document).on('click', '.remove-form-row', function(e){
-            e.preventDefault();
-            deleteForm('formpo', $(this));
-            return false;
-        });
 
     $('#ship_form').submit(function() {
         event.preventDefault();

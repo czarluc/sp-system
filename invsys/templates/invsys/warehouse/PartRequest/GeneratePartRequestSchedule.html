@@ -57,7 +57,7 @@
                 <table class="table table-hover table-striped w-auto" id="part_table">
                     <thead class="thead-dark">
                         <tr class="tablehead">
-                            <th scope="col">Production Schedule ID</th>
+                            <th scope="col">Production Schedule</th>
                             <th scope="col">Item Number</th>
                             <th scope="col">Quantity</th>
                             <th scope="col">Location From ID</th>
@@ -72,7 +72,7 @@
                         {{ partreqitem_formset.management_form }}
                         {% for form in partreqitem_formset %}
                         <div class="row form-row">
-                            <tr class="tablerow">
+                            <tr class="tablerow" id="form-{{forloop.counter0}}">
                                 <td><input type="text" name="form-0-prod_sched" class="form-control" id="id_form-0-prod_sched" value="" readonly="readonly"></td>
                                 <td><input type="text" name="form-0-item_number" class="form-control" id="id_form-0-item_number" value="" readonly="readonly"></td>
                                 <td><input type="text" name="form-0-quantity" class="form-control" id="id_form-0-quantity" value="" readonly="readonly"></td>
@@ -81,7 +81,7 @@
                                 <td><input type="text" name="form-0-location_to" class="form-control" id="id_form-0-location_to" value="" readonly="readonly"></td>
                                 <td><input type="text" name="form-{{forloop.counter0}}-location_toTEXT" class="form-control" id="id_form-{{forloop.counter0}}-location_toTEXT" value="" readonly></td>
                                 <td><input type="text" name="form-0-refnum" class="form-control" id="id_form-0-refnum" value="" readonly="readonly"></td>
-                                <td><button class="btn btn-success add-form-row">+</button></td>
+                                <td><button class="btn btn-success add-form-row"><i class="fas fa-file-medical"></i></button></td>
                             </tr>
                         </div> 
                         {% endfor %}
@@ -110,13 +110,133 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let genpartreq_selItem;
     $(document).ready(function(){
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        window.name = "genpartreq";
+
         var d = new Date($.now());
         var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
         $('#id_date_scheduled').val(currentdate);
 
+
         });
+
+    function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            //reenable to child window
+            var row = btn.closest('tr.tablerow');
+            var row_id = row.attr('id').split("-");
+            var id_counter = '';
+            var counter = 1;
+
+            row_id.forEach(function(item) {
+                if( counter === row_id.length ){
+                    id_counter = item;
+                }
+                counter += 1;
+            });
+
+            if ( genpartreq_selItem && !genpartreq_selItem.closed ){
+                genpartreq_selItem.deselectProdsched( $("#id_form-"+id_counter+"-prod_sched").val(), $("#id_form-"+id_counter+"-item_number").val() );
+                toastr.info("Part "+ $("#id_form-"+id_counter+"-item_number").val() +" from Work-Order Schedule "+$("#id_form-"+id_counter+"-prod_sched").val()+ " has been removed from the Schedule.");                 
+            }else{ //window already closed
+
+            }
+
+            btn.closest('#part_table tr.tablerow').remove();
+            var forms = $('#part_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+                $(forms.get(i)).each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+
+    $(document).on('click', '.add-form-row', function(e){
+        if ( genpartreq_selItem && !genpartreq_selItem.closed ){
+            genpartreq_selItem.focus();
+            return false;                
+        }else{
+            genpartreq_selItem = window.open("{% url 'warehouse:GeneratePartRequestSchedule_SelectItem' %}");
+            
+            //send out current list of selected PO
+            var part_list = []                
+            $('#part_table').find('tr.tablerow').each(function (i, el) { //loop through rows
+                var prod_sched = '';
+                var item_num = '';
+
+                $(this).find('input[type=text]').each(function (i, el) { //loop through row elements
+                    var id_list = $(this).attr('id').split("-");
+                    var input_type = '';
+                    var counter = 1;
+                    
+
+                    id_list.forEach(function(item) {
+                        if( counter === id_list.length ){
+                            input_type = item;
+                        }
+                        counter += 1;
+                    });
+
+                    if( input_type === "prod_sched" ){
+                        if( !($(this).val() === "") ){
+                            prod_sched = $(this).val()
+                        }                                                   
+                    }
+                    if( input_type === "item_number" ){
+                        if( !($(this).val() === "") ){
+                            item_num = $(this).val()
+                        }                                                   
+                    }
+                });
+
+                if ( !(prod_sched === "") && !(item_num === "") ){
+                    part_list.push( [prod_sched,item_num] );
+                }
+                
+            });           
+            genpartreq_selItem.part_list = part_list;
+
+            return false;
+
+        }
+        
+    });
 
     function updateElementIndex(el, prefix, ndx) {
         var id_regex = new RegExp('(' + prefix + '-\\d+)');
@@ -131,7 +251,9 @@
         var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
         var currentnum = total - 1
         var counter = 0
-        console.log(lastrowtbl);
+        
+        $('#part_table tr.tablerow:last').attr('id', "form-"+currentnum);
+
         $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
             var name = $(this).attr('name');
             if(name) {
@@ -174,36 +296,20 @@
         total++;
         $('#id_' + prefix + '-TOTAL_FORMS').val(total);
         $('#part_table tr.tablerow:last').after(lastrowtbl);
+        lastrow = total-1;
+        $('#part_table tr.tablerow:last').attr('id', "form-"+lastrow);
+
         var conditionRow = $('#part_table tr.tablerow:not(:last)');
         conditionRow.find('.btn.add-form-row')
         .removeClass('btn-success').addClass('btn-danger')
         .removeClass('add-form-row').addClass('remove-form-row')
-        .html('-');
+        .html('<i class="fa fa-trash"></i>');
         return false;
     }
 
-    function deleteForm(prefix, btn) {
-        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
-        if (total > 1){
-            btn.closest('#part_table tr.tablerow').remove();
-            var forms = $('#part_table tr.tablerow');
-            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
-            for (var i=0, formCount=forms.length; i<formCount; i++) {
-
-                $(forms.get(i)).find(':input[type=text]').each(function() {
-                    updateElementIndex(this, prefix, i);
-                });
-            }
-            total--;
-            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
-        }
-        return false;
-    }
     
-    $(document).on('click', '.add-form-row', function(e){
-        var newwin = window.open("{% url 'warehouse:GeneratePartRequestSchedule_SelectItem' %}");
-        return false;
-    });
+    
+    
     
     $(document).on('click', '.remove-form-row', function(e){
         e.preventDefault();

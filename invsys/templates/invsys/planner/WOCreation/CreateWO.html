@@ -198,6 +198,7 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let createWO_selProd;
     $(document).ready(function(){
         window.name = "Create_WO";
 
@@ -245,8 +246,8 @@
     function cloneMore(prefix, itemnum, item_quan) { //selector - .form-row:last | prefix - form
         var lastrowtbl = $('#part_table tr.tablerow:last').clone(true);
         var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
-        var currentnum = total - 1
-        var counter = 0
+        var currentnum = total - 1;
+        var counter = 0;
 
         $('#part_table tr.tablerow:last').find('input[type=text]').each(function (i, el) {
             var name = $(this).attr('name');
@@ -302,12 +303,6 @@
         }
         return false;
     }
-    
-    $(document).on('click', '.add-product', function(e){
-        var newwin = window.open("{% url 'planner:CreateWO_SelectProduct' %}");
-        newwin.focus();
-        return false;
-    });
 
     $(document).on('click', '.add-form-row', function(e){
         var newwin = window.open("{% url 'warehouse:whse_add_prod_selectitem' %}");
@@ -324,7 +319,7 @@
         event.preventDefault();
 
         Swal.fire({
-            title: 'Do you want to save the created Work-Order?',
+            title: 'Do you want to save the created Work-Order '+ $("#id_work_order_number").val() +'?',
             icon:'success',
             showDenyButton: true,
             confirmButtonText: `Yes`,
@@ -338,6 +333,16 @@
         }
         });
 
+    });
+
+    $(document).on('click', '.add-product', function(e){
+        if ( createWO_selProd && !createWO_selProd.closed ){
+            createWO_selProd.focus();
+            return false;
+        }else{
+            createWO_selProd = window.open("{% url 'planner:CreateWO_SelectProduct' %}");
+            return false;
+        }        
     });
 
 </script>

@@ -6,13 +6,12 @@
 {% block stylesheets %}
 {% load static %}
 <style type="text/css">
-    div.settings {
-        display:grid;
-        grid-template-columns: max-content max-content;
-        grid-gap:5px;
+    .table-striped tbody tr.highlight td { 
+    background-color: #87CEFA;
     }
-    div.settings label       { text-align:right; }
-    div.settings label:after { content: ":"; }
+    input:not([name="notes"]){ 
+    text-align: center; 
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -115,7 +114,14 @@
 
 <script>
     $(window).on('load', function() {
-        document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });      
+        document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        if(po_list.length > 0){
+            po_list.forEach(function(item) {
+                selectPO( item );
+            });
+        }
+        
     });
 
     $(document).ready(function(){
@@ -139,6 +145,15 @@
                 "hideMethod": "fadeOut"
             };
         };
+
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
         
         
         $('#item_table').find('tr.tablerow').each(function (i, el) {
@@ -147,9 +162,26 @@
 
 
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
-            window.opener.insert_po('formpo', $('#name1').val());
 
-            toastr.success('Purchase Order ' + $('#name1').val() + ' is selected to the Shipment.');
+            if( $('#name1').val() === "" ){
+                toastr.error('Select a Purchase Order.');
+            }else{
+                window.opener.insert_po('formpo', $('#name1').val());
+
+                var po_num = $('#name1').val();
+                $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+
+                    var btn = this;
+                    if ( po_num === btn.dataset.ponum ){
+                        $(this).attr('disabled', true);
+
+                        $(this).closest('tr').attr('class', 'tablerow highlight');
+                    }
+                });
+
+                toastr.success('Purchase Order ' + $('#name1').val() + ' is selected to the Shipment.');
+            }
+            
         });
 
         $("#donebtn").on("click", function () {
@@ -177,6 +209,30 @@
         });
 
     });
+
+    function deselectPO(po_num){
+        $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( po_num === btn.dataset.ponum ){
+                $(this).attr('disabled', false);
+
+                $(this).closest('tr').attr('class', 'tablerow');
+            }
+        });
+    }
+
+    function selectPO(po_num){
+        $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( po_num === btn.dataset.ponum ){
+                $(this).attr('disabled', true);
+
+                $(this).closest('tr').attr('class', 'tablerow highlight');
+            }
+        });
+    }
+
+    
 
     $("#po_table").DataTable({
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});

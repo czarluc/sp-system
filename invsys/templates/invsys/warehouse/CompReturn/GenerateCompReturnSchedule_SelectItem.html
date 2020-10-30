@@ -10,6 +10,9 @@
     input{ 
     text-align: center; 
     }
+    #wo_table.dataTable tbody tr.highlight {
+        background-color: #87CEFA !important;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -54,14 +57,13 @@
                 </div>
             </div>
             <div class="form-row align-items-center">
-                <div class="col-lg-2">
-                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
-                </div>
+                <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
             </div>
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="wo_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Components for Return for:</h4>
         </div>
@@ -98,7 +100,18 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
-<script>          
+<script>
+
+    $(window).on('load', function() {
+        document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        if(part_list.length > 0){
+            part_list.forEach(function(item) {
+                selectProdsched( item );
+            });
+        }
+    });
+
     $(document).ready(function(){
         toasterOptions();
         function toasterOptions() {
@@ -121,15 +134,20 @@
             };
         };
 
-        $("#wo_table").DataTable();
-
-        $('#cmbAssLine').change(function() {
-            if ($(this).val() === '2') {
-                alert("GISO Assembly");
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
             }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
+
+        $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
-        $( ".btn.btn-primary.wo" ).on("click", function () {
+        $( "#wo_table" ).on("click", ".btn.btn-primary.wo", function () {
             var btn = this;
 
             var ass_id = btn.dataset.ass_id;
@@ -146,8 +164,13 @@
             $('#name6').val(ass_line);
             $('#assdisc_id').val(assdisc_id);
 
-            toastr.info('Item '+ item_num + " is selected.");
+            toastr.info('Item '+ item_num + " from production schedule " + prod_sched +" is selected. <br> Please confirm.");
+        });
 
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'gencompreturn');
+            goBack.focus();
+            window.close();
         });
         
         $(".btn.btn-success.btn-lg").on("click", function () {
@@ -159,14 +182,71 @@
             var ass_line = $('#name6').val();
             var assdisc_id = $('#assdisc_id').val();
 
-            toastr.success(item_num+" has been selected for return with a quantity of "+quantity);
+            if ( !( prod_sched === "" ) && !( item_num === "" ) ){
+                if ( checkifDisabled(prod_sched, item_num) ){
+                    toastr.error('Part ' + item_num +' from Work Order Schedule ' + prod_sched + " is already added to the schedule.");
+                }else{
+                    window.opener.cloneMore('form', prod_sched, item_num, quantity, ass_id, ass_line, assdisc_id);
 
-            window.opener.cloneMore('form', prod_sched, item_num, quantity, ass_id, ass_line, assdisc_id)
+                    $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                        var btn = this;
+                        if ( prod_sched === btn.dataset.prod_sched ){
+                            if ( item_num === btn.dataset.item_num ){
+                                $(this).attr('disabled', true);
+                                $(this).closest('tr').attr('class', 'tablerow highlight');
+                            }                            
+                        }
+                    });
 
+                    toastr.success('Part ' + item_num +' from Work Order Schedule ' + prod_sched + " is added to the schedule.");
 
+                }
+            }else{
+                toastr.error('Select a part to issue first.');
+            }
         });
 
+        function checkifDisabled(prod_sched, item_num){
+            var status = false;
+            $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                var btn = this;
+                if ( prod_sched === btn.dataset.prod_sched ){
+                    if ( item_num === btn.dataset.item_num ){
+                        if($(this).is(":disabled")){
+                            status = true;
+                        }else{
+                            status = false;
+                        }
+                    }               
+                }
+            });
+            return status;
+        }
 
     });
+
+    function selectProdsched(prod_sched_details){
+        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( prod_sched_details[0] === btn.dataset.prod_sched ){
+                if ( prod_sched_details[1] === btn.dataset.item_num ){
+                    $(this).attr('disabled', true);
+                    $(this).closest('tr').attr('class', 'tablerow highlight');
+                }
+            }
+        });
+    }
+
+    function deselectProdsched( prod_sched, item_num ){
+        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( prod_sched === btn.dataset.prod_sched ){
+                if ( item_num === btn.dataset.item_num ){
+                    $(this).attr('disabled', false);
+                    $(this).closest('tr').attr('class', 'tablerow');
+                }
+            }
+        });
+    }
 </script>
 {% endblock javascripts %}

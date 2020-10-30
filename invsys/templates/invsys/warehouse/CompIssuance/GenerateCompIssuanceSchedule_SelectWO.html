@@ -8,8 +8,8 @@
     input { 
     text-align: center; 
     }
-    #wo_table.dataTable tbody tr.selected {
-        background-color: #5699DD !important;
+    #wo_table.dataTable tbody tr.highlight {
+        background-color: #87CEFA !important;
     }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css" integrity="sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==" crossorigin="anonymous" />
@@ -162,6 +162,12 @@
 
     $(window).on('load', function() {
         document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        if(prodsched_list.length > 0){
+            prodsched_list.forEach(function(item) {
+                selectProdsched( item );
+            });
+        }
     });
 
     $(document).ready(function(){
@@ -185,8 +191,7 @@
                 "hideMethod": "fadeOut"
             };
         };
-
-        
+       
 
         $( "#datepicker" ).change(function () {
             var dateText = $(this).val();
@@ -280,11 +285,42 @@
             var prodschedid = $('#name5').val();
             var datereq = $('#name6').val();
 
-            window.opener.cloneMore('form', prodschedid, wonum, prodnum, quantity, datereq);
+            if ( !( wonum === "" ) ){
+                if ( checkifDisabled(wonum) ){
+                    toastr.error('Work Order Number ' + wonum + ' with Production Schedule '+ prodschedid+ " is already added to the schedule.");
+                }else{
+                    window.opener.cloneMore('form', prodschedid, wonum, prodnum, quantity, datereq);
+                    
+                    $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                        var btn = this;
+                        if ( wonum === btn.dataset.wonum ){
+                            $(this).attr('disabled', true);
+                            $(this).closest('tr').attr('class', 'tablerow highlight');
+                        }
+                    });
 
-            toastr.success('Work Order Number ' + wonum + ' with Production Schedule '+ prodschedid+ " is added to the schedule.");
+                    toastr.success('Work Order Number ' + wonum + ' with Production Schedule '+ prodschedid+ " is added to the schedule.");
+                }
+            }else{
+                toastr.error('Select a Work Order Schedule first.');
+            }
+            
         });
 
+        function checkifDisabled(wonum){
+            var status = false;
+            $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                var btn = this;
+                if ( wonum === btn.dataset.wonum ){
+                    if($(this).is(":disabled")){
+                        status = true;
+                    }else{
+                        status = false;
+                    }                    
+                }
+            });
+            return status;
+        }
 
         $("#wo_table").DataTable({info: false,
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
@@ -295,16 +331,28 @@
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
-        $('#wo_table').on('click', '.btn.btn-primary.wo', function() {
-            var parent_row = $(this).closest('tr');
-            parent_row.addClass('selected');
-            /*
-            setTimeout(function(){
-                parent_row.removeClass('selected');
-            },1000);
-            */
-        });
-
     });
+
+    function selectProdsched(prod_sched){
+        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( prod_sched === btn.dataset.prodschedid ){
+                $(this).attr('disabled', true);
+                $(this).closest('tr').attr('class', 'tablerow highlight');
+            }
+        });
+    }
+
+    function deselectProdsched(prod_sched){
+        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+            var btn = this;
+            if ( prod_sched === btn.dataset.prodschedid ){
+                $(this).attr('disabled', false);
+                $(this).closest('tr').attr('class', 'tablerow');
+            }
+        });
+    }
+
+    
 </script>
 {% endblock javascripts %}

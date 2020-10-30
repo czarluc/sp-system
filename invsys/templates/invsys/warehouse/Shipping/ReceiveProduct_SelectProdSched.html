@@ -186,6 +186,15 @@
                 "hideMethod": "fadeOut"
             };
         };
+
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
             
         $( "#datepicker" ).change(function () {
             var dateText = $(this).val();
