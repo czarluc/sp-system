@@ -60,6 +60,7 @@ urlpatterns = [
         #--Put Away
         path('GeneratePutAwaySchedule/', warehouse.GeneratePutAwaySchedule, name='GeneratePutAwaySchedule'),
         path('GeneratePutAwaySchedule/SelectItem', warehouse.GeneratePutAwaySchedule_SelectItem, name='GeneratePutAwaySchedule_SelectItem'),
+        path('GeneratePutAwaySchedule/Autoselect', warehouse.GeneratePutAwaySchedule_Autoselect, name='GeneratePutAwaySchedule_Autoselect'),
         path('FinishPutAway/', warehouse.FinishPutAway, name='FinishPutAway'),
         path('FinishPutAway/SelectPASched', warehouse.FinishPutAway_SelectPASched, name='FinishPutAway_SelectPASched'),
         re_path(r'^FinishPutAway/SelectItem/(?P<pk>[0-9]+)/', warehouse.FinishPutAway_SelectPAItem, name='FinishPutAway_SelectPAItem'),

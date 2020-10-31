@@ -162,27 +162,47 @@
 
 
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
+            var po_num = $('#name1').val();
 
             if( $('#name1').val() === "" ){
                 toastr.error('Select a Purchase Order.');
             }else{
-                window.opener.insert_po('formpo', $('#name1').val());
 
-                var po_num = $('#name1').val();
-                $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                if ( checkifDisabled(po_num) ){
+                    toastr.error('Purchase Order ' + po_num + ' is already selected to the Shipment.');
+                }else{
 
-                    var btn = this;
-                    if ( po_num === btn.dataset.ponum ){
-                        $(this).attr('disabled', true);
+                    window.opener.insert_po('formpo', po_num);
+                    
+                    $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
 
-                        $(this).closest('tr').attr('class', 'tablerow highlight');
-                    }
-                });
+                        var btn = this;
+                        if ( po_num === btn.dataset.ponum ){
+                            $(this).attr('disabled', true);
 
-                toastr.success('Purchase Order ' + $('#name1').val() + ' is selected to the Shipment.');
+                            $(this).closest('tr').attr('class', 'tablerow highlight');
+                        }
+                    });
+
+                    toastr.success('Purchase Order ' + $('#name1').val() + ' is selected to the Shipment.');
+                }                
             }
-            
         });
+
+        function checkifDisabled(po_num){
+            var status = false;
+            $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                var btn = this;
+                if ( po_num === btn.dataset.ponum ){
+                    if($(this).is(":disabled")){
+                        status = true;
+                    }else{
+                        status = false;
+                    }       
+                }
+            });
+            return status;
+        }
 
         $("#donebtn").on("click", function () {
             var goBack = window.open('', 'inbound_shipment');
@@ -209,6 +229,8 @@
         });
 
     });
+
+
 
     function deselectPO(po_num){
         $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {

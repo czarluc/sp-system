@@ -9,6 +9,18 @@
     input:not([name="notes"]){ 
     text-align: center; 
     }
+    .table-striped tbody tr.done td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.warning td { 
+    background-color: #f0ad4e;
+    }
+    .table-striped tbody tr.highlight td { 
+    background-color: #87CEFA;
+    }
+    #purch_items tr { 
+        color: white;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -59,6 +71,12 @@
                         <input type ="hidden" class="form-control" id="name4"/>
                     </div>
                 </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Available Quantity</label>
+                        <input type="text" class="form-control" id="txt_avail_quan" readonly/>
+                    </div>
+                </div>
             </div>
             <div class="form-row align-items-center">
                 <div class="col-1.5">
@@ -66,6 +84,12 @@
                 </div>
                 <div class="col-1.5">
                     <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
+                </div>
+                <div class="col-1.5">
+                    <button type="button" id="backbtn" class="btn btn-info btn-lg">Back</button>
+                </div>
+                <div class="col-1.5">
+                    <button type="button" id="autoallbtn" class="btn btn-info btn-lg">Auto-Schedule All Items</button>
                 </div>
             </div>
         </div>
@@ -79,9 +103,8 @@
 
             <div class="table-responsive">
                 <table class="table table-hover table-striped w-auto mx-auto" id="purch_items">
-                    <thead class="thead-light">
+                    <thead class="thead-dark">
                         <tr>
-                            <th scope="col">Receiving ID</th>
                             <th scope="col">Reference Number</th>
                             <th scope="col">Item Number</th>
                             <th scope="col">Received Quantity</th>
@@ -90,12 +113,11 @@
                     </thead>
                     <tbody>
                     {% for instance in reclobbyitems %}
-                        <tr class="tablerow" id="reclobby-{{forloop.counter}}">
-                            <td>{{ instance.id }}</td>
+                        <tr class="tablerow" id="reclobby-{{forloop.counter}}" data-rec_quan="{{ instance.received_quantity }}" data-ref_num="{{ instance.reference_number }}" data-item_num="{{ instance.item_number__item_number }}">
                             <td>{{ instance.reference_number }}</td>
                             <td><button type="button" class="btn btn-primary item_number" data-recid="{{instance.id}}" data-item_number="{{instance.item_number__item_number}}" data-item_cat="{{instance.item_number__item_cat__item_cat}}" data-prod_class="{{instance.item_number__prod_class__prod_class}}" data-counter="{{forloop.counter}}" data-refnum="{{ instance.reference_number }}" data-rec_quan="{{ instance.received_quantity }}">{{ instance.item_number__item_number }}</button></td>
                             <td>{{ instance.received_quantity }}</td>
-                            <td><input type="text" class="form-control" id="reclobby-{{forloop.counter}}-schedquan" value="{{ instance.scheduled_quantity }}" readonly style="text-align:center"></td>
+                            <td><span id="reclobby-{{forloop.counter}}-schedquan" style="text-align:center">{{ instance.scheduled_quantity }}</span></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -182,8 +204,25 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+    let table, table2
+    table = $("#purch_items").DataTable({
+        pageLength : 5,
+        lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+    table2 = $("#bin_table").DataTable({searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+    $("#item_table").DataTable({searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+
     $(window).on('load', function() {
         document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        if ( item_list.length > 0 ){
+            add_Items( item_list );
+        }
     });
 
     $(document).ready(function(){
@@ -209,6 +248,15 @@
             };
         };
 
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
+
         $("#whse_card").hide();
 
         $('#bin_table').find('tr.tablerow.bin_location').each(function (i, el) {
@@ -217,6 +265,8 @@
         $('#item_table').find('tr.tablerow.bin_item').each(function (i, el) {
             $(this).hide();
         });
+
+        checkRows();
 
         $( "#purch_items" ).on("click", ".btn.btn-primary.item_number", function () {
             var btn = this;
@@ -228,6 +278,9 @@
             $('#name5').val(refnum);
             var txt_rec_quan = btn.dataset.rec_quan;
             $("#txt_rec_quan").val(txt_rec_quan);
+
+            var sched_quan = $("#reclobby-"+counter+"-schedquan").text();
+            $("#txt_avail_quan").val( parseInt(txt_rec_quan) - parseInt(sched_quan) );
 
             var item_cat = btn.dataset.item_cat;
             var prod_class = btn.dataset.prod_class;
@@ -248,11 +301,15 @@
 
             toastr.info('Part with Item Number ' + item_number + ' is selected. Please choose a Warehouse Bin.');
 
+            checkWhseBin( item_number, refnum );
+
             $("#whse_card").show();
 
             document.getElementById("whse_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
             $("#pa_card").hide();
+
+            $("#backbtn").show();
 
         });
         $( "#bin_table" ).on("click", ".btn.btn-primary.bin_location", function () {
@@ -261,11 +318,11 @@
             var bin_id = btn.dataset.binid;
             $('#name2').val(bin_location);
             $('#name2').data('binid',bin_id);
-            console.log(bin_location);
+
             $('#item_table').find('tr.tablerow.bin_item').each(function (i, el) {
                 var name = this;
                 var item_binlocation = name.dataset.bin_location;
-                console.log(item_binlocation);
+
                 if (bin_location === item_binlocation){
                     $(this).show();
                 }else {
@@ -278,11 +335,25 @@
         });
 
         $("#donebtn").on("click", function () {
-            var goBack = window.open('', 'Gen_PA');
+            var goBack = window.open('', 'genputaway');
             goBack.focus();
             window.close();
         });
 
+        $("#backbtn").hide();
+
+        $("#backbtn").on("click", function () {
+            $("#backbtn").hide();
+            resetWhseBin();
+            checkRows();
+            resetFields();
+
+            $("#pa_card").show();
+
+            document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+            $("#whse_card").hide();
+        });
         
         $(".btn.btn-success.btn-lg").on("click", function () {
             var item_num = $('#name1').val();
@@ -292,18 +363,30 @@
             
             var bin_locationid = $('#name2').data('binid');
             
-            var recquan = $('#reclobby-' + counter + '-recquan').val();
-            var schedquan = $('#reclobby-' + counter + '-schedquan').val();
+            var recquan = $('#reclobby-' + counter).attr('data-rec_quan');
+            var schedquan = $('#reclobby-' + counter + '-schedquan').text();
             var planschedquan = $('#name3').val();
             var totalsched = parseInt(schedquan) + parseInt(planschedquan);
-            if ( !(recquan < totalsched) ){
-                $('#reclobby-'+counter+"-schedquan").val(totalsched);
-                window.opener.cloneMore('form', item_num, planschedquan, bin_location, refnum, bin_locationid);
-            }else{
-                alert("Please enter a put away quantity cummulatively less than the received/available quantity");
-            }
 
-            toastr.success('Part ' + item_num + ' is scheduled for Put Away at '+bin_location);
+            if ( !(item_num === "") ){
+                if ( (parseInt(recquan) >= parseInt(totalsched)) ){
+                    if( !(bin_location === "") ){
+                        updateItem(item_num, refnum, planschedquan)
+                        window.opener.cloneMore('form', item_num, planschedquan, bin_location, refnum, bin_locationid);
+                        toastr.success('Part ' + item_num + ' is scheduled for Put Away at '+bin_location);
+                    }else{
+                        toastr.error("Please select a Warehouse Bin to Put-Away.");
+                    }                
+                }else{
+                    toastr.error("Please enter a put away quantity cummulatively less than the received/available quantity");
+                }
+            }else{
+                toastr.error("Please select a received part first.");
+            } 
+
+            resetWhseBin();
+            checkRows();
+            resetFields();
 
             $("#pa_card").show();
 
@@ -311,21 +394,231 @@
 
             $("#whse_card").hide();
 
+            $("#backbtn").hide();
             
         });
 
-        $("#purch_items").DataTable(
-            {"columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#bin_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#item_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+        
+        function checkRows(){
+            var counter = 0;
+            $(table.rows().nodes()).each(function(i, el){
+                var row_tag =  table.rows(counter).nodes().to$();
+                var button_tag = $.parseHTML(table.cell(counter,1).data())[0];
 
+                //get the scheduled quantity and received items
+                var rec_quan = $(row_tag).attr('data-rec_quan');
+                var sched_quan =  $($.parseHTML(table.cell(counter,3).data())[0]).text();
+
+                if ( parseInt(rec_quan) === parseInt(sched_quan) ){
+                    $(row_tag).attr('class', 'tablerow done');
+                    $(button_tag).attr('disabled',true);
+                }else{
+                    $(row_tag).attr('class', 'tablerow warning');
+                    $(button_tag).attr('disabled',false);
+                }
+                table.cell(counter,1).data($(button_tag).prop('outerHTML'));
+                
+                counter += 1;
+            });
+        }
+
+        function resetFields(){
+            $("#name1").val('');
+            $("#name5").val('');
+            $("#name2").val('');
+            $("#txt_rec_quan").val('');
+            $("#name3").val('');
+            $("#name4").val('');
+            $("#txt_avail_quan").val('');
+        }
+
+        $("#autoallbtn").on("click", function () {
+
+            //get all list of items to sched
+            var item_sched_list = []
+            var counter = 0;
+            $(table.rows().nodes()).each(function(i, el){ //search the rows for the item and ref num
+                var row_tag =  table.rows(counter).nodes().to$();
+                
+                var ref_num = $(row_tag).attr('data-ref_num');
+                var item_num = $(row_tag).attr('data-item_num');
+
+
+                var span_tag =  $.parseHTML(table.cell(counter,3).data())[0];
+                //get the scheduled quantity and received items
+                var rec_quan = $(row_tag).attr('data-rec_quan');
+                var sched_quan =  $(span_tag).text();
+
+                var to_sched_quan = parseInt( rec_quan ) - parseInt( sched_quan );
+
+                if( to_sched_quan === 0 ){
+                    //do nothing since all items are scheduled
+                }else{
+                    item_sched_list.push([ ref_num, item_num, to_sched_quan ]);
+                }
+                
+
+                counter += 1;
+            });
+
+            if ( item_sched_list.length > 0 ){
+                //do the ajax post
+                $.ajax({
+                    method: "POST",
+                    url: "{% url 'warehouse:GeneratePutAwaySchedule_Autoselect' %}",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                    },
+                    data: {'item_sched_list[]': JSON.stringify(item_sched_list)},
+                    dataType: 'json',
+
+                    success: function(data){
+                        
+                        data.done_item_sched_list.forEach(function(item) {
+                            updateItem(item[0], item[4], item[1]);
+                            window.opener.cloneMore('form', item[0], item[1], item[3], item[4], item[2]);
+                        });
+
+                        toastr.success('All remaining parts automatically scheduled!');
+                        $('#autoallbtn').hide();
+
+                    },
+                    error: function(error_data){
+                      console.log("error");
+                      console.log(error_data);
+                    }
+                });
+            }else{
+                toastr.error('No parts left to schedule!');
+            }
+            
+
+        });
 
     });
+
+    function checkWhseBin(item_num, ref_num){
+
+        item_list = window.opener.pass_Items();
+
+        item_list.forEach(function(item) { //[0] item, [1] quantity, [2] bin loc, [3] ref num
+
+            var sched_item_num = item[0]
+            var sched_bin_loc = item[2]
+            var sched_ref_num = item[3]
+
+            if ( (item_num === sched_item_num) && ( ref_num === sched_ref_num ) ){
+                var counter = 0;
+                $(table2.rows().nodes()).each(function(i, el){ //search the rows for the item and ref num
+                    var row_tag =  table2.rows(counter).nodes().to$();
+                    var button_tag = $.parseHTML(table2.cell(counter,1).data())[0];
+
+                    var bin_loc = $(row_tag).attr('data-bin_location');
+
+                    if( bin_loc === sched_bin_loc ){
+                        $(row_tag).attr('class', 'tablerow highlight');
+                        $(button_tag).attr('disabled',true);
+                    }else{
+                        $(row_tag).attr('class', 'tablerow');
+                        $(button_tag).attr('disabled',false);
+                    }
+                    table2.cell(counter,1).data($(button_tag).prop('outerHTML'));
+                    counter += 1;
+                });
+            }
+        });
+    }
+
+    function resetWhseBin(){
+        var counter = 0;
+        $(table2.rows().nodes()).each(function(i, el){ //search the rows for the item and ref num
+            var row_tag =  table2.rows(counter).nodes().to$();
+            var button_tag = $.parseHTML(table2.cell(counter,1).data())[0];
+            
+            $(row_tag).attr('class', 'tablerow');
+            $(button_tag).attr('disabled',false);
+            table2.cell(counter,1).data($(button_tag).prop('outerHTML'));
+            
+            counter += 1;
+        });
+    }
+
+    function updateItem(item_num, ref_num, sched_quan){ //gets called when the user deletes it in the schedule
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ //search the rows for the item and ref num
+            var row_tag =  table.rows(counter).nodes().to$();
+            var button_tag = $.parseHTML(table.cell(counter,1).data())[0];
+            
+            var purch_refnum = $(row_tag).attr('data-ref_num');
+            var purch_itemnum = $(row_tag).attr('data-item_num');
+
+            if( (item_num === purch_itemnum ) && ( ref_num === purch_refnum )){
+                var span_tag =  $.parseHTML(table.cell(counter,3).data())[0];
+
+                //get the scheduled quantity and received items
+                var rec_quan = $(row_tag).attr('data-rec_quan');
+                var curr_sched_quan =  $(span_tag).text();
+                var new_sched_quan = parseInt( curr_sched_quan ) + parseInt( sched_quan );
+                
+                $(span_tag).text(new_sched_quan);
+                table.cell(counter,3).data($(span_tag).prop('outerHTML'));               
+
+                if ( parseInt(rec_quan) === parseInt(new_sched_quan) ){
+                    $(row_tag).attr('class', 'tablerow done');
+                    $(button_tag).attr('disabled',true);
+                }else{
+                    $(row_tag).attr('class', 'tablerow warning');
+                    $(button_tag).attr('disabled',false);
+                }
+            }
+            table.cell(counter,1).data($(button_tag).prop('outerHTML'));
+            counter += 1;
+        });
+    }
+
+    function add_Items(item_list){ //gets called to initiate an initial list
+        item_list.forEach(function(item) { //[0] item, [1] quantity, [2] bin loc, [3] ref num
+
+            var item_num = item[0]
+            var sched_quan = item[1]
+            var ref_num = item[3]
+
+            var counter = 0;
+
+            $(table.rows().nodes()).each(function(i, el){ //search the rows for the item and ref num
+                var row_tag =  table.rows(counter).nodes().to$();
+                var button_tag = $.parseHTML(table.cell(counter,1).data())[0]; 
+                
+                var purch_refnum = $(row_tag).attr('data-ref_num');
+                var purch_itemnum = $(row_tag).attr('data-item_num');
+
+                if( (item_num === purch_itemnum ) && ( ref_num === purch_refnum )){
+
+                    //get the scheduled quantity and received items
+                    var rec_quan = $(row_tag).attr('data-rec_quan');
+                    var span_tag =  $.parseHTML(table.cell(counter,3).data())[0]
+                    var curr_sched_quan = $(span_tag).text();
+                    var new_sched_quan = parseInt( curr_sched_quan ) + parseInt( sched_quan );
+                    
+                    $(span_tag).text(new_sched_quan);
+                    table.cell(counter,3).data($(span_tag).prop('outerHTML'));
+
+                    if ( parseInt(rec_quan) === parseInt(new_sched_quan) ){
+                        $(row_tag).attr('class', 'tablerow done');
+                        $(button_tag).attr('disabled',true);
+                    }else{
+                        $(row_tag).attr('class', 'tablerow warning');
+                        $(button_tag).attr('disabled',false);
+                    }
+                    table.cell(counter,1).data($(button_tag).prop('outerHTML'));
+                }
+
+                counter += 1;
+            });
+
+        });
+    }
 
 
 </script>

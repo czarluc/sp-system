@@ -1090,6 +1090,51 @@ def getRecLobbyItemclass(reclobbyitemclass,reclobbyitems):
     for item in reclobbyitems:
         reclobbyitemclass.append(item.item_number.prod_class)
     return reclobbyitemclass
+
+#--GeneratePutAwaySchedule_Autoselect--
+@login_required
+@warehouse_required
+def GeneratePutAwaySchedule_Autoselect(request):
+
+    item_sched_list = json.loads(request.POST.get('item_sched_list[]'))
+    done_item_sched_list = [] #item_num, sched_quan, bin_id, bin_loc, ref_num
+
+    for item_sched in item_sched_list:
+        item_obj = Item.objects.get(item_number=item_sched[1])
+        sched_details = auto_putaway_sched( item_obj, item_sched[2], item_sched[0] )
+        done_item_sched_list.append( sched_details )
+
+    data = { 'msg':"FUCK IT WORKED!",
+        'done_item_sched_list':done_item_sched_list }
+    return JsonResponse(data)
+
+def auto_putaway_sched( item_obj, req_quan, ref_num ):
+    sched_details = []
+    #get list of whse avail objects based on item category and prod class
+    whse_query = Warehouse.objects.filter(item_cat=item_obj.item_cat,prod_class=item_obj.prod_class).order_by('bin_location').values(
+        'id',
+        'bin_location')
+
+    #do something to add more features like least whse items, and etc.
+
+    bin_id = ''
+    bin_loc = ''
+    counter = 0
+    for whse in whse_query:
+        if counter == 0:
+            bin_id = whse.get('id')
+            bin_loc = whse.get('bin_location')
+            break
+        counter += 1
+
+    sched_details.append(item_obj.item_number)
+    sched_details.append(req_quan)
+    sched_details.append(bin_id)
+    sched_details.append(bin_loc)
+    sched_details.append(ref_num)
+
+    return sched_details
+
 #--Finish Put Away--
 @login_required
 @warehouse_required
