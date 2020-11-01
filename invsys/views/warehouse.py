@@ -427,7 +427,7 @@ def ReceiveShipment_SelectPONum(request):
     for shipment in shipment_query:
         shipment_list.append(shipment.get('shipment_num'))
 
-    shipment_po_query = Shipment_PO.objects.filter(shipment_num__in=shipment_list, validated=False, po_num__cleared=False, po_num__issues=False).values(
+    shipment_po_query = Shipment_PO.objects.filter(shipment_num__shipment_num__in=shipment_list, validated=False, po_num__cleared=False, po_num__issues=False).values(
         'id',
         'shipment_num__shipment_num',
         'po_num__po_number',
@@ -687,7 +687,7 @@ def ContinueReceiveShipment_SelectPO(request):
         'shipment_num__date_dr',
         'shipment_num__date_warehouse',)
 
-    shipment_po_query = Shipment_PO.objects.filter(shipment_num__in=shipment_list, validated=False, po_num__issues=True).values(
+    shipment_po_query = Shipment_PO.objects.filter(shipment_num__shipment_num__in=shipment_list, validated=False, po_num__issues=True).values(
         'id',
         'shipment_num__shipment_num',
         'po_num__po_number',

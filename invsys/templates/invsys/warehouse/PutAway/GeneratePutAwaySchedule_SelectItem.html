@@ -204,7 +204,7 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
-    let table, table2
+    let table, table2, table3
     table = $("#purch_items").DataTable({
         pageLength : 5,
         lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
@@ -213,7 +213,7 @@
     table2 = $("#bin_table").DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
-    $("#item_table").DataTable({searching: false, paging: false, info: false,
+    table3 = $("#item_table").DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
 
@@ -259,11 +259,12 @@
 
         $("#whse_card").hide();
 
-        $('#bin_table').find('tr.tablerow.bin_location').each(function (i, el) {
-            $(this).hide();
+        $(table2.rows().nodes()).each(function(i, el){
+            $(table2.rows(this).nodes().to$()).hide();
         });
-        $('#item_table').find('tr.tablerow.bin_item').each(function (i, el) {
-            $(this).hide();
+
+        $(table3.rows().nodes()).each(function(i, el){
+            $(table3.rows(this).nodes().to$()).hide();
         });
 
         checkRows();
@@ -284,19 +285,24 @@
 
             var item_cat = btn.dataset.item_cat;
             var prod_class = btn.dataset.prod_class;
-            $('#bin_table').find('tr.tablerow.bin_location').each(function (i, el) {
-                var name = this;
-                var bin_itemcat = name.dataset.item_cat;
-                var bin_prodclass = name.dataset.prod_class;
+
+            var counter2 = 0
+            $(table2.rows().nodes()).each(function(i, el){ //search the rows for the item and ref num
+                var row_tag = table2.rows(counter2).nodes().to$();
+                var bin_itemcat = $(row_tag).attr('data-item_cat');
+                var bin_prodclass = $(row_tag).attr('data-prod_class');
+
                 if (item_cat === bin_itemcat){
                     if (prod_class === bin_prodclass){
-                        $(this).show();
+                        $(row_tag).show();
                     } else {
-                        $(this).hide();
+                        $(row_tag).hide();
                     }
                 }else {
-                    $(this).hide();
+                    $(row_tag).hide();
                 }
+
+                counter2+=1;
             });
 
             toastr.info('Part with Item Number ' + item_number + ' is selected. Please choose a Warehouse Bin.');
@@ -319,15 +325,18 @@
             $('#name2').val(bin_location);
             $('#name2').data('binid',bin_id);
 
-            $('#item_table').find('tr.tablerow.bin_item').each(function (i, el) {
-                var name = this;
-                var item_binlocation = name.dataset.bin_location;
+            var counter3 = 0
+            $(table3.rows().nodes()).each(function(i, el){ //search the rows for the item and ref num
+                var row_tag =  table2.rows(counter3).nodes().to$();
+                var item_binlocation = $(row_tag).attr('data-bin_location');
 
                 if (bin_location === item_binlocation){
                     $(this).show();
                 }else {
                     $(this).hide();
                 }
+
+                counter3+=1;
             });
 
             toastr.info('Warehouse Bin ' + bin_location + ' is selected for part '+$('#name1').val());

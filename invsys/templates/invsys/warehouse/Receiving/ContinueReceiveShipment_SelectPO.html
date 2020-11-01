@@ -114,7 +114,7 @@ HELLO
                             {% for instance in shipment_po_set %}
                                 <tr class="tablerow" data-ship_num="{{instance.shipment_num__shipment_num}}">
                                     <td><button type="button" class="btn btn-primary po" data-ponum="{{ instance.po_num__po_number }}" data-supplier="{{ instance.po_num__supplier }}" data-ship_po_id="{{ instance.id }}">{{ instance.po_num__po_number }}</button></td>
-                                    <td>{{ instance.purchase_date }}</td>
+                                    <td>{{ instance.po_num__purchase_date }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
