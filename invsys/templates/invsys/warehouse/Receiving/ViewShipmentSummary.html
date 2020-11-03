@@ -288,87 +288,101 @@ $(document).ready(function() {
       table.columns().search('').draw();
     });
 
-    $('#ship_table').DataTable({searching: false, paging: false, info: false,
+    var table2 = $('#ship_table').DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
 
-    $('#po_item_table').DataTable({searching: false, paging: false, info: false,
+    var table3 = $('#po_item_table').DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
  
-    $('#ship_item_table').DataTable({searching: false, paging: false, info: false,
+    var table4 = $('#ship_item_table').DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
 
-    $('#ship_sum_table').DataTable({searching: false, paging: false, info: false,
+    var table5 = $('#ship_sum_table').DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
 
-    $('#ship_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
-    $('#po_item_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter3 = 0;
+    $(table3.rows().nodes()).each(function(i, el){ 
+        $(table3.rows(counter3).nodes().to$()).hide();
+        counter3 += 1;
     });
 
-    $('#ship_item_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter4 = 0;
+    $(table4.rows().nodes()).each(function(i, el){ 
+        $(table4.rows(counter4).nodes().to$()).hide();
+        counter4 += 1;
     });
 
-    $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter5 = 0;
+    $(table5.rows().nodes()).each(function(i, el){ 
+        $(table5.rows(counter5).nodes().to$()).hide();
+        counter5 += 1;
     });
 
     $( "#po_table" ).on("click", ".btn.btn-primary.po", function () {
         var btn = this;
         var po_num = btn.dataset.ponum;
         
-        $('#ship_table').find('tr.tablerow').each(function (i, el) {
-            var name = this;
-            var item_po_num = name.dataset.po_num;
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
+
+            var item_po_num = $(row_tag2).attr('data-po_num');
             if (po_num === item_po_num){
-                $(this).show();
+                $(row_tag2).show();
             }else {
-                $(this).hide();
+                $(row_tag2).hide();
             }
+            counter2 += 1;
         });
 
         
-        $('#po_item_table').find('tr.tablerow').each(function (i, el) {
-            var ship_row = this;
-            var ship_po_num = ship_row.dataset.po_num;
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            var row_tag3 = table3.rows(counter3).nodes().to$();
 
+            var ship_po_num = $(row_tag3).attr('data-po_num');
             if (ship_po_num === po_num){
-                $(this).show();
-
+                $(row_tag3).show();
             }else {
-                $(this).hide();
+                $(row_tag3).hide();
             }
-
-            
+            counter3 += 1;            
         });
 
-        $('#ship_item_table').find('tr.tablerow').each(function (i, el) {
-            var shipsum_row = this;
-            var ship_po_num = shipsum_row.dataset.po_num;
+        var counter4 = 0;
+        $(table4.rows().nodes()).each(function(i, el){ 
+            var row_tag4 = table4.rows(counter4).nodes().to$();
+            var ship_po_num = $(row_tag4).attr('data-po_num');
 
             if (ship_po_num === po_num){
-                $(this).show();                                            
+                $(row_tag4).show();                                            
             }else {
-                $(this).hide();
+                $(row_tag4).hide();
             }
+            counter4 += 1;
         });
 
-        $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
-            var shipsum_row = this;
-            var ship_po_num = shipsum_row.dataset.po_num;
+        var counter5 = 0;
+        $(table5.rows().nodes()).each(function(i, el){ 
+            var row_tag5 = table5.rows(counter5).nodes().to$();
+            var ship_po_num = $(row_tag5).attr('data-po_num');
 
             if (ship_po_num === po_num){
-                $(this).show();                                            
+                $(row_tag5).show();                                            
             }else {
-                $(this).hide();
+                $(row_tag5).hide();
             }
+            counter5 += 1;
         });
         
         toastr.info('Purchase Order ' + po_num + " is selected.");

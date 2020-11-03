@@ -139,6 +139,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
+    let table1, table2
+
+    table1 = $("#sched_table").DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    table2 = $("#item_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
     $(window).on('load', function() {
         document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
     });
@@ -165,8 +175,10 @@
             };
         };
         
-        $('#item_table').find('tr.tablerow.paitem').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
         
 
@@ -179,14 +191,17 @@
             var notes = btn.dataset.notes;
             $('#name3').val(notes);
 
-            $('#item_table').find('tr.tablerow.paitem').each(function (i, el) {
-                var name = this;
-                var item_schednum = name.dataset.schednum;
-                if (schednum === item_schednum){
-                    $(this).show();
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+
+                var item_schednum = $(row_tag2).attr('data-schednum');
+                if (item_schednum === schednum){
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Put Away Schedule ' + schednum + " is selected.");
@@ -202,18 +217,20 @@
             $(window.opener.document).find('#id_notes').val(notes);
             alert("Put Away Schedule " + sched_num + " has been selected");
 
-            $('#item_table').find('tr.tablerow.paitem').each(function (i, el) {
-                if ($(this).is(":visible")){
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+                if ($(row_tag2).is(":visible")){
                     
-                    var itemrow = this;
-                    var item_num = itemrow.dataset.item_num;
-                    var req_quan = itemrow.dataset.req_quan;
-                    var bin_id = itemrow.dataset.bin_id;
-                    var bin_loc = itemrow.dataset.bin_loc;
-                    var ref_num = itemrow.dataset.ref_num;
+                    var item_num = $(row_tag2).attr('data-item_num');
+                    var req_quan = $(row_tag2).attr('data-req_quan');
+                    var bin_id = $(row_tag2).attr('data-bin_id');
+                    var bin_loc = $(row_tag2).attr('data-bin_loc');
+                    var ref_num = $(row_tag2).attr('data-ref_num');
 
                     window.opener.cloneMore('formsetsum', item_num, req_quan, bin_id, bin_loc, ref_num);
                 }
+                counter2 += 1;
             });
 
             toastr.success('Put Away Schedule ' + schednum + " is verification.");
@@ -221,13 +238,6 @@
             var goBack = window.open('', 'Fin_PA');
             goBack.focus();
             window.close();
-        });
-
-        $("#sched_table").DataTable(
-            {"columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#item_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
     });

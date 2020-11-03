@@ -227,12 +227,16 @@ $(document).ready(function() {
     });
 
 
-    $('#issuance_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
-    $('#assembly_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter3 = 0;
+    $(table3.rows().nodes()).each(function(i, el){ 
+        $(table3.rows(counter3).nodes().to$()).hide();
+        counter3 += 1;
     });
 
     $( "#wo_table" ).on("click", ".btn.btn-primary",function () {
@@ -240,25 +244,31 @@ $(document).ready(function() {
         var wo_num = btn.dataset.wo_num;
 
         toastr.info('Work Order Number ' + wo_num + " is selected.");
-        
-        $('#issuance_table').find('tr.tablerow').each(function (i, el) {
-            var issuancesched = this;
-            var issuancesched_wo_num = issuancesched.dataset.wo_num;
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag = table2.rows(counter2).nodes().to$();
+            var issuancesched_wo_num = $(row_tag).attr('data-wo_num');
+            
             if (wo_num === issuancesched_wo_num){
-                $(this).show();
+                $(row_tag).show();
             }else {
-                $(this).hide();
+                $(row_tag).hide();
             }
+            counter2 += 1;
         });
 
-        $('#assembly_table').find('tr.tablerow').each(function (i, el) {
-            var issuanceitem = this;
-            var issuanceitem_wo_num = issuanceitem.dataset.wo_num;
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            var row_tag = table3.rows(counter3).nodes().to$();
+            var issuanceitem_wo_num = $(row_tag).attr('data-wo_num');
+            
             if (wo_num === issuanceitem_wo_num){
-                $(this).show();
+                $(row_tag).show();
             }else {
-                $(this).hide();
+                $(row_tag).hide();
             }
+            counter3 += 1;
         });
 
     });

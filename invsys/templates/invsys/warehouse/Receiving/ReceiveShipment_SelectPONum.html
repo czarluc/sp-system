@@ -166,6 +166,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
+    let table1, table2
+    table1 = $("#po_table").DataTable({paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+    table2 = $("#item_table").DataTable({paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
 
     $(window).on('load', function() {
         document.getElementById("ship_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -203,12 +208,16 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
-        $('#po_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            $(table1.rows(counter1).nodes().to$()).hide();
+            counter1 += 1;
         });
-        
-        $('#item_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
 
@@ -228,22 +237,25 @@
 
                     window.opener.deletereqitem();
                     
-                    $('#item_table').find('tr.tablerow').each(function (i, el) {
-                        if ($(this).is(":visible")){
+                    var counter2 = 0;
+                    $(table2.rows().nodes()).each(function(i, el){ 
+                        var row_tag2 = table2.rows(counter2).nodes().to$();
+                        if ($(row_tag2).is(":visible")){
+
                             var d = new Date($.now());
                             var currentdate = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
                             var startime = Math.ceil((Date.now()-Math.floor(Date.now()/1000/60/60/24)*24*60*60*1000)/1000);
                             var shipitem_row = this;
-                            var item_num = shipitem_row.dataset.item_num;
-                            var purch_quan = shipitem_row.dataset.purch_quan;
+                            var item_num = $(row_tag2).attr('data-item_num');
+                            var purch_quan = $(row_tag2).attr('data-purch_quan');
                             
                             window.opener.insert_shipitem('formitem', currentdate, startime, item_num, purch_quan);
-                            
 
                             window.opener.showreqitem(item_num,purch_quan);
 
                             $(window.opener.document).find('#val_start').val(secondsToTime(startime));
                         }
+                        counter2 += 1;
                     });
 
                     window.opener.showtoast($('#po_num').val(),$('#ship_num').val());
@@ -254,10 +266,6 @@
                 }
 
             }
-
-            
-
-            
 
         });
 
@@ -275,15 +283,17 @@
             var ship_num = btn.dataset.ship;
             $('#ship_num').val(ship_num);
 
-            $('#po_table').find('tr.tablerow').each(function (i, el) {
-                var name = this;
-                var shipnum_po = name.dataset.ship_num;
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var shipnum_po = $(row_tag1).attr('data-ship_num');
 
                 if(ship_num === shipnum_po){
-                    $(this).show(); 
+                    $(row_tag1).show(); 
                 }else{
-                    $(this).hide();
+                    $(row_tag1).hide();
                 }
+                counter1 += 1;
             });
 
             toastr.info('Shipment ' + ship_num + ' is selected. Please select a Purchase Order.');
@@ -297,14 +307,16 @@
             $("#po_num").val(po_num);
             $("#ship_po").val(ship_po_id);
             
-            $('#item_table').find('tr.tablerow').each(function (i, el) {
-                var name = this;
-                var item_po_num = name.dataset.ponum;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+                var item_po_num = $(row_tag2).attr('data-ponum');
                 if (po_num === item_po_num){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Purchase Order ' + po_num + ' is selected. Please confirm.');
@@ -316,10 +328,5 @@
         
 
     });
-
-    $("#po_table").DataTable({paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-    $("#item_table").DataTable({paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
 </script>
 {% endblock javascripts %}

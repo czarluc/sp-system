@@ -193,40 +193,48 @@ $(document).ready(function() {
     table3.buttons().container()
         .appendTo( '#sum_table_wrapper .col-md-6:eq(0)' );
 
-    $('#req_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
-    $('#sum_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter3 = 0;
+    $(table3.rows().nodes()).each(function(i, el){ 
+        $(table3.rows(counter3).nodes().to$()).hide();
+        counter3 += 1;
     });
 
     $("#sched_table").on("click", ".btn.btn-primary.sched", function(){
         btn = this;
         var sched_num = btn.dataset.sched_num;
 
-        $('#req_table').find('tr.tablerow').each(function (i, el) {
-            var row = this;
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
 
-            var row_sched_num = row.dataset.sched_num;
+            var row_sched_num = $(row_tag2).attr('data-sched_num');
 
             if ( sched_num === row_sched_num ){
-                $(this).show();
+                $(row_tag2).show();
             }else{
-                $(this).hide();
+                $(row_tag2).hide();
             }
+            counter2 += 1;
         });
 
-        $('#sum_table').find('tr.tablerow').each(function (i, el) {
-            var row = this;
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            var row_tag3 = table3.rows(counter3).nodes().to$();
 
-            var row_sched_num = row.dataset.sched_num;
+            var row_sched_num = $(row_tag3).attr('data-sched_num');
 
             if ( sched_num === row_sched_num ){
-                $(this).show();
+                $(row_tag3).show();
             }else{
-                $(this).hide();
+                $(row_tag3).hide();
             }
+            counter3 += 1;
         });
 
         toastr.info('Put Away Schedule Number '+ sched_num + " is selected.");

@@ -234,12 +234,16 @@ $(document).ready(function() {
         .appendTo( '#prod_table_wrapper .col-md-6:eq(0)' );
 
 
-    $('#item_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
-    $('#prod_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter3 = 0;
+    $(table3.rows().nodes()).each(function(i, el){ 
+        $(table3.rows(counter3).nodes().to$()).hide();
+        counter3 += 1;
     });
 
     $("#report_table").on("click", ".btn.btn-primary.report_num", function(){
@@ -247,28 +251,32 @@ $(document).ready(function() {
 
         var report_num = btn.dataset.report_num;
 
-        $('#item_table').find('tr.tablerow').each(function (i, el) {
-            var item_row = this;
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
 
-            var item_report_num = item_row.dataset.report_num;
+            var item_report_num = $(row_tag2).attr('data-report_num');
 
             if( report_num === item_report_num ){
-                $(this).show();
+                $(row_tag2).show();
             }else{
-                $(this).hide();
-            }           
+                $(row_tag2).hide();
+            }      
+            counter2 += 1;     
         });
 
-        $('#prod_table').find('tr.tablerow').each(function (i, el) {
-            var prod_row = this;
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            var row_tag3 = table3.rows(counter3).nodes().to$();
 
-            var prod_report_num = prod_row.dataset.report_num;
+            var prod_report_num = $(row_tag3).attr('data-report_num');
 
             if( report_num === prod_report_num ){
-                $(this).show();
+                $(row_tag3).show();
             }else{
-                $(this).hide();
-            }           
+                $(row_tag3).hide();
+            }      
+            counter3 += 1;      
         });
 
 

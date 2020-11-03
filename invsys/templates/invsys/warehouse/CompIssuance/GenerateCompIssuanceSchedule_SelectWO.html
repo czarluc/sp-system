@@ -143,7 +143,7 @@
                             <td>{{ instance.work_order_number__work_order_number }}</td>
                             <td>{{ instance.item_number__item_number }}</td>
                             <td>{{ instance.item_quantity }}</td>
-                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-tot_quan" value="" readonly></td>
+                            <td><span id="bom-{{forloop.counter}}-tot_quan" style="text-align:center"></span></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -159,6 +159,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
+    let table1, table2
+
+    table1 = $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    table2 = $("#item_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
 
     $(window).on('load', function() {
         document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -200,31 +210,39 @@
         });
 
         function getWO(){
-            $('#wo_table').find('tr.tablerow').each(function (i, el) {
-                var rowelm = this;
-                var date_req = rowelm.dataset.date_req;
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var date_req = $(row_tag1).attr('data-date_req');
                 var date_sel = $("#datepicker").val();
 
                 if(date_sel === date_req){
-                    $(this).show();
+                    $(row_tag1).show();
                 }else{
-                    $(this).hide();
+                    $(row_tag1).hide();
                 }
+                counter1 += 1;
 
-                $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-                    $(this).hide();
-                });
+                var counter2 = 0;
+                $(table2.rows().nodes()).each(function(i, el){ 
+                    $(table2.rows(counter2).nodes().to$()).hide();
+                    counter2 += 1;
+                });   
 
             });
         }
 
-        $('#wo_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            $(table1.rows(counter1).nodes().to$()).hide();
+            counter1 += 1;
         });
-        
-        $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-            $(this).hide();
-        });
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
+        });       
 
         $( "#wo_table" ).on("click", ".btn.btn-primary.wo", function () {
             document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -247,20 +265,24 @@
             $('#name5').val(prodschedid);
             $('#name6').val(date_req);
 
-            $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-                var itemrow = this;
-                var item_wonum = itemrow.dataset.wonum;
-                var itemrowid = this.id;
-                var item_quan = itemrow.dataset.item_quan;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+
+                var item_wonum = $(row_tag2).attr('data-wonum');
+                var item_quan = $(row_tag2).attr('data-item_quan');
                 var tot_quan = parseInt(item_quan) * parseInt(quan);
 
-                $('#'+itemrowid+"-tot_quan").val(tot_quan);
+                var tot_quan_tag = $.parseHTML(table2.cell(counter2,3).data())[0];
+                $(tot_quan_tag).text(tot_quan);
+                table2.cell(counter2,3).data($(tot_quan_tag).prop('outerHTML'));
 
                 if (item_wonum === wonum){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             var btn = this;
@@ -291,12 +313,17 @@
                 }else{
                     window.opener.cloneMore('form', prodschedid, wonum, prodnum, quantity, datereq);
                     
-                    $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                        var btn = this;
-                        if ( wonum === btn.dataset.wonum ){
-                            $(this).attr('disabled', true);
-                            $(this).closest('tr').attr('class', 'tablerow highlight');
+                    var counter1 = 0;
+                    $(table1.rows().nodes()).each(function(i, el){ 
+                        var row_tag1 = table1.rows(counter1).nodes().to$();
+                        var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                        if ( wonum === $(button_tag1).attr('data-wonum') ){
+                            $(button_tag1).attr('disabled', true);
+                            $(row_tag1).attr('class', 'tablerow highlight');
                         }
+                        table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+                        counter1 += 1;
                     });
 
                     toastr.success('Work Order Number ' + wonum + ' with Production Schedule '+ prodschedid+ " is added to the schedule.");
@@ -309,47 +336,53 @@
 
         function checkifDisabled(wonum){
             var status = false;
-            $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                var btn = this;
-                if ( wonum === btn.dataset.wonum ){
-                    if($(this).is(":disabled")){
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                if ( wonum === $(button_tag1).attr('data-wonum') ){
+                    if($(button_tag1).is(":disabled")){
                         status = true;
                     }else{
                         status = false;
                     }                    
                 }
+                table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+                counter1 += 1;
             });
             return status;
         }
 
-        $("#wo_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-
-        $("#item_table").DataTable({
-            searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+        
 
     });
 
     function selectProdsched(prod_sched){
-        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( prod_sched === btn.dataset.prodschedid ){
-                $(this).attr('disabled', true);
-                $(this).closest('tr').attr('class', 'tablerow highlight');
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+            if ( prod_sched === $(button_tag1).attr('data-prodschedid') ){
+                $(button_tag1).attr('disabled', true);
+                $(row_tag1).attr('class', 'tablerow highlight');
             }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 
     function deselectProdsched(prod_sched){
-        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( prod_sched === btn.dataset.prodschedid ){
-                $(this).attr('disabled', false);
-                $(this).closest('tr').attr('class', 'tablerow');
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+            if ( prod_sched === $(button_tag1).attr('data-prodschedid') ){
+                $(button_tag1).attr('disabled', false);
+                $(row_tag1).attr('class', 'tablerow');
             }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 

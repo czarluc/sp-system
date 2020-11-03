@@ -244,6 +244,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
+    let table1, table2, table3, table4, table5
+
+    table1 = $("#po_table").DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+    table2 = $("#ship_table").DataTable({searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+    table3 = $("#po_item_table").DataTable({searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+    table4 = $("#ship_item_table").DataTable({searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+    table5 = $("#ship_sum_table").DataTable({searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
 
     $(window).on('load', function() {
         document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -281,21 +293,30 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
-        $('#ship_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
-        $('#po_item_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            $(table3.rows(counter3).nodes().to$()).hide();
+            counter3 += 1;
         });
 
-        $('#ship_item_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter4 = 0;
+        $(table4.rows().nodes()).each(function(i, el){ 
+            $(table4.rows(counter4).nodes().to$()).hide();
+            counter4 += 1;
         });
 
-        $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter5 = 0;
+        $(table5.rows().nodes()).each(function(i, el){ 
+            $(table5.rows(counter5).nodes().to$()).hide();
+            counter5 += 1;
         });
+
 
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
             $(window.opener.document).find('#id_po_num').val($('#po_num').val()); //PO Number
@@ -303,18 +324,20 @@
 
             window.opener.deletereqitem();
 
-            $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
-                if ($(this).is(":visible")){
+            var counter5 = 0;
+            $(table5.rows().nodes()).each(function(i, el){ 
+                var row_tag5 = table5.rows(counter5).nodes().to$();
+                if ($(row_tag5).is(":visible")){
 
-                    var shipitem_row = this;
-                    var item_num = shipitem_row.dataset.item_num;
-                    var item_quan = shipitem_row.dataset.req_quan;
-                    var rec_quan = shipitem_row.dataset.rec_quan;
-                    var balance = shipitem_row.dataset.balance;
-                    var date_shipped = shipitem_row.dataset.date_shipped;
+                    var item_num = $(row_tag5).attr('data-item_num');
+                    var item_quan = $(row_tag5).attr('data-req_quan');
+                    var rec_quan = $(row_tag5).attr('data-rec_quan');
+                    var balance = $(row_tag5).attr('data-balance');
+                    var date_shipped = $(row_tag5).attr('data-date_shipped');
 
                     window.opener.showreqitem(item_num, item_quan, rec_quan, balance, date_shipped);
                 }
+                counter5 += 1;
             });
 
             toastr.success('Purchase Order ' + $('#po_num').val() + " is selected.");
@@ -322,71 +345,66 @@
             var goBack = window.open('', 'Resolve_PO');
             goBack.focus();
             window.close();
-
         });
 
         $( "#po_table" ).on("click", ".btn.btn-primary", function () {
             var po_num = this.dataset.ponum;
             $("#po_num").val(po_num);
             
-            $('#ship_table').find('tr.tablerow').each(function (i, el) {
-                var name = this;
-                var item_po_num = name.dataset.po_num;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+                var item_po_num = $(row_tag2).attr('data-po_num');
                 if (po_num === item_po_num){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
-            $('#po_item_table').find('tr.tablerow').each(function (i, el) {
-                var shipitem_row = this;
-                var shipitem_ponum = shipitem_row.dataset.po_num;
+            var counter3 = 0;
+            $(table3.rows().nodes()).each(function(i, el){ 
+                var row_tag3 = table3.rows(counter3).nodes().to$();
+                var shipitem_ponum = $(row_tag3).attr('data-po_num');
 
                 if (po_num === shipitem_ponum){
-                    $(this).show();                                    
+                    $(row_tag3).show();                                    
                 }else {
-                    $(this).hide();
+                    $(row_tag3).hide();
                 }
+                counter3 += 1;
             });
 
-            $('#ship_item_table').find('tr.tablerow').each(function (i, el) {
-                var shipsum_row = this;
-                var shipsum_ponum = shipsum_row.dataset.po_num;
+            var counter4 = 0;
+            $(table4.rows().nodes()).each(function(i, el){ 
+                var row_tag4 = table4.rows(counter4).nodes().to$();
+                var shipsum_ponum = $(row_tag4).attr('data-po_num');
 
                 if (po_num === shipsum_ponum){
-                    $(this).show();                                            
+                    $(row_tag4).show();                                            
                 }else {
-                    $(this).hide();
+                    $(row_tag4).hide();
                 }
+                counter4 += 1;
             });
 
-            $('#ship_sum_table').find('tr.tablerow').each(function (i, el) {
-                var shipsum_row = this;
-                var shipsum_ponum = shipsum_row.dataset.po_num;
+            var counter5 = 0;
+            $(table5.rows().nodes()).each(function(i, el){ 
+                var row_tag5 = table5.rows(counter5).nodes().to$();
+                var shipsum_ponum = $(row_tag5).attr('data-po_num');
 
                 if (po_num === shipsum_ponum){
-                    $(this).show();                                            
+                    $(row_tag5).show();                                            
                 }else {
-                    $(this).hide();
+                    $(row_tag5).hide();
                 }
+                counter5 += 1;
             });
 
             toastr.info('Purchase Order ' + po_num + " is selected. Please Confirm");
 
         });
-
-
-        $("#po_table").DataTable({
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-        $("#ship_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-        $("#po_item_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-        $("#ship_item_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-        $("#ship_sum_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
     
     });
 

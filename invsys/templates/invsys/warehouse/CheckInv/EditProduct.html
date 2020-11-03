@@ -238,7 +238,7 @@ $(document).ready(function() {
         var colIndex = document.querySelector('#select_prod').value;
         var search = $('#prod_master_filter label input').val(); 
         if ( colIndex === "-1" ){            
-            table.column().search( '' ).draw();
+            table.columns().search( '' ).draw();
             $('#prod_master_filter label input').val('');
             return;
         }else{

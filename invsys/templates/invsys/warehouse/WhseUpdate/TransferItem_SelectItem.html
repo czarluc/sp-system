@@ -368,7 +368,7 @@
             table2.column( colIndex).search( this.value ).draw();
         });
 
-        $('#select3').change(function() {
+        $('#select2').change(function() {
           table2.columns().search('').draw();
         });
 
@@ -389,26 +389,32 @@
         });
 
         $('#select3').change(function() {
-          table.columns().search('').draw();
+          table3.columns().search('').draw();
         });
 
-        $('#new_whse_item_table').DataTable({searching: false, paging: false, info: false,
+        var table4 = $('#new_whse_item_table').DataTable({searching: false, paging: false, info: false,
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
             fixedColumns: true
         });
 
 
         //Hide first the rows
-        $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
-        $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            $(table3.rows(counter3).nodes().to$()).hide();
+            counter3 += 1;
         });
 
-        $('#new_whse_item_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter4 = 0;
+        $(table4.rows().nodes()).each(function(i, el){ 
+            $(table4.rows(counter4).nodes().to$()).hide();
+            counter4 += 1;
         });
 
         //1ST STEP - SELECT THE BUTTON FOR THE ITEM
@@ -432,16 +438,18 @@
             var item_list = window.opener.pass_Items();
             disable_Items( item_list );
 
-            $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
-                var whse_bin_row = this;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
 
-                var whse_item = whse_bin_row.dataset.item_num;
+                var whse_item = $(row_tag2).attr('data-item_num');
 
                 if(whse_item === item_num){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else{
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
                 
             });
 
@@ -467,26 +475,28 @@
             $("#from_loc").hide();
             $("#to_loc").show();
 
-            $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
-                var whse_bin_row = this;
+            var counter3 = 0;
+            $(table3.rows().nodes()).each(function(i, el){ 
+                var row_tag3 = table3.rows(counter3).nodes().to$();
+                var button_tag3 = $.parseHTML(table3.cell(counter3,0).data())[0];
 
-                var whse_itemcat = whse_bin_row.dataset.item_cat;
-                var whse_prodclass = whse_bin_row.dataset.prod_class;
-                var whse_bin_loc = whse_bin_row.dataset.bin_loc;
+                var whse_itemcat = $(row_tag3).attr('data-item_cat');
+                var whse_prodclass = $(row_tag3).attr('data-prod_class');
+                var whse_bin_loc = $(row_tag3).attr('data-bin_loc');
                 
                 if ($('#item_cat').val() === whse_itemcat){
                     if ($('#prod_class').val() === whse_prodclass){
                         if ( $('#from_bin_loc').val() === whse_bin_loc ){
-                            $(this).find('.btn.btn-primary.new_whse').each(function (i, el) {
-                                $(this).attr('disabled', true);
-                            });
-                            $(this).attr('class', 'tablerow highlight');
+                            $(button_tag3).attr('disabled', true);
+                            $(row_tag3).attr('class', 'tablerow highlight');
                         }
-                        $(this).show();                    
+                        $(row_tag3).show();                    
                     }
                 }else{
-                    $(this).hide();
+                    $(row_tag3).hide();
                 }
+                table3.cell(counter3,0).data($(button_tag3).prop('outerHTML'));
+                counter3 += 1;
             });
 
             toastr.info('Warehouse Bin ' + bin_loc + " is selected.");
@@ -504,16 +514,18 @@
             $('#to_bin_id').val(bin_id);
             $('#to_bin_loc').val(bin_loc);
 
-            $('#new_whse_item_table').find('tr.tablerow').each(function (i, el) {
-                var whse_item_row = this;
+            var counter4 = 0;
+            $(table4.rows().nodes()).each(function(i, el){ 
+                var row_tag4 = table4.rows(counter4).nodes().to$();
 
-                var whse_item = whse_item_row.dataset.bin_id;
+                var whse_item = $(row_tag4).attr('data-bin_id');
 
                 if(whse_item === bin_id){
-                    $(this).show();
+                    $(row_tag4).show();
                 }else{
-                    $(this).hide();
+                    $(row_tag4).hide();
                 }
+                counter4 += 1;
                 
             });
 
@@ -604,33 +616,49 @@
             $("#item_quan").val('');
             $("#reason").val('');
 
-            $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
-                $(this).hide();
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                $(table2.rows(counter2).nodes().to$()).hide();
+                counter2 += 1;
             });
 
-            $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
-                $(this).hide();
+            var counter3 = 0;
+            $(table3.rows().nodes()).each(function(i, el){ 
+                $(table3.rows(counter3).nodes().to$()).hide();
+                counter3 += 1;
             });
 
-            $('#new_whse_item_table').find('tr.tablerow').each(function (i, el) {
-                $(this).hide();
+            var counter4 = 0;
+            $(table4.rows().nodes()).each(function(i, el){ 
+                $(table4.rows(counter4).nodes().to$()).hide();
+                counter4 += 1;
             });
 
         }
 
         function resetdisable(){
-            $('#new_whse_bin_table').find('tr.tablerow').each(function (i, el) {
-                $(this).find('.btn.btn-primary.new_whse').each(function (i, el) {
-                    $(this).attr('disabled', false);
-                });
-                $(this).attr('class', 'tablerow');
+            var counter3 = 0;
+            $(table3.rows().nodes()).each(function(i, el){ 
+                var row_tag3 = table3.rows(counter3).nodes().to$();
+                var button_tag3 = $.parseHTML(table3.cell(counter3,0).data())[0];
+
+                $(button_tag3).attr('disabled', false);
+                $(row_tag3).attr('class', 'tablerow');
+
+                table3.cell(counter3,0).data($(button_tag3).prop('outerHTML'));
+                counter3 += 1;
             });
 
-            $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
-                $(this).find('.btn.btn-primary.currwhse').each(function (i, el) {
-                    $(this).attr('disabled', false);
-                });
-                $(this).attr('class', 'tablerow');                
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+                var button_tag2 = $.parseHTML(table2.cell(counter2,0).data())[0];
+
+                $(button_tag2).attr('disabled', false);
+                $(row_tag2).attr('class', 'tablerow');
+                
+                table2.cell(counter2,0).data($(button_tag2).prop('outerHTML'));
+                counter2 += 1;
             });
         }
 
@@ -643,24 +671,22 @@
 
                 if ( $("#item_num").val() === item_num ){ //check if the selcted item is already in the schedule. if yes disable the bin locations. if no do nothing
 
-                    $('#curr_whse_table').find('tr.tablerow').each(function (i, el) {
-                        var row = this;
-                        var whse_binloc = row.dataset.bin_loc
+                    var counter2 = 0;
+                    $(table2.rows().nodes()).each(function(i, el){ 
+                        var row_tag2 = table2.rows(counter2).nodes().to$();
+                        var button_tag2 = $.parseHTML(table2.cell(counter2,0).data())[0];
+
+                        var whse_binloc = $(row_tag2).attr('data-bin_loc')
 
                         if( bin_loc === whse_binloc ){
-                            $(this).find('.btn.btn-primary.currwhse').each(function (i, el) {
-                                $(this).attr('disabled', true);
-                            });
-                            $(this).attr('class', 'tablerow highlight');
+                            $(button_tag2).attr('disabled', true);
+                            $(row_tag2).attr('class', 'tablerow highlight');
                         }
-
+                        table2.cell(counter2,0).data($(button_tag2).prop('outerHTML'));
+                        counter2 += 1;
                     });
-
                 }
-
-
             });
-
         }
 
     });

@@ -221,7 +221,7 @@ var table = $('#whse_bin_table').DataTable ({
         var colIndex = document.querySelector('#select_item').value;
         var search = $('#whse_bin_table_filter label input').val(); 
         if ( colIndex === "-1" ){
-            table.column().search( '' ).draw();
+            table.columns().search( '' ).draw();
             $('#whse_bin_table_filter label input').val('');
             return;
         }else{

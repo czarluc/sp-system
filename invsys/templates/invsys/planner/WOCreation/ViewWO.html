@@ -600,7 +600,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha512-NFUcDlm4V+a2sjPX7gREIXgCSFja9cHtKPOL1zj6QhnE0vcY695MODehqkaGYTLyL2wxe/wtr4Z49SvqXq12UQ==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
-    let prod_class_list
+    let prod_class_list   
+
 $(document).ready(function() {
     toasterOptions();
     function toasterOptions() {
@@ -748,8 +749,7 @@ $(document).ready(function() {
                     $("#stp3_verified_by").val(item.verified_by);
                     $("#stp3_date_assembled").val(item.date_assembled);
                     if(item.cleared === true){$("#stp3_cleared").prop('checked', true);}
-                    $("#stp3_notes").val(item.notes);
-                    console.log(item.image);                   
+                    $("#stp3_notes").val(item.notes);                
                     
                     $('#div_stp3_image').append("<img id='stp3_image' class='img-thumbnail' src=/media/" + item.image + " />");
                 }else{
@@ -823,8 +823,6 @@ $(document).ready(function() {
             });
             
         }
-
-        console.log("DONE");
     }
 
     function resetWizard(){
@@ -874,28 +872,6 @@ $(document).ready(function() {
         });
     }
 
-    $('#sched_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
-    }); 
-
-    $('#wo_table').on('click', '.btn-primary.wo', function(e){
-        resetWizard();
-        allWells.hide();
-        document.getElementById("sched_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
-        var wo_num = this.dataset.wo_num;
-        $('#sched_table').find('tr.tablerow').each(function (i, el) {
-            var sched_wonum = this.dataset.wo_num;
-            if( wo_num === sched_wonum ){
-                $(this).show();
-            } else{
-                $(this).hide();
-            }
-        });
-
-        toastr.info("Work Order " + wo_num + " is selected.");
-
-    });
-
     var table = $('#wo_table').DataTable({
         dom: "<'row'<'col-md-6'l><'col-md-2'<'customselect wo'>><'col-md-2'<'div_prodclass'>><'col-md-2'f>>" +
         "<'row'<'col-md-12'rtip>>",
@@ -932,8 +908,8 @@ $(document).ready(function() {
         var colIndex = document.querySelector('#select_wo').value;
         var search = $('#wo_table_filter label input').val(); 
         if ( colIndex === "-1" ){
-            table.column().search( '' ).draw();
             $('#wo_table_filter label input').val('');
+            table.columns().search( '' ).draw();
             return;
         }else{
             table.column(colIndex).search( search ).draw();
@@ -956,25 +932,46 @@ $(document).ready(function() {
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table2.buttons().container()
-        .appendTo( '#sched_table_wrapper .col-md-6:eq(0)' );
 
     var table3 = $('#prod_table').DataTable({
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table3.buttons().container()
-        .appendTo( '#prod_table_wrapper .col-md-6:eq(0)' );
 
     var table4 = $('#bom_table').DataTable({
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table4.buttons().container()
-        .appendTo( '#bom_table_wrapper .col-md-6:eq(0)' );
+
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
+    });
+
+    $('#wo_table').on('click', '.btn-primary.wo', function(e){
+        resetWizard();
+        allWells.hide();
+        document.getElementById("sched_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+        var wo_num = this.dataset.wo_num;
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
+
+            var sched_wonum = $(row_tag2).attr('data-wo_num');
+            if( wo_num === sched_wonum ){
+                $(row_tag2).show();
+            } else{
+                $(row_tag2).hide();
+            }
+            counter2 += 1;
+        });
+
+        toastr.info("Work Order " + wo_num + " is selected.");
+
+    });
+    
 
     $("#sched_table").on('click', '.get-form.prod_sched', function(e){
         $('#btn1').trigger('click');
@@ -1196,7 +1193,6 @@ $(document).ready(function() {
         $('#qrcode').qrcode(wo_num+"-"+prod_sched);
 
         var qrcode_canvas = document.querySelector('#qrcode canvas');
-        console.log(qrcode_canvas);
 
         var ctx = qrcode_canvas.getContext('2d');
 

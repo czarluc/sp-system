@@ -201,7 +201,7 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
-        var table = $('#whse_table').DataTable({
+        var table1 = $('#whse_table').DataTable({
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
@@ -261,14 +261,18 @@
 
                             window.opener.cloneMore('form', bin_id, bin_loc, item_num, item_quan, tot_cost, reason);
 
-                            $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                                var btn = this;
-                                if ( bin_loc === btn.dataset.bin_loc ){
-                                    if ( item_num === btn.dataset.item_num ){
-                                        $(this).attr('disabled', true);
-                                        $(this).closest('tr').attr('class', 'tablerow highlight');
+                            var counter1 = 0;
+                            $(table1.rows().nodes()).each(function(i, el){ 
+                                var row_tag1 = table1.rows(counter1).nodes().to$();
+                                var button_tag1 = $.parseHTML(table1.cell(counter1,2).data())[0];
+                                if ( bin_loc === $(button_tag1).attr('data-bin_loc') ){
+                                    if ( item_num === $(button_tag1).attr('data-item_num') ){
+                                        $(button_tag1).attr('disabled', true);
+                                        $(row_tag1).attr('class', 'tablerow highlight');
                                     }                            
                                 }
+                                table1.cell(counter1,2).data($(button_tag1).prop('outerHTML'));
+                                counter1 += 1;
                             });
 
                             toastr.success("Item "+item_num + " from Warehouse Bin " + bin_loc +" has been reported for defective with a quantity of "+item_quan);
@@ -304,17 +308,21 @@
 
         function checkifDisabled(bin_loc, item_num){
             var status = false;
-            $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                var btn = this;
-                if ( bin_loc === btn.dataset.bin_loc ){
-                    if ( item_num === btn.dataset.item_num ){
-                        if($(this).is(":disabled")){
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,2).data())[0];
+
+                if ( bin_loc === $(button_tag1).attr('data-bin_loc') ){
+                    if ( item_num === $(button_tag1).attr('data-item_num') ){
+                        if($(button_tag1).is(":disabled")){
                             status = true;
                         }else{
                             status = false;
                         }
                     }               
                 }
+                counter1 += 1;
             });
             return status;
         }
@@ -322,26 +330,36 @@
     });
 
     function selectPart(part_details){
-        $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( part_details[0] === btn.dataset.bin_loc ){
-                if ( part_details[1] === btn.dataset.item_num ){
-                    $(this).attr('disabled', true);
-                    $(this).closest('tr').attr('class', 'tablerow highlight');
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,2).data())[0];
+
+            if ( part_details[0] === $(button_tag1).attr('data-bin_loc') ){
+                if ( part_details[1] === $(button_tag1).attr('data-item_num') ){
+                    $(button_tag1).attr('disabled', true);
+                    $(row_tag1).attr('class', 'tablerow highlight');
                 }
             }
+            table1.cell(counter1,2).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 
     function deselectPart( bin_loc, item_num ){
-        $('#whse_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( bin_loc === btn.dataset.bin_loc ){
-                if ( item_num === btn.dataset.item_num ){
-                    $(this).attr('disabled', false);
-                    $(this).closest('tr').attr('class', 'tablerow');
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,2).data())[0];
+
+            if ( bin_loc === $(button_tag1).attr('data-bin_loc') ){
+                if ( item_num === $(button_tag1).attr('data-item_num') ){
+                    $(button_tag1).attr('disabled', false);
+                    $(row_tag1).attr('class', 'tablerow');
                 }
             }
+            table1.cell(counter1,2).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 

@@ -167,6 +167,16 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+    let table, table2
+    table = $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+ 
+    table2 = $("#bom_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    
     $(window).on('load', function() {
         document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
     });
@@ -212,17 +222,20 @@
 
         $('#label_reqdate').html($("#datepicker").val() + ":");
 
-        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-            var rowelm = this;
-            var rec_date = rowelm.dataset.rec_date;
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag =  table.rows(counter).nodes().to$();
+
+            var rec_date = $(row_tag).attr('data-rec_date');
             var date_sel = $("#datepicker").val();
             $('#label_reqdate').html(date_sel + ":");
 
             if(date_sel === rec_date){
-                $(this).show();
+                $(row_tag).show();
             }else{
-                $(this).hide();
+                $(row_tag).hide();
             }
+            counter += 1;
         });
 
 
@@ -247,15 +260,17 @@
             $('#name5').val(schedquan);
             $('#name6').val(rec_date);
 
-            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-                var bomrow = this;
-                var bom_prodsched = bomrow.dataset.prodsched;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag = table2.rows(counter2).nodes().to$();
+                var bom_prodsched = $(row_tag).attr('data-prodsched');
                 
                 if (bom_prodsched === prodsched){
-                    $(this).show();
+                    $(row_tag).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Production Schedule '+ prodsched + " from Work Order Number " + wonum + "is selected.");
@@ -287,28 +302,22 @@
 
         });
 
-        $("#wo_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
- 
-        $("#bom_table").DataTable({
-            searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+        
     });
 
     function getWO(){
-        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-            var rowelm = this;
-            var rec_date = rowelm.dataset.rec_date;
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag =  table.rows(counter).nodes().to$();
+            var rec_date = $(row_tag).attr('data-rec_date');
             var date_sel = $("#datepicker").val();
 
             if(date_sel === rec_date){
-                $(this).show();
+                $(row_tag).show();
             }else{
-                $(this).hide();
+                $(row_tag).hide();
             }
-
+            counter += 1;
         });
     }
 

@@ -153,6 +153,16 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+    let table1, table2
+
+    table1 = $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+    table2 = $("#item_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
 
     $(window).on('load', function() {
         document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -196,9 +206,11 @@
         }
 
 
-        $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-            $(this).hide();
-        });
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
+        }); 
 
         $( "#wo_table" ).on("click", ".btn.btn-primary.wo", function () {
             var btn = this;
@@ -217,25 +229,28 @@
             $('#name6').val(assline);
             $('#name9').val(report_id);
 
-            $('#item_table').find('tr.tablerow.wo_item').each(function (i, el) {
-                var itemrow = this;
-                var item_prod_sched = itemrow.dataset.prod_sched;
-                var bin_id = itemrow.dataset.bin_id;
-                var bin_loc =  itemrow.dataset.bin_loc;
-                var whsebin_item_num = itemrow.dataset.item_num;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+
+                var item_prod_sched = $(row_tag2).attr('data-prod_sched');
+                var bin_id = $(row_tag2).attr('data-bin_id');
+                var bin_loc =  $(row_tag2).attr('data-bin_loc');
+                var whsebin_item_num = $(row_tag2).attr('data-item_num');
 
                 if (prod_sched === item_prod_sched){
                     if (item_num === whsebin_item_num){
-                        $(this).show();
+                        $(row_tag2).show();
                         $('#name7').val(bin_id);
                         $('#name8').val(bin_loc);
 
                     }else{
-                        $(this).hide();
+                        $(row_tag2).hide();
                     }          
                 }else{
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Item '+ item_num + " from production schedule " + prod_sched +" is selected. <br> Please confirm.");
@@ -264,14 +279,19 @@
                 }else{
                     window.opener.cloneMore('form', prod_sched, item_num, item_quan, bin_id, bin_loc, assline_id, assline, report_id);
 
-                    $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                        var btn = this;
-                        if ( prod_sched === btn.dataset.prod_sched ){
-                            if ( item_num === btn.dataset.item_num ){
-                                $(this).attr('disabled', true);
-                                $(this).closest('tr').attr('class', 'tablerow highlight');
+                    var counter1 = 0;
+                    $(table1.rows().nodes()).each(function(i, el){ 
+                        var row_tag1 = table1.rows(counter1).nodes().to$();
+                        var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                        if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                            if ( item_num === $(button_tag1).attr('data-item_num') ){
+                                $(button_tag1).attr('disabled', true);
+                                $(row_tag1).attr('class', 'tablerow highlight');
                             }                            
                         }
+                        table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+                        counter1 += 1;
                     });
 
                     toastr.success('Part ' + item_num +' from Work Order Schedule ' + prod_sched + " is added to the schedule.");
@@ -284,53 +304,60 @@
 
         function checkifDisabled(prod_sched, item_num){
             var status = false;
-            $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                var btn = this;
-                if ( prod_sched === btn.dataset.prod_sched ){
-                    if ( item_num === btn.dataset.item_num ){
-                        if($(this).is(":disabled")){
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                    if ( item_num === $(button_tag1).attr('data-item_num') ){
+                        if($(button_tag1).is(":disabled")){
                             status = true;
                         }else{
                             status = false;
                         }
                     }               
                 }
+                counter1 += 1;
             });
             return status;
         }
 
 
-        $("#wo_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-
-        $("#item_table").DataTable({
-            searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+        
     });
 
     function selectProdsched(prod_sched_details){
-        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( prod_sched_details[0] === btn.dataset.prod_sched ){
-                if ( prod_sched_details[1] === btn.dataset.item_num ){
-                    $(this).attr('disabled', true);
-                    $(this).closest('tr').attr('class', 'tablerow highlight');
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+            if ( prod_sched_details[0] === $(button_tag1).attr('data-prod_sched') ){
+                if ( prod_sched_details[1] === $(button_tag1).attr('data-item_num') ){
+                    $(button_tag1).attr('disabled', true);
+                    $(row_tag1).attr('class', 'tablerow highlight');
                 }
             }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 
     function deselectProdsched( prod_sched, item_num ){
-        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( prod_sched === btn.dataset.prod_sched ){
-                if ( item_num === btn.dataset.item_num ){
-                    $(this).attr('disabled', false);
-                    $(this).closest('tr').attr('class', 'tablerow');
+         var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+            if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                if ( item_num === $(button_tag1).attr('data-item_num') ){
+                    $(button_tag1).attr('disabled', false);
+                    $(row_tag1).attr('class', 'tablerow');
                 }
             }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 </script>

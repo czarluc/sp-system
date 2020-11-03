@@ -180,7 +180,7 @@ $(document).ready(function() {
         var colIndex = document.querySelector('#select_item').value;
         var search = $('#item_master_filter label input').val(); 
         if ( colIndex === "-1" ){
-            table.column().search( '' ).draw();
+            table.columns().search( '' ).draw();
             $('#item_master_filter label input').val('');
             return;
         }else{
@@ -235,21 +235,27 @@ $(document).ready(function() {
       table1.columns().search('').draw();
     });
 
-    $('#trans_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter1 = 0;
+    $(table1.rows().nodes()).each(function(i, el){ 
+        $(table1.rows(counter1).nodes().to$()).hide();
+        counter1 += 1;
     });
 
     $( "#item_master" ).on("click", ".btn.btn-primary",function () {
         var btn = this;
         var item_num = btn.dataset.item_num;
-        $('#trans_table').find('tr.tablerow').each(function (i, el) {
-            var name = this;
-            var trans_item_num = name.dataset.item_num;
+        
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+
+            var trans_item_num = $(row_tag1).attr('data-item_num');
             if (item_num === trans_item_num){
-                $(this).show();
+                $(row_tag1).show();
             }else {
-                $(this).hide();
+                $(row_tag1).hide();
             }
+            counter1 += 1; 
         });
 
         toastr.info('Item '+ item_num + " is selected.");

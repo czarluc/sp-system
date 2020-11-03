@@ -122,6 +122,7 @@
 
 
 <script>
+    let table2
 $(document).ready(function() {
     toasterOptions();
     function toasterOptions() {
@@ -186,23 +187,27 @@ $(document).ready(function() {
 
     $.fn.dataTable.moment( 'DD-MM-YYY' );
 
-    $('#req_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
     $( "#sched_table" ).on("click", ".btn.btn-primary.sched", function () {
         var btn = this;
         var sched_num = btn.dataset.sched_num;
         
-        $('#req_table').find('tr.tablerow').each(function (i, el) {
-            var name = this;
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
 
-            var item_sched_num = name.dataset.sched_num;
+            var item_sched_num = $(row_tag2).attr('data-sched_num');
             if (sched_num === item_sched_num){
-                $(this).show();
+                $(row_tag2).show();
             }else {
-                $(this).hide();
+                $(row_tag2).hide();
             }
+            counter2 += 1;
 
         });
 
@@ -221,18 +226,20 @@ $(document).ready(function() {
         var item_list = new Array();
         var counter = 1;
 
-        $('#req_table').find('tr.tablerow').each(function (i, el) {
-            if ($(this).is(":visible")){
-                var item = this;
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
+            if ($(row_tag2).is(":visible")){
 
                 item_list.push( {
-                    'sched_num': item.dataset.sched_num, 'date_scheduled': item.dataset.date_scheduled, 
-                    'ref_num': item.dataset.ref_num, 'item_num': item.dataset.item_num,
-                    'item_desc': item.dataset.item_desc, 'prod_class': item.dataset.prod_class,
-                    'item_quan': item.dataset.item_quan, 'bin_loc': item.dataset.bin_loc,
-                    'item_cat': item.dataset.item_cat
+                    'sched_num': $(row_tag2).attr('data-sched_num'), 'date_scheduled': $(row_tag2).attr('data-date_scheduled'), 
+                    'ref_num': $(row_tag2).attr('data-ref_num'), 'item_num': $(row_tag2).attr('data-item_num'),
+                    'item_desc': $(row_tag2).attr('data-item_desc'), 'prod_class': $(row_tag2).attr('data-prod_class'),
+                    'item_quan': $(row_tag2).attr('data-item_quan'), 'bin_loc': $(row_tag2).attr('data-bin_loc'),
+                    'item_cat': $(row_tag2).attr('data-item_cat')
                 });      
             }
+            counter2 += 1;
         });
 
         item_list.forEach(function(item) {

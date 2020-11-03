@@ -253,23 +253,27 @@ $(document).ready(function() {
 
     }
 
-    $('#whse_item_table').DataTable({searching: false, paging: false, info: false,
+    var table1 = $('#whse_item_table').DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
 
-    $('#whse_prod_table').DataTable({searching: false, paging: false, info: false,
+    var table2 = $('#whse_prod_table').DataTable({searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
 
     $("#card_whse_item").hide();
     $("#card_whse_prod").hide();
 
-    $('#whse_item_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
-    });
+    var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            $(table1.rows(counter1).nodes().to$()).hide();
+            counter1 += 1;
+        });
 
-    $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
 
@@ -285,32 +289,36 @@ $(document).ready(function() {
             
             $("#card_whse_prod").show();
 
-            $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
-                var whse_prod_row = this;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
 
-                var whsebin_prod = whse_prod_row.dataset.bin_loc;
+                var whsebin_prod = $(row_tag2).attr('data-bin_loc');
 
                 if ( bin_loc === whsebin_prod ){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else{
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
         }else{
             
             $("#card_whse_item").show();
 
-            $('#whse_item_table').find('tr.tablerow').each(function (i, el) {
-                var whse_item_row = this;
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
 
-                var whsebin_item = whse_item_row.dataset.bin_loc;
+                var whsebin_item = $(row_tag1).attr('data-bin_loc');
 
                 if ( bin_loc === whsebin_item ){
-                    $(this).show();
+                    $(row_tag1).show();
                 }else{
-                    $(this).hide();
+                    $(row_tag1).hide();
                 }
+                counter1 += 1;
             });
         }
 

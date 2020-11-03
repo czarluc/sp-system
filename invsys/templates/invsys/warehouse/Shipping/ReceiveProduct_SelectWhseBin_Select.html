@@ -164,6 +164,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script type="text/javascript">
+    let table1, table2
+    table1 = $('#whsebin_table').DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+    table2 = $('#whseprod_table').DataTable({
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
     $(document).ready(function(){
         toasterOptions();
         function toasterOptions() {
@@ -195,8 +203,10 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
-        $('#whseprod_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
         $( "#whsebin_table" ).on("click", ".btn.btn-primary.bin_loc", function () {
@@ -207,15 +217,17 @@
             $('#name3').val(binlocid);
             $('#name1').val(binloc);
             
-            $('#whseprod_table').find('tr.tablerow').each(function (i, el) {
-                var binprod_row = this;
-                var prod_bin_id = binprod_row.dataset.binid;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+
+                var prod_bin_id = $(row_tag2).attr('data-binid');
                 if(prod_bin_id === binlocid){
-                    $(this).show();
+                    $(row_tag2).show();
                 } else{
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
-                
+                counter2 += 1;                
             });
 
             toastr.info('Warehouse Bin '+ binloc + " is selected.");
@@ -231,14 +243,6 @@
             window.opener.cloneMore('form',binloc,quantity,binlocid);
 
             toastr.success("The product has been stored in "+binloc+" with a quantity of "+quantity);
-        });
-
-        $('#whsebin_table').DataTable({
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $('#whseprod_table').DataTable({
-            searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
     });
 </script>

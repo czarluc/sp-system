@@ -126,6 +126,15 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+    let table1, table2
+
+    table1 = $("#sched_table").DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    table2 = $("#item_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
     $(window).on('load', function() {
         document.getElementById("comp_return_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
     });      
@@ -161,8 +170,10 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
-        $('#item_table').find('tr.tablerow.item_table').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
         $( "#sched_table" ).on("click", ".btn.btn-primary.schednum", function () {
@@ -174,14 +185,17 @@
             var notes = btn.dataset.notes;
             $('#name3').val(notes);
 
-            $('#item_table').find('tr.tablerow.item_table').each(function (i, el) {
-                var wo_row = this;
-                var wo_schednum = wo_row.dataset.schednum
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+
+                var wo_schednum = $(row_tag2).attr('data-schednum');
                 if (wo_schednum === schednum){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Component Reuturn Schedule ' + schednum + " is selected.");
@@ -195,18 +209,20 @@
             $(window.opener.document).find('#date_sched').val(datesched);
             alert("Component Issuance Schedule "+ schednum + " is selected.");
 
-            $('#item_table').find('tr.tablerow.item_table').each(function (i, el) {
-                if ($(this).is(":visible")){
-                    
-                    var itemrow = this;
-                    var prodsched = itemrow.dataset.prodsched;
-                    var item_num = itemrow.dataset.item_num;
-                    var item_quan = itemrow.dataset.item_quan;
-                    var ass_id = itemrow.dataset.ass_id;
-                    var ass_line = itemrow.dataset.ass_line;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+                if ($(row_tag2).is(":visible")){
+
+                    var prodsched = $(row_tag2).attr('data-prodsched');
+                    var item_num = $(row_tag2).attr('data-item_num');
+                    var item_quan = $(row_tag2).attr('data-item_quan');
+                    var ass_id = $(row_tag2).attr('data-ass_id');
+                    var ass_line = $(row_tag2).attr('data-ass_line');
 
                     window.opener.cloneMore('formsetsummary', prodsched, item_num, item_quan, ass_id, ass_line);
                 }
+                counter2 += 1;
             });
 
             toastr.success('Component Return Schedule ' + schednum + " is selected for verification.");
@@ -215,16 +231,7 @@
             goBack.focus();
             window.close();
 
-        });
-
-
-        $("#sched_table").DataTable({
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#item_table").DataTable({
-            searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+        });       
 
     });
 </script>

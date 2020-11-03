@@ -157,7 +157,16 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
-<script>          
+<script>
+    let table, table2
+
+    table = $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    table2 = $("#bom_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });   
     $(document).ready(function(){
         toasterOptions();
         function toasterOptions() {
@@ -194,9 +203,13 @@
             
         });
 
-        $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
+
+        getWO(1);
 
         $( "#wo_table" ).on("click", ".btn.btn-primary.item_number",function () {
             var btn = this;
@@ -215,15 +228,17 @@
             $('#name5').val(schedquan);
             $('#name6').val(rec_date);
 
-            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-                var bomrow = this;
-                var bom_prodsched = bomrow.dataset.prodsched;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){
+                var row_tag =  table2.rows(counter2).nodes().to$();
+                var bom_prodsched = $(row_tag).attr('data-prodsched');
                 
                 if (bom_prodsched === prodsched){
-                    $(this).show();
+                    $(row_tag).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Production Schedule '+ prodsched + " from Work Order Number " + wonum + " is selected.");
@@ -252,28 +267,18 @@
             window.close();    
 
         });
-
-        $("#wo_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#bom_table").DataTable({
-            searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-
-        getWO(1);
-
     });
 
     function getWO(status){
-        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-            var rowelm = this;
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag =  table.rows(counter).nodes().to$();
             var wo_status = 0;
 
-            var issued = rowelm.dataset.issued;
-            var assembled = rowelm.dataset.assembled;
-            var coupled = rowelm.dataset.coupled;
-            var wo_num = rowelm.dataset.wonum;
+            var issued = $(row_tag).attr('data-issued');
+            var assembled = $(row_tag).attr('data-assembled');
+            var coupled = $(row_tag).attr('data-coupled');
+            var wo_num = $(row_tag).attr('data-wonum');
 
             if(issued === 'True' & assembled === 'False' & coupled === 'False'){
                 wo_status = 1;
@@ -286,11 +291,11 @@
             var sel_status = status;
 
             if(parseInt(wo_status) === parseInt(sel_status)){
-                $(this).show();
+                $(row_tag).show();
             }else{
-                $(this).hide();
+                $(row_tag).hide();
             }
-
+            counter += 1;
         });
     }
 

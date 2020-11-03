@@ -181,8 +181,10 @@
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
-        $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
         $( "#wo_table" ).on("click", ".btn.btn-primary.item_number", function () {
@@ -196,15 +198,17 @@
             $('#prod_num').val(prod_num);
             $('#prod_quan').val(prod_quan);
 
-            $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
-                var prodsched = this;
-                var prodsched_wo_num = prodsched.dataset.wo_num;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+                var prodsched_wo_num = $(row_tag2).attr('data-wo_num');
                 
                 if (prodsched_wo_num === wo_num){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info("Work Order Number " + wo_num + "is selected.");
@@ -221,16 +225,18 @@
 
             $(window.opener.document).find('#id_wo_num').val(wo_num);
 
-            $('#prodsched_table').find('tr.tablerow').each(function (i, el) {
-                var prod_sched_row = this;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
 
-                var prod_sched = prod_sched_row.dataset.prod_sched;
-                var prod_quan = prod_sched_row.dataset.prod_quan;
-                var status = prod_sched_row.dataset.status;
+                var prod_sched = $(row_tag2).attr('data-prod_sched');
+                var prod_quan = $(row_tag2).attr('data-prod_quan');
+                var status = $(row_tag2).attr('data-status');
 
-                if ($(this).is(":visible")){
+                if ($(row_tag2).is(":visible")){
                     window.opener.showprod_sched(prod_sched,prod_quan,status);
                 }
+                counter2 += 1;
             });
             
             window.opener.showreqitem(prodsched);

@@ -152,7 +152,7 @@ $(document).ready(function() {
         var colIndex = document.querySelector('#select_prod').value;
         var search = $('#prod_master_filter label input').val(); 
         if ( colIndex === "-1" ){            
-            table.column().search( '' ).draw();
+            table.columns().search( '' ).draw();
             $('#prod_master_filter label input').val('');
             return;
         }else{
@@ -193,8 +193,10 @@ $(document).ready(function() {
         table2.columns().search('').draw();
     });
 
-    $('#prod_loc').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
     $("#prod_master").on("click", ".btn.btn-primary.prod_num", function(){
@@ -202,16 +204,18 @@ $(document).ready(function() {
 
         var prod_num = btn.dataset.prod_num;
 
-        $('#prod_loc').find('tr.tablerow').each(function (i, el) {
-            var prod_loc_row = this;
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
 
-            var prod_loc_prod_num = prod_loc_row.dataset.prod_num;
+            var prod_loc_prod_num = $(row_tag2).attr('data-prod_num');
 
             if( prod_num === prod_loc_prod_num ){
-                $(this).show();
+                $(row_tag2).show();
             }else{
-                $(this).hide();
+                $(row_tag2).hide();
             }           
+            counter2 += 1; 
         });
 
         toastr.info('Product '+ prod_num + " is selected.");

@@ -113,6 +113,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
+    let table1, table2
+
+    table1 = $("#po_table").DataTable({
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+    table2 = $("#item_table").DataTable({paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
+
     $(window).on('load', function() {
         document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
@@ -156,8 +163,10 @@
         }
         
         
-        $('#item_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
 
@@ -174,14 +183,17 @@
 
                     window.opener.insert_po('formpo', po_num);
                     
-                    $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
+                    var counter1 = 0;
+                    $(table1.rows().nodes()).each(function(i, el){ 
+                        var row_tag1 = table1.rows(counter1).nodes().to$();
+                        var button_tag1 = $.parseHTML(table1.cell(counter1,0).data())[0];
 
-                        var btn = this;
-                        if ( po_num === btn.dataset.ponum ){
-                            $(this).attr('disabled', true);
-
-                            $(this).closest('tr').attr('class', 'tablerow highlight');
+                        if ( po_num === $(button_tag1).attr('data-ponum') ){
+                            $(button_tag1).attr('disabled', true);
+                            $(row_tag1).attr('class', 'tablerow highlight');
                         }
+                        table1.cell(counter1,0).data($(button_tag1).prop('outerHTML'));
+                        counter1 += 1;
                     });
 
                     toastr.success('Purchase Order ' + $('#name1').val() + ' is selected to the Shipment.');
@@ -191,15 +203,19 @@
 
         function checkifDisabled(po_num){
             var status = false;
-            $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                var btn = this;
-                if ( po_num === btn.dataset.ponum ){
-                    if($(this).is(":disabled")){
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,0).data())[0];
+
+                if ( po_num === $(button_tag1).attr('data-ponum') ){
+                    if($(button_tag1).is(":disabled")){
                         status = true;
                     }else{
                         status = false;
                     }       
                 }
+                counter1 += 1;
             });
             return status;
         }
@@ -214,14 +230,18 @@
             var btn = this;
             var po_num = btn.dataset.ponum;
             $('#name1').val(po_num);
-            $('#item_table').find('tr.tablerow').each(function (i, el) {
-                var name = this;
-                var item_po_num = name.dataset.ponum;
+
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+
+                var item_po_num = $(row_tag2).attr('data-ponum');
                 if (po_num === item_po_num){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Purchase Order ' + po_num + ' is selected.');
@@ -233,32 +253,33 @@
 
 
     function deselectPO(po_num){
-        $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( po_num === btn.dataset.ponum ){
-                $(this).attr('disabled', false);
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
 
-                $(this).closest('tr').attr('class', 'tablerow');
+            if ( po_num === $(button_tag1).attr('data-ponum') ){
+                $(button_tag1).attr('disabled', false);
+                $(row_tag1).attr('class', 'tablerow');
             }
+            table1.cell(counter1,0).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 
     function selectPO(po_num){
-        $('#po_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( po_num === btn.dataset.ponum ){
-                $(this).attr('disabled', true);
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
 
-                $(this).closest('tr').attr('class', 'tablerow highlight');
+            if ( po_num === $(button_tag1).attr('data-ponum') ){
+                $(button_tag1).attr('disabled', true);
+                $(row_tag1).attr('class', 'tablerow highlight');
             }
+            table1.cell(counter1,0).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
-
-    
-
-    $("#po_table").DataTable({
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
-    $("#item_table").DataTable({paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]});
 </script>
 {% endblock javascripts %}

@@ -241,7 +241,7 @@ $(document).ready(function() {
         var colIndex = document.querySelector('#select_prod').value;
         var search = $('#prod_table_filter label input').val(); 
         if ( colIndex === "-1" ){            
-            table.column().search( '' ).draw();
+            table.columns().search( '' ).draw();
             $('#prod_table_filter label input').val('');
             return;
         }else{
@@ -265,47 +265,48 @@ $(document).ready(function() {
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table2.buttons().container()
-        .appendTo( '#whse_bin_table_wrapper .col-md-6:eq(0)' );
 
     var table3 = $('#whse_prod_table').DataTable({
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table3.buttons().container()
-        .appendTo( '#whse_item_table_wrapper .col-md-6:eq(0)' );
 
     var table4 = $('#bom_table').DataTable({
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table4.buttons().container()
-        .appendTo( '#whse_item_table_wrapper .col-md-6:eq(0)' );
 
 
-    $('#whse_bin_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
     });
 
-    $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter3 = 0;
+    $(table3.rows().nodes()).each(function(i, el){ 
+        $(table3.rows(counter3).nodes().to$()).hide();
+        counter3 += 1;
     });
 
-    $('#bom_table').find('tr.tablerow').each(function (i, el) {
-        $(this).hide();
+    var counter4 = 0;
+    $(table4.rows().nodes()).each(function(i, el){ 
+        $(table4.rows(counter4).nodes().to$()).hide();
+        counter4 += 1;
     });
 
     $( "#prod_table" ).on("click", ".btn.btn-primary.wo", function () {
 
-        $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            $(table3.rows(counter3).nodes().to$()).hide();
+            counter3 += 1;
         });
 
-        $('#whse_bin_table').find('tr.tablerow').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
         var btn = this;
@@ -318,46 +319,50 @@ $(document).ready(function() {
         
         toastr.info('Product ' + prod_num + " is selected.");
 
-        $('#whse_prod_table').find('tr.tablerow').each(function (i, el) {
-            var row_whseprod = this;
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){
+            var row_tag3 = table3.rows(counter3).nodes().to$();
 
-            var whseprod_prodnum = row_whseprod.dataset.prod_num;
-            var whseprod_binloc = row_whseprod.dataset.bin_loc;
-            var whseprod_prodquan = row_whseprod.dataset.quantity;
+            var whseprod_prodnum = $(row_tag3).attr('data-prod_num');
+            var whseprod_binloc = $(row_tag3).attr('data-bin_loc');
+            var whseprod_prodquan = $(row_tag3).attr('data-quantity');
 
             if( prod_num === whseprod_prodnum ){
-                $(this).show();
+                $(row_tag3).show();
                 avail_quan += parseInt(whseprod_prodquan);
 
-                $('#whse_bin_table').find('tr.tablerow').each(function (i, el) {
-                    var row_whsebin = this;
+                var counter2 = 0;
+                $(table2.rows().nodes()).each(function(i, el){ 
+                    var row_tag2 = table2.rows(counter2).nodes().to$();
 
-                    var whsebin_binloc = row_whsebin.dataset.bin_loc;
+                    var whsebin_binloc = $(row_tag2).attr('data-bin_loc');
 
                     if( whseprod_binloc === whsebin_binloc ){
-                        $(this).show();
+                        $(row_tag2).show();
                     } else{
-                        $(this).hide();
+                        $(row_tag2).hide();
                     }
+                    counter2 += 1;
 
                 });
             } else {
-                $(this).hide();
+                $(row_tag3).hide();
             }
-
+            counter3 += 1;
         });
 
-        $('#bom_table').find('tr.tablerow').each(function (i, el) {
-            var bomrow = this;
+        var counter4 = 0;
+        $(table4.rows().nodes()).each(function(i, el){
+            var row_tag4 = table4.rows(counter4).nodes().to$();
 
-            var bom_prod_num = bomrow.dataset.prod_num;
+            var bom_prod_num = $(row_tag4).attr('data-prod_num');
 
             if ( prod_num === bom_prod_num ){
-                $(this).show();
+                $(row_tag4).show();
             } else{
-                $(this).hide();
+                $(row_tag4).hide();
             }
-
+            counter4 += 1;
         });
 
         $("#avail_quan").html(avail_quan);

@@ -101,6 +101,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
+    let table1
+
+    table1 = $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
 
     $(window).on('load', function() {
         document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -143,9 +148,7 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
-        $("#wo_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+        
 
         $( "#wo_table" ).on("click", ".btn.btn-primary.wo", function () {
             var btn = this;
@@ -188,13 +191,18 @@
                 }else{
                     window.opener.cloneMore('form', prod_sched, item_num, quantity, ass_id, ass_line, assdisc_id);
 
-                    $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                        var btn = this;
-                        if ( prod_sched === btn.dataset.prod_sched ){
-                            if ( item_num === btn.dataset.item_num ){
-                                $(this).attr('disabled', true);
-                                $(this).closest('tr').attr('class', 'tablerow highlight');
-                            }                            
+                    var counter1 = 0;
+                    $(table1.rows().nodes()).each(function(i, el){ 
+                        var row_tag1 = table1.rows(counter1).nodes().to$();
+                        var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                        if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                            if ( item_num === $(button_tag1).attr('data-item_num') ){
+                                $(button_tag1).attr('disabled', true);
+                                $(row_tag1).attr('class', 'tablerow highlight');
+                            }
+                            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+                            counter1 += 1;                     
                         }
                     });
 
@@ -208,17 +216,21 @@
 
         function checkifDisabled(prod_sched, item_num){
             var status = false;
-            $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-                var btn = this;
-                if ( prod_sched === btn.dataset.prod_sched ){
-                    if ( item_num === btn.dataset.item_num ){
-                        if($(this).is(":disabled")){
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                    if ( item_num === $(button_tag1).attr('data-item_num') ){
+                        if($(button_tag1).is(":disabled")){
                             status = true;
                         }else{
                             status = false;
                         }
                     }               
                 }
+                counter1 += 1;
             });
             return status;
         }
@@ -226,26 +238,36 @@
     });
 
     function selectProdsched(prod_sched_details){
-        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( prod_sched_details[0] === btn.dataset.prod_sched ){
-                if ( prod_sched_details[1] === btn.dataset.item_num ){
-                    $(this).attr('disabled', true);
-                    $(this).closest('tr').attr('class', 'tablerow highlight');
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+            if ( prod_sched_details[0] === $(button_tag1).attr('data-prod_sched') ){
+                if ( prod_sched_details[1] === $(button_tag1).attr('data-item_num') ){
+                    $(button_tag1).attr('disabled', true);
+                    $(row_tag1).attr('class', 'tablerow highlight');
                 }
             }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 
     function deselectProdsched( prod_sched, item_num ){
-        $('#wo_table').find('tr.tablerow .btn.btn-primary').each(function (i, el) {
-            var btn = this;
-            if ( prod_sched === btn.dataset.prod_sched ){
-                if ( item_num === btn.dataset.item_num ){
-                    $(this).attr('disabled', false);
-                    $(this).closest('tr').attr('class', 'tablerow');
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+            if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                if ( item_num === $(button_tag1).attr('data-item_num') ){
+                    $(button_tag1).attr('disabled', false);
+                    $(row_tag1).attr('class', 'tablerow');
                 }
             }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
         });
     }
 </script>

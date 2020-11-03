@@ -196,6 +196,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 
 <script>
+    let table1, table2, table3
+    table1 = $("#prod_table").DataTable({
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    table2 = $("#bom_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    table3 = $("#bin_table").DataTable({searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
     $(window).on('load', function() {
         document.getElementById("prod_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
     });
@@ -231,12 +242,16 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
-        $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
-        $('#bin_table').find('tr.tablerow.bin_table').each(function (i, el) {
-            $(this).hide();
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            $(table3.rows(counter3).nodes().to$()).hide();
+            counter3 += 1;
         });
 
         $( "#prod_table" ).on("click", ".btn.btn-primary.prodnum", function () {
@@ -257,31 +272,36 @@
             toastr.info('Product ' + prodnum + " is selected.");
             toastr.warning("Please enter a proposed quantity of the product.");
 
-            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
 
-                $(this).attr('class', 'tablerow bom_table');
-
-                var bomrow = this;
+                $(row_tag2).attr('class', 'tablerow bom_table');
                 var stockquan = 0
 
-                var rowid = bomrow.id;
-                var itemprod_num = bomrow.dataset.prod_num;
-                var item_num = bomrow.dataset.itemnum;
-                var itemreq = bomrow.dataset.item_quan;
+                var rowid = $(row_tag2).attr('id');
+                var itemprod_num = $(row_tag2).attr('data-prod_num');
+                var item_num = $(row_tag2).attr('data-itemnum');
+                var itemreq = $(row_tag2).attr('data-item_quan');
                 var stockquan = getstockinstances(item_num, stockquan);
 
-                this.dataset.stockquan = stockquan;
+                var totrequan_tag = $.parseHTML(table2.cell(counter2,4).data())[0];
+                var stockquan_tag = $.parseHTML(table2.cell(counter2,5).data())[0];
+
+                $(row_tag2).attr('data-stockquan',stockquan);
 
                 if (itemprod_num === prodnum){
-                    $('#'+rowid+'-totrequan').text(0);
-                    $('#'+rowid+'-stockquan').text(stockquan);
-                    $(this).show();
-                    $(this).attr('class', 'tablerow bom_table check');
+                    $(totrequan_tag).text(0);
+                    $(stockquan_tag).text(stockquan);
+                    table2.cell(counter2,4).data($(totrequan_tag).prop('outerHTML'));
+                    table2.cell(counter2,5).data($(stockquan_tag).prop('outerHTML'));
+                    $(row_tag2).show();
+                    $(row_tag2).attr('class', 'tablerow bom_table check');
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
-
         });
 
 
@@ -290,23 +310,23 @@
             var prodquan = $('#name5').val();
             var prodclass = $('#name4').val();
                                                    
-            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-                var rowid = this.id;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
 
-                if ($('#'+rowid).is(":visible")){
-                    var bomrow = this;
-
-                    var itemnum = bomrow.dataset.itemnum;
-                    var itemreq = bomrow.dataset.item_quan;
-                    var totitemreq = bomrow.dataset.totreq;
-                    var stockquan = bomrow.dataset.stockquan;
+                if ($(row_tag2).is(":visible")){
+                    var itemnum = $(row_tag2).attr('data-itemnum');
+                    var itemreq = $(row_tag2).attr('data-item_quan');
+                    var totitemreq = $(row_tag2).attr('data-totreq');
+                    var stockquan = $(row_tag2).attr('data-stockquan');
                     
                     if (!(parseInt(stockquan) < parseInt(totitemreq))){
                         window.opener.cloneMore('form', itemnum, itemreq);
                     }else{
                         alert("Please enter a required quantity lower than the stock quantity or select an alternative part");
                     }
-                }                     
+                }    
+                counter2 += 1;                 
             });
 
             $(window.opener.document).find('#id_prod_number').val(prodnum);
@@ -319,72 +339,68 @@
             window.close();
                                 
         });
-
         
         
         $(".btn.btn-warning.btn-lg.check").on("click", function () {
             var prodnum = $('#name1').val();
             var prodquan = $('#name5').val();
 
-            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-                var bomrow = this;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
                 var stockquan = 0
 
-                $(this).attr('class', 'tablerow bom_table');
+                $(row_tag2).attr('class', 'tablerow bom_table');
 
-                var rowid = bomrow.id;
-                var itemprod_num = bomrow.dataset.prod_num;
-                var item_num = bomrow.dataset.itemnum;
-                var itemreq = bomrow.dataset.item_quan;
+                var itemprod_num = $(row_tag2).attr('data-prod_num');
+                var item_num = $(row_tag2).attr('data-itemnum');
+                var itemreq = $(row_tag2).attr('data-item_quan');
                 var totitemreq = parseInt(itemreq) * parseInt(prodquan);
                 var stockquan = getstockinstances(item_num, stockquan)
 
-                this.dataset.totreq = totitemreq;
-                this.dataset.stockquan = stockquan;
+                var totrequan_tag = $.parseHTML(table2.cell(counter2,4).data())[0];
+                var stockquan_tag = $.parseHTML(table2.cell(counter2,5).data())[0];
+
+                $(row_tag2).attr('data-totreq',totitemreq);
+                $(row_tag2).attr('data-stockquan',stockquan);
 
                 if (itemprod_num === prodnum){
-                    $('#'+rowid+'-totrequan').text(totitemreq);
-                    $('#'+rowid+'-stockquan').text(stockquan);
-                    $(this).show();
+                    $(totrequan_tag).text(totitemreq);
+                    $(stockquan_tag).text(stockquan);
+                    table2.cell(counter2,4).data($(totrequan_tag).prop('outerHTML'));
+                    table2.cell(counter2,5).data($(stockquan_tag).prop('outerHTML'));
+                    $(row_tag2).show();
 
                     if ( totitemreq < stockquan ){
-                        $(this).attr('class', 'tablerow bom_table noissue');
+                        $(row_tag2).attr('class', 'tablerow bom_table noissue');
                     }else{
-                        $(this).attr('class', 'tablerow bom_table issue');
+                        $(row_tag2).attr('class', 'tablerow bom_table issue');
                     }
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1; 
             });  
         });
 
         function getstockinstances(item_num, stockquan){
-            $('#bin_table').find('tr.tablerow.bin_table').each(function (i, el) {
-                var binrow = this;
+            var counter3 = 0;
+                $(table3.rows().nodes()).each(function(i, el){
+                var row_tag3 = table3.rows(counter3).nodes().to$();
 
-                var binlocid = binrow.dataset.binlocid;
-                var binloc = binrow.dataset.binloc;
-                var binitemnum = binrow.dataset.itemnum;
-                var binitemnum = binrow.dataset.itemnum;
-                var binitemquan = binrow.dataset.quan;
+                var binlocid = $(row_tag3).attr('data-binlocid');
+                var binloc = $(row_tag3).attr('data-binloc');
+                var binitemnum = $(row_tag3).attr('data-itemnum');
+                var binitemnum = $(row_tag3).attr('data-itemnum');
+                var binitemquan = $(row_tag3).attr('data-quan');
 
                 if ( binitemnum === item_num ){
                     stockquan += parseInt(binitemquan);
                 }
-
+                counter3 += 1;
             });
             return stockquan;
-        }
-
-        $("#prod_table").DataTable({
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#bom_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#bin_table").DataTable({searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+        }    
 
     });
 </script>
