@@ -127,6 +127,7 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
     let transf_selItem;
     $(document).ready(function(){
@@ -263,6 +264,7 @@
     $(document).on('click', '.remove-form-row', function(e){
         e.preventDefault();
 
+        //REMOVE CONENCTED ROW
         var row = $(this).closest('tr.tablerow');
         var row_id = row.attr('id').split("-");
         var id_counter = '';
@@ -287,6 +289,13 @@
         });
 
         deleteForm('form', $(this));
+
+        //close
+        if ( transf_selItem && !transf_selItem.closed ){
+            transf_selItem.close();
+            return false;                
+        }else{
+        }  
         return false;
     });
 

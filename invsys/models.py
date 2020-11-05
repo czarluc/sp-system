@@ -217,7 +217,7 @@ class Work_Order(models.Model):
     otd_customer_req_date = models.DateField(auto_now=False, auto_now_add=False)
     otp_commitment_date = models.DateField(auto_now=False, auto_now_add=False)
     required_completion_date = models.DateField(auto_now=False, auto_now_add=False)
-    finished_completion_date = models.DateField(auto_now=False, auto_now_add=False)
+    finished_completion_date = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
     creation_date = models.DateField(auto_now=False, auto_now_add=False)
     allocated = models.BooleanField(default=False)
     notes = models.CharField(max_length=200, default='')

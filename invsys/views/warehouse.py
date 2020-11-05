@@ -44,7 +44,13 @@ def WarehouseHome(request):
 @warehouse_required
 def WarehouseTest(request):
     if request.method == 'GET':
-        return render(request, 'invsys/warehouse/whsetest.html')
+
+        whse_query = Warehouse.objects.all().values(
+            'id',
+            'bin_location',
+            'image')
+
+        return render(request, 'invsys/warehouse/whsetest.html', { 'whse_set':whse_query })
     elif request.method == 'POST':
         return redirect('warehouse:warehouse_home')
 
@@ -1540,6 +1546,7 @@ def ReceiveProduct(request):
         
         return render(request, template_name, {'rec_prodform':wo_finishedform, 'user':request.user })
     elif request.method == 'POST' :
+
         wo_finishedform = WO_FinishedForm(request.POST)
         if wo_finishedform.is_valid():
             #----UPDATE WO_FINISHED LIST----
@@ -1555,19 +1562,22 @@ def ReceiveProduct(request):
             wo_finished.checked_by = wo_finishedform.checked_by
             wo_finished.notes = wo_finishedform.notes
             wo_finished.cleared = True
-            wo_finished.image = request.FILES["image"]
+            if len(request.FILES) != 0:
+                wo_finished.image = request.FILES["image"]
             wo_finished.save()
             #-----PROD SCHED UPDATE----
             prod_sched = WO_Production_Schedule.objects.get(id=wo_finishedform.prod_sched.id)
             prod_sched.received = True
             prod_sched.status = "Received Product"
             prod_sched.save()
+
+            checkWO_Finish(prod_sched)#--Check if all WO Schedule are finished--
             
             UpdateAssemblyItems(prod_sched)#-----Update Whse Assembly Items----#----Add Item To Product Transaction---
             
             AddNewProdTransac(prod_sched)#----New Product Transaction-----
 
-            if 'btn_shplby' in request.POST: #ADD PRODUCT TO SHIPPING LOBBY
+            if 'shiplby' == request.POST.get('btn_sel'): #ADD PRODUCT TO SHIPPING LOBBY
                 
                 
                 AddtoShippingLobby(prod_sched, wo_finished.date_out)#----Add Shipping Lobby----
@@ -1575,7 +1585,7 @@ def ReceiveProduct(request):
                 AddtoShippingLobby_Transac(prod_sched, wo_finished.date_out)#----Add Shipping Lobby Transac----
                 return redirect('home')
 
-            if 'btn_whse' in request.POST: #add Product To Warehouse
+            if 'whse' == request.POST.get('btn_sel'): #add Product To Warehouse
                 firsturl = "/warehouse/ReceiveProduct/"
                 prod_sched_pk = str(prod_sched.id)
                 secondurl = "/SelectWhseBin/"
@@ -1632,6 +1642,25 @@ def AddtoShippingLobby_Transac(prod_sched, date_rec):
         )
     newshiplby_transac.full_clean()
     newshiplby_transac.save()
+
+def checkWO_Finish(prod_sched):
+    wo_obj = Work_Order.objects.get( work_order_number=prod_sched.work_order_number.work_order_number )
+
+    prod_sched_query = WO_Production_Schedule.objects.filter( work_order_number__work_order_number = wo_obj.work_order_number )
+
+    total_created = 0;
+    total_done = 0;
+    for prod_sched in prod_sched_query:
+        total_created += 1
+        if prod_sched.received == True:
+            total_done += 1
+
+    if total_created == total_done:
+        wo_obj.finished_completion_date = datetime.now().replace(tzinfo=pytz.utc)
+        wo_obj.save()
+
+
+
 
 @login_required
 @warehouse_required
@@ -2048,7 +2077,7 @@ def adjustitems_shortissuance( whse_bin_adj, item_num_adj, item_quan_adj, reques
     totalallocated = 0
 
     AllocateWhseItems_Shrnk( shrnk_item_newobj.item_number, shrnk_item_newobj.quantity, totalallocated, shrnk_report_newobj.prod_sched.id )
-    UpdateAssemblyItems( shrnk_report_newobj.prod_sched.id, shrnk_item_newobj.item_number, shrnk_item_newobj.quantity )
+    UpdateAssemblyItems_Shrnk( shrnk_report_newobj.prod_sched.id, shrnk_item_newobj.item_number, shrnk_item_newobj.quantity )
     AddShrnkReportTransac( shrnk_report_newobj.prod_sched.id, shrnk_report_newobj.date_reported, shrnk_report_newobj.item_number, shrnk_report_newobj.quantity, shrnk_item_newobj.ass_location.name )
     AddShrnkRplItemTransac( shrnk_report_newobj.prod_sched.id, shrnk_report_newobj.date_reported, shrnk_item_newobj.item_number, shrnk_item_newobj.quantity, shrnk_item_newobj.ass_location.name )
 
@@ -2074,7 +2103,7 @@ def AddShrnkRplItemTransac(refnum, transac_date, item_number, item_quan, ass_lin
         )
     shrnkrplitem_transac.full_clean()
     shrnkrplitem_transac.save()
-def UpdateAssemblyItems(prod_sched, item_num, item_quan):
+def UpdateAssemblyItems_Shrnk(prod_sched, item_num, item_quan):
     assitem_shrnkset = Assembly_Items.objects.filter(reference_number=prod_sched, item_number=item_num)
 
     for ass_item in assitem_shrnkset:#----Adjust Assembly Line Item---
@@ -5766,3 +5795,5 @@ def ViewOngoingCompReturn(request):
     return render(request, template_name, 
         {'compreturn_sched_set':compreturn_sched_query, 
         'compreturn_item_set':compreturn_item_query})
+
+

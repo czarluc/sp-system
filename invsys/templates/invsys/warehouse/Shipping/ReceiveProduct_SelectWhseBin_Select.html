@@ -9,6 +9,9 @@
     input{ 
     text-align: center; 
     }
+    #whsebin_table.dataTable tbody tr.highlight {
+        background-color: #87CEFA !important;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -50,7 +53,6 @@
                 </div>
                 <div class="col-6">
 
-                    {% for instance in prod_sched %}
                     <div class="card">
                         <div class="card-header card-header-tabs card-header-info">
                             <h4 class="card-title">Work Order Quantity:</h4>
@@ -60,20 +62,19 @@
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="prod_required_quan">Quantity to be Stored:</label>
-                                        <input type="text" name="prod_required_quan" class="form-control" maxlength="200" id="prod_required_quan" value ="{{ instance.quantity }}"readonly>
+                                        <input type="text" name="prod_required_quan" class="form-control" maxlength="200" id="prod_required_quan" readonly>
                                    </div>
                                </div>
 
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <label for="prod_store_quan">Quantity to Store:</label>
-                                        <input type="text" name="prod_store_quan" class="form-control" required="" id="prod_store_quan" value="0" readonly>
+                                        <label for="prod_store_quan">Quantity Stored:</label>
+                                        <input type="text" name="prod_store_quan" class="form-control" required="" id="prod_store_quan" readonly>
                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
 
                 </div>
             </div>
@@ -83,14 +84,14 @@
                     <button type="button" id="selectbtn" class="btn btn-success btn-m">Select</button>
                 </div>
                 <div class="col-lg-1.5">
-                    <button type="button" id="selectbtn" class="btn btn-warning btn-m">Done</button>
+                    <button type="button" id="donebtn" class="btn btn-warning btn-m">Done</button>
                 </div>
             </div>
 
         </div>
     </div>   
 
-    <div class="card">
+    <div class="card" id="card_whsebin">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Available Warehouse Bin Details:</h4>
         </div>
@@ -112,7 +113,7 @@
                                     <tbody>
                                         {% for whsebin in whsebin_product %}
                                         <div class="row form-row">
-                                            <tr class="tablerow" id="whsebin-{{forloop.counter0}}">
+                                            <tr class="tablerow" id="whsebin-{{forloop.counter0}}" data-binloc="{{whsebin.bin_location}}">
                                                 <td><button type="button" class="btn btn-primary bin_loc" data-binlocid="{{whsebin.id}}" data-binloc="{{whsebin.bin_location}}">{{ whsebin.bin_location }}</button></td>
                                             </tr>
                                         </div>
@@ -172,6 +173,21 @@
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
+
+    $(window).on('load', function() {
+        document.getElementById("card_whsebin").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        if(bin_list.length > 0){
+            bin_list.forEach(function(item) {
+                selectWhseBin( item );
+            });
+        }
+        
+        $("#prod_required_quan").val($(window.opener.document).find('#prod_required_quan').val());
+        $("#prod_store_quan").val($(window.opener.document).find('#prod_stored_quan').val());
+
+    });
+
     $(document).ready(function(){
         toasterOptions();
         function toasterOptions() {
@@ -234,17 +250,120 @@
 
         });
             
-        $(".btn.btn-success.btn").on("click", function () {
-                
+        $(".btn.btn-success.btn").on("click", function () {            
+            var req_store = $("#prod_required_quan").val();
             var binloc = $('#name1').val();
             var quantity = $('#name2').val();
             var binlocid = $('#name3').val();
-            
-            window.opener.cloneMore('form',binloc,quantity,binlocid);
+            var prod_store_quan = $("#prod_store_quan").val();
 
-            toastr.success("The product has been stored in "+binloc+" with a quantity of "+quantity);
+            if (parseInt(req_store) >= parseInt( quantity )){ //would not exceed the quan to store
+                if( !(parseInt(quantity) === 0) ){
+
+                    if ( checkifDisabled(binloc) ){
+                        toastr.error('Warehouse Bin ' + binloc +" is already added to the schedule.");
+                    }else{
+
+                        window.opener.cloneMore('form',binloc,quantity,binlocid);
+                        toastr.success("The product has been stored in "+binloc+" with a quantity of "+quantity);
+
+                        var new_req_store = parseInt(req_store) - parseInt( quantity )
+                        $("#prod_required_quan").val(new_req_store);
+                        var new_stored_quan = parseInt(prod_store_quan) + parseInt( quantity )
+                        $("#prod_store_quan").val(new_stored_quan);
+
+                        $(window.opener.document).find('#prod_required_quan').val(new_req_store);
+                        $(window.opener.document).find('#prod_stored_quan').val(new_stored_quan);
+
+                        $('#name1').val('');
+                        $('#name2').val('');
+                        $('#name3').val('');
+
+                        disableWhseBin( binloc );
+                    }
+                }else{
+                    toastr.error('Please enter a quantity.');
+                }
+            }else{
+                toastr.error('Please enter a lower quantity.');
+            }
+            
+            
         });
+
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'Rec_Prod_SelectWhse');
+            goBack.focus();
+            window.close();
+        });
+
+        function disableWhseBin(whse_bin){
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,0).data())[0];
+
+                if ( whse_bin === $(button_tag1).attr('data-binloc') ){
+                    $(button_tag1).attr('disabled', true);
+                    $(row_tag1).attr('class', 'tablerow highlight');
+                }
+                table1.cell(counter1,0).data($(button_tag1).prop('outerHTML'));
+                counter1 += 1;
+            });
+        }
+
+
+        function checkifDisabled(whse_bin){
+            var status = false;
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,0).data())[0];
+
+                if ( whse_bin === $(button_tag1).attr('data-binloc') ){
+                    if($(button_tag1).is(":disabled")){
+                        status = true;
+                    }else{
+                        status = false;
+                    }       
+                }
+                counter1 += 1;
+            });
+            return status;
+        }
+
     });
+
+    function selectWhseBin(whse_bin_details){
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,0).data())[0];
+
+            if ( whse_bin_details[0] === $(button_tag1).attr('data-binloc') ){
+                $(button_tag1).attr('disabled', true);
+                $(row_tag1).attr('class', 'tablerow highlight');
+            }
+            table1.cell(counter1,0).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
+        });
+    }
+
+    function deselectWhseBin( whse_bin ){
+         var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,0).data())[0];
+
+            if ( whse_bin === $(button_tag1).attr('data-binloc') ){
+                $(button_tag1).attr('disabled', false);
+                $(row_tag1).attr('class', 'tablerow');
+            }
+            table1.cell(counter1,0).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
+        });
+    }
+
 </script>
 {% endblock javascripts %}
 

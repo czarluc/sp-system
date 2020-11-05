@@ -19,7 +19,7 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<form class="form-horizontal" method="POST" action="">
+<form class="form-horizontal" method="POST" action="" id="form_recprod_selwhsebin">
         {% csrf_token %}
     <h2> Select a Whse Bin to Store the Product </h2>
     {% for instance in prod_sched %}
@@ -93,7 +93,7 @@
                         <tbody>
                             {{ whse_product_form.management_form }}
                             {% for form in whse_product_form %}
-                            <div class="row form-row">
+                            <div class="row form-row" id="form-{{forloop.counter0}}">
                                 <tr class="tablerow whsebin_table">
                                     <td><input type="text" name="form-0-bin_location" class="form-control" id="id_form-0-bin_location" value="" readonly="readonly"></td>
                                     <td><input type="text" name="form-{{forloop.counter0}}-bin_locationTEXT" class="form-control" id="id_form-{{forloop.counter0}}-bin_locationTEXT" value="" readonly="readonly"></td>
@@ -121,8 +121,32 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let rec_Prod_SelectWhse_selbin;
     $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+
         window.name = "Rec_Prod_SelectWhse";
         //$( "#datepicker" ).datepicker();
 
@@ -150,6 +174,118 @@
 
     });
 
+    function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            //reenable to child window
+            var row = btn.closest('tr.tablerow.whsebin_table');
+            var row_id = row.attr('id').split("-");
+            var id_counter = '';
+            var counter = 1;
+
+            row_id.forEach(function(item) {
+                if( counter === row_id.length ){
+                    id_counter = item;
+                }
+                counter += 1;
+            });
+
+            var req_quan = $("#prod_required_quan").val();
+            var store_quan = $("#prod_stored_quan").val();
+            var quan_del = $("#id_form-"+id_counter+"-quantity").val();
+            var new_requan = parseInt( req_quan ) + parseInt( quan_del )
+            var new_storequan = parseInt( store_quan ) - parseInt( quan_del )
+            $("#prod_required_quan").val(new_requan);
+            $("#prod_stored_quan").val(new_storequan);
+
+            if ( rec_Prod_SelectWhse_selbin && !rec_Prod_SelectWhse_selbin.closed ){
+                rec_Prod_SelectWhse_selbin.deselectWhseBin( $("#id_form-"+id_counter+"-bin_locationTEXT").val() );
+                toastr.info("Warehouse Bin "+ $("#id_form-"+id_counter+"-bin_locationTEXT").val() + " has been removed from the Schedule.");
+
+                $(rec_Prod_SelectWhse_selbin.document).contents().find("#prod_required_quan").val(new_requan);
+                $(rec_Prod_SelectWhse_selbin.document).contents().find("#prod_store_quan").val( new_storequan);
+
+            }else{ //window already closed
+
+            }  
+
+            btn.closest('#whsebin_table tr.tablerow.whsebin_table').remove();
+            var forms = $('#whsebin_table tr.tablerow.whsebin_table');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+                $(forms.get(i)).each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+
+    $(document).on('click', '.add-form-row', function(e){
+        if ( rec_Prod_SelectWhse_selbin && !rec_Prod_SelectWhse_selbin.closed ){
+            rec_Prod_SelectWhse_selbin.focus();
+            return false;                
+        }else{
+
+            var prod_sched = $("#prod_sched").val();
+            var itemurl = "warehouse/ReceiveProduct/";
+            var windowurl = itemurl+prod_sched+"/SelectWhseBin/Select/";
+            var newurl = "Select/"
+            rec_Prod_SelectWhse_selbin = window.open(newurl);
+
+
+            //send out current list of selected PO
+            var bin_list = []                
+            $('#whsebin_table').find('tr.tablerow.whsebin_table').each(function (i, el) { //loop through rows
+                var whse_bin = '';
+
+                $(this).find('input[type=text]').each(function (i, el) { //loop through row elements
+                    var id_list = $(this).attr('id').split("-");
+                    var input_type = '';
+                    var counter = 1;
+                    
+
+                    id_list.forEach(function(item) {
+                        if( counter === id_list.length ){
+                            input_type = item;
+                        }
+                        counter += 1;
+                    });
+
+                    if( input_type === "bin_locationTEXT" ){
+                        if( !($(this).val() === "") ){
+                            whse_bin = $(this).val()
+                        }                                                   
+                    }
+                });
+
+                if ( !(whse_bin === "") ){
+                    bin_list.push( [whse_bin] );
+                }
+                
+            });           
+            rec_Prod_SelectWhse_selbin.bin_list = bin_list;
+
+
+
+            return false;
+
+        }
+
+
+
+        
+    });
+
     function updateElementIndex(el, prefix, ndx) {
         var id_regex = new RegExp('(' + prefix + '-\\d+)');
         var replacement = prefix + '-' + ndx;
@@ -164,6 +300,8 @@
         var currentnum = total - 1
         var counter = 0
 
+        $('#whsebin_table tr.tablerow.whsebin_table:last').attr('id', "form-"+currentnum);
+
         $('#whsebin_table tr.tablerow.whsebin_table:last').find('input[type=text]').each(function (i, el) {
             var name = $(this).attr('name');
             if(name) {
@@ -172,11 +310,9 @@
                     counter++;
                 } else if(counter === 1){
                     $(this).val(binloc);
-                    console.log($(this));
                     counter++;
                 }else {
                     $(this).val(quantity);
-                    console.log($(this));
                     counter++;
                 }
             }
@@ -194,49 +330,52 @@
         total++;
         $('#id_' + prefix + '-TOTAL_FORMS').val(total);
         $('#whsebin_table tr.tablerow.whsebin_table:last').after(lastrowtbl);
+        lastrow = total-1;
+        $('#whsebin_table tr.tablerow.whsebin_table:last').attr('id', "form-"+lastrow);
 
         var conditionRow = $('#whsebin_table tr.tablerow.whsebin_table:not(:last)');
         conditionRow.find('.btn.add-form-row')
         .removeClass('btn-success').addClass('btn-danger')
         .removeClass('add-form-row').addClass('remove-form-row')
-        .html('-');
+        .html('<i class="fa fa-trash"></i>');
         return false;
     }
-
-    function deleteForm(prefix, btn) {
-        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
-        if (total > 1){
-            btn.closest('#whsebin_table tr.tablerow.whsebin_table').remove();
-            var forms = $('#whsebin_table tr.tablerow.whsebin_table');
-            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
-
-            for (var i=0, formCount=forms.length; i<formCount; i++) {
-
-                $(forms.get(i)).find(':input[type=text]').each(function() {
-                    updateElementIndex(this, prefix, i);
-                });
-
-            }
-            total--;
-            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
-        }
-        return false;
-    }
-       
-    
-    $(document).on('click', '.add-form-row', function(e){
-        var prod_sched = $("#prod_sched").val();
-        var itemurl = "warehouse/ReceiveProduct/";
-        var windowurl = itemurl+prod_sched+"/SelectWhseBin/Select/";
-        var newurl = "Select/"
-        var wewewe = window.open(newurl);
-        return false;
-    });
     
     $(document).on('click', '.remove-form-row', function(e){
         e.preventDefault();
         deleteForm('form', $(this));
         return false;
+    });
+
+    $('#form_recprod_selwhsebin').submit(function() {
+        event.preventDefault();
+
+        if( $("#prod_required_quan").val() === "0" ){
+
+            Swal.fire({
+                title: 'Do you want to save the selected Warehouse Bins for <br>' + "Work-Order " + $("#wo_num").val() + " Schedule " + $("#prod_sched").val() + '?',
+                icon:'success',
+                showDenyButton: true,
+                confirmButtonText: `Yes`,
+                denyButtonText: `No`,
+            }).then((result) => {
+            if (result.isConfirmed) {
+                $(this).unbind('submit').submit();
+
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info');
+            }
+            });
+
+
+        }else{
+
+            toastr.error('Please store all quantities of the product.')
+
+        }
+
+        
+
     });
 
 </script>

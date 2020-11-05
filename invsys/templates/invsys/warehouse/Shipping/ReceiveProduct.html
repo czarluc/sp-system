@@ -208,20 +208,16 @@
             <br>
             <div class="form-row align-items-center">
                 <div class="col-lg-3">
-                    <button type="submit" name="btn_shplby" class="btn btn-block btn-primary">Add Product to Shipping Lobby</button>
+                    <button type="submit" name="rec_prod" class="btn btn-block btn-primary" onclick="$('#btn_sel').val('shiplby');">Add Product to Shipping Lobby</button>
                  </div>
                 <div class="col-lg-3">
-                    <button type="submit" name="btn_whse" class="btn btn-block btn-warning">Add Product to Warehouse</button>
+                    <button type="submit" name="rec_prod" class="btn btn-block btn-warning" onclick="$('#btn_sel').val('whse');">Add Product to Warehouse</button>
                 </div>
             </div>
 
         </div>
-    </div>
-
-    
-
-    
-
+    </div>    
+    <input hidden name="btn_sel" id="btn_sel">
     </form>
 {% endblock content %}
 
