@@ -152,7 +152,7 @@
                                         <td><input type="text" name="formitem-0-end_time_validation" class="form-control" id="id_formitem-0-end_time_validation" readonly form_tag = False></td>
                                         <td><input type="text" name="formitem-0-validation_time" class="form-control" id="id_formitem-0-validation_time" readonly form_tag = False></td>
                                         <td><input type="text" name="formitem-0-item_number" class="form-control" id="id_formitem-0-item_number" readonly form_tag = False></td>
-                                        <td><input type="text" name="formitem-0-item_quantity" class="form-control" id="id_formitem-0-item_quantity"  readonly form_tag = False></td>
+                                        <td><input type="text" name="formitem-0-item_quantity" class="form-control recquan" id="id_formitem-0-item_quantity"  readonly form_tag = False></td>
                                         <td><input type="text" name="formitem-0-notes" class="form-control" id="id_formitem-0-notes"  readonly form_tag = False></td>
                                         <td><button class="btn btn-success btn-sm add-form-row item" title="Add"><i class="fa fa-table"></i></button><button class="btn btn-primary edit-form-row btn-sm" type="button" data-toggle="modal" title="Edit"><i class="fa fa-edit"></i></button></td>
                                     </tr>
@@ -266,50 +266,113 @@
             $('#ship_form').submit(function() {
                 event.preventDefault();
 
-                Swal.fire({
-                    title: 'Do you want to save the validated parts from Shipment ' + $("#id_shipment").val() + " with Purchase Order " + $("#id_po_num").val() + '?',
-                    icon:'success',
-                    showDenyButton: true,
-                    confirmButtonText: `Yes`,
-                    denyButtonText: `No`,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var start_time = $('#val_start').val();
-                        var endtime = Math.ceil((Date.now()-Math.floor(Date.now()/1000/60/60/24)*24*60*60*1000)/1000);
-                        var validationtime = timeToSeconds(secondsToTime(endtime)) - timeToSeconds(start_time);
+                if ( $("#id_shipment").val() === "" ){
 
-                        $('#part_table').find('tr.tablerow').each(function (i, el) { //iterate through row
-                            
-                            var counter = 0;
-                            $(this).find('input[type=text]').each(function (i, el) { //iterate through row controls
-                                var name = $(this).attr('name');
-                                if(name) {
-                                    if (counter === 0){
-                                        counter++;
-                                    } else if(counter === 1){ //val start
-                                        var start_time = $(this).val();
-                                        $(this).val(secondsToTime(start_time));
-                                        counter++;
-                                    } else if(counter === 2){ //val end
-                                        $(this).val(secondsToTime(endtime));
-                                        counter++;
-                                    } else if(counter === 3){ //val time
-                                        $(this).val(validationtime);
-                                        counter++;
-                                    } else {
-                                        counter++;
-                                    }
-                                }
-                            });
+                    toastr.error('Please select a purchase order from the shipments.')
+                }else{
 
+                    if ( check_table() ){
+
+                        Swal.fire({
+                            title: 'Do you want to save the validated parts from Shipment ' + $("#id_shipment").val() + " with Purchase Order " + $("#id_po_num").val() + '?',
+                            icon:'success',
+                            showDenyButton: true,
+                            confirmButtonText: `Yes`,
+                            denyButtonText: `No`,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var start_time = $('#val_start').val();
+                                var endtime = Math.ceil((Date.now()-Math.floor(Date.now()/1000/60/60/24)*24*60*60*1000)/1000);
+                                var validationtime = timeToSeconds(secondsToTime(endtime)) - timeToSeconds(start_time);
+
+                                $('#part_table').find('tr.tablerow').each(function (i, el) { //iterate through row
+                                    
+                                    var counter = 0;
+                                    $(this).find('input[type=text]').each(function (i, el) { //iterate through row controls
+                                        var name = $(this).attr('name');
+                                        if(name) {
+                                            if (counter === 0){
+                                                counter++;
+                                            } else if(counter === 1){ //val start
+                                                var start_time = $(this).val();
+                                                $(this).val(secondsToTime(start_time));
+                                                counter++;
+                                            } else if(counter === 2){ //val end
+                                                $(this).val(secondsToTime(endtime));
+                                                counter++;
+                                            } else if(counter === 3){ //val time
+                                                $(this).val(validationtime);
+                                                counter++;
+                                            } else {
+                                                counter++;
+                                            }
+                                        }
+                                    });
+
+                                });
+
+                                $(this).unbind('submit').submit();
+                            } else if (result.isDenied) {
+                                Swal.fire('Changes are not saved', '', 'info');
+                            }
                         });
 
-                        $(this).unbind('submit').submit();
-                    } else if (result.isDenied) {
-                        Swal.fire('Changes are not saved', '', 'info');
+                    }else{
+
+                        toastr.error('Please Validate the items from the shipment first!')
+
                     }
-                });
+
+
+                }
+
+                
+                
             });
+
+            $(".form-control.recquan").on("keypress", function (evt) {
+                if (evt.which < 48 || evt.which > 57)
+                {
+                    evt.preventDefault();
+                }
+            });
+
+
+            function check_table(){
+                var rowCount = $('#part_table tr.tablerow').length;
+                var rowCounter = 1;
+
+                var boolean = true;
+
+                $('#part_table').find('tr.tablerow').each(function (i, el) { //iterate through row
+                    if ( rowCounter < rowCount ){
+                        var counter = 0;
+                        $(this).find('input[type=text]').each(function (i, el) { //iterate through row controls
+                            var name = $(this).attr('name');
+                            if(name) {
+                                if (counter === 0){
+                                    counter++;
+                                } else if(counter === 5){
+                                    var rec_quan = $(this).val();
+                                    if ( rec_quan === "" ){
+                                        boolean = false;
+                                    }
+
+                                    counter++;
+                                } else {
+                                    counter++;
+                                }
+                            }
+                        });
+                        rowCounter+= 1;
+                    }                   
+
+                });
+
+
+                return boolean;
+
+            }
 
         });
 
@@ -575,7 +638,6 @@
                     if(discQuan === 0){ //Non-issue
                         disc = false;
                         issue = 'Non-Issue';
-                        console.log("FUCK");
                         $(ship_sum_row).attr('class', "tablerow noissue");
                     }else if (discQuan > 0){//Short-Shipped
                         disc = true;
