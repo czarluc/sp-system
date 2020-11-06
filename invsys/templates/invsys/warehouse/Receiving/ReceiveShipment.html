@@ -77,7 +77,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label>Supplier: </label>
-                        <input type="text" name="supplier" class="form-control" id="id_supplier" value="sample" readonly>
+                        <input type="text" name="supplier" class="form-control" id="id_supplier" readonly>
                     </div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label>Notes: </label>
-                        <input type="text" name="notes" class="form-control" id="id_notes" value="sample notes" readonly>
+                        <input type="text" name="notes" class="form-control" id="id_notes" readonly>
                     </div>
                 </div>
             </div>
@@ -257,7 +257,7 @@
                 var poid = $("#id_po_num").val();
                 var itemurl = "SelectItem/";
                 itemurl += poid;
-                var wewewe = window.open(itemurl);
+                //var wewewe = window.open(itemurl);
                 return false;
             });
 

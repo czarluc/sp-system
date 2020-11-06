@@ -482,7 +482,8 @@ def FinishAssembly(request):
             wo_assembly.verified_by = wo_assemblyform.verified_by
             wo_assembly.notes = wo_assemblyform.notes
             wo_assembly.cleared = True
-            wo_assembly.image = request.FILES["image"]
+            if len(request.FILES) != 0:
+                wo_assembly.image = request.FILES["image"]
             wo_assembly.save()
 
             prod_sched = WO_Production_Schedule.objects.get(id=wo_assemblyform.prod_sched.id)
@@ -547,7 +548,8 @@ def FinishCoupling(request):
             wo_coupling.verified_by = wo_couplingform.verified_by
             wo_coupling.notes = wo_couplingform.notes
             wo_coupling.cleared = True
-            wo_coupling.image = request.FILES["image"]
+            if len(request.FILES) != 0:
+                wo_coupling.image = request.FILES["image"]
             wo_coupling.save()
 
             prod_sched = WO_Production_Schedule.objects.get(id=wo_couplingform.prod_sched.id)
@@ -612,7 +614,8 @@ def FinishTesting(request):
             wo_testing.verified_by = wo_testingform.verified_by
             wo_testing.notes = wo_testingform.notes
             wo_testing.cleared = True
-            wo_testing.image = request.FILES["image"]
+            if len(request.FILES) != 0:
+                wo_testing.image = request.FILES["image"]
             wo_testing.save()
 
             prod_sched = WO_Production_Schedule.objects.get(id=wo_testingform.prod_sched.id)

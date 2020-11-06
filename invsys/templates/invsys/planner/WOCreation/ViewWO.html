@@ -63,6 +63,12 @@
     input[type='checkbox'][readonly]{
         pointer-events: none;
     }
+    .table-striped tbody tr.highlight td { 
+    background-color: #87CEFA;
+    }
+    .table-striped tbody tr.highlight2 td { 
+    background-color: #f0ad4e;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -93,7 +99,7 @@
                     {% for instance in wo_set %}
                         <tr class="tablerow" id="sched-{{forloop.counter}}">
 
-                            <td><button type="button" class="btn btn-primary wo" data-wo_num="{{instance.work_order_number}}" id="wo-{{forloop.counter}}-wo_num">{{ instance.work_order_number }}</button></td>
+                            <td><button type="button" class="btn btn-primary wo" data-wo_num="{{instance.work_order_number}}" id="btn-{{forloop.counter}}">{{ instance.work_order_number }}</button></td>
                             <td>{{ instance.customer }}</td>
                             <td>{{ instance.order_type }}</td>
                             <td>{{ instance.work_order_class }}</td>
@@ -132,7 +138,7 @@
                     {% for instance in prod_sched_set %}
                         <tr class="tablerow" id="sched-{{forloop.counter}}" data-wo_num="{{instance.work_order_number__work_order_number}}">
 
-                            <td><button type="button" class="btn btn-primary get-form prod_sched" data-wo_num="{{instance.work_order_number__work_order_number}}" data-prod_sched="{{instance.id}}" id="wo-{{forloop.counter}}-wo_num">{{ instance.id }}</button></td>
+                            <td><button type="button" class="btn btn-primary get-form prod_sched" data-wo_num="{{instance.work_order_number__work_order_number}}" data-prod_sched="{{instance.id}}" id="btn-{{forloop.counter}}">{{ instance.id }}</button></td>
                             <td>{{ instance.work_order_number__work_order_number }}</td>
                             <td>{{ instance.quantity }}</td>
                             <td>{{ instance.date_required }}</td>
@@ -955,9 +961,46 @@ $(document).ready(function() {
         document.getElementById("sched_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         var wo_num = this.dataset.wo_num;
 
+        var btn_id = $(this).attr('id').split("-");
+        var id_btn_counter = '';
+        var btn_counter = 1;
+
+        btn_id.forEach(function(item) {
+            if( btn_counter === btn_id.length ){
+                id_btn_counter = item;
+            }
+            btn_counter += 1;
+        });
+
+
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag = table.rows(counter).nodes().to$();
+            var row_id = $(row_tag).attr('id').split("-");
+            var id_row_counter = '';
+            var row_counter = 1;
+
+            row_id.forEach(function(item) {
+                if( row_counter === row_id.length ){
+                    id_row_counter = item;
+                }
+                row_counter += 1;
+            });
+
+            if( id_btn_counter === id_row_counter ){
+                $(row_tag).attr('class', 'tablerow highlight');
+            }else{
+                $(row_tag).attr('class', 'tablerow');
+            }
+
+            counter += 1;
+        });
+
         var counter2 = 0;
         $(table2.rows().nodes()).each(function(i, el){ 
             var row_tag2 = table2.rows(counter2).nodes().to$();
+
+            $(row_tag2).attr('class', 'tablerow');
 
             var sched_wonum = $(row_tag2).attr('data-wo_num');
             if( wo_num === sched_wonum ){
@@ -978,6 +1021,41 @@ $(document).ready(function() {
         resetWizard();
         $("#btn_pdf").show();
         var button = this;
+
+        var btn_id = $(this).attr('id').split("-");
+        var id_btn_counter = '';
+        var btn_counter = 1;
+
+        btn_id.forEach(function(item) {
+            if( btn_counter === btn_id.length ){
+                id_btn_counter = item;
+            }
+            btn_counter += 1;
+        });
+
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
+            var row_id = $(row_tag2).attr('id').split("-");
+            var id_row_counter = '';
+            var row_counter = 1;
+
+            row_id.forEach(function(item) {
+                if( row_counter === row_id.length ){
+                    id_row_counter = item;
+                }
+                row_counter += 1;
+            });
+
+            if( id_btn_counter === id_row_counter ){
+                $(row_tag2).attr('class', 'tablerow highlight2');
+            }else{
+                $(row_tag2).attr('class', 'tablerow');
+            }
+
+            counter2 += 1;
+        });
 
         $.ajax({
             method: "POST",

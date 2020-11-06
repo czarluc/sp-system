@@ -42,6 +42,14 @@
                 </div>
             </div>
             <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Shipment Notes</label>
+                        <input type ="text" class="form-control" id="notes" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
                 <div class="col-1.5">
                     <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg btn-success">Select</button>
                 </div>
@@ -75,7 +83,7 @@
                     <tbody>
                     {% for instance in shipment_set %}
                         <tr class="tablerow">
-                            <td><button type="button" class="btn btn-primary ship" data-ship="{{ instance.shipment_num }}">{{ instance.shipment_num }}</button></td>
+                            <td><button type="button" class="btn btn-primary ship" data-ship="{{ instance.shipment_num }}" data-notes="{{ instance.notes }}">{{ instance.shipment_num }}</button></td>
                             <td>{{ instance.dr_num }}</td>
                             <td>{{ instance.rr_num }}</td>
                             <td>{{ instance.invoice_num }}</td>
@@ -234,6 +242,9 @@
                     $(window.opener.document).find('#id_po_num').val($('#po_num').val()); //PO Number
                     $(window.opener.document).find('#shipment_po').val($('#ship_po').val()); //Shipment PO
                     $(window.opener.document).find('#id_shipment').val($('#ship_num').val()); //Ship Num
+                    $(window.opener.document).find('#id_supplier').val("Sample Supplier"); //Supplier
+
+                    $(window.opener.document).find('#id_notes').val($('#notes').val()); //Notes
 
                     window.opener.deletereqitem();
                     
@@ -282,6 +293,8 @@
             var btn = this;
             var ship_num = btn.dataset.ship;
             $('#ship_num').val(ship_num);
+            var ship_notes = btn.dataset.notes;
+            $('#notes').val(ship_notes);
 
             var counter1 = 0;
             $(table1.rows().nodes()).each(function(i, el){ 
