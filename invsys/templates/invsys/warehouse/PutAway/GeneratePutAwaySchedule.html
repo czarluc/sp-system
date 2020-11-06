@@ -72,7 +72,7 @@
                             <td><input type="text" name="form-0-bin_location" class="form-control" id="id_form-0-bin_location" value="" readonly></td>
                             <td><input type="text" name="form-0-bin_locationTEXT" class="form-control" id="id_form-0-bin_locationTEXT" value="" readonly></td>
                             <td><input type="text" name="form-0-reference_number" class="form-control" id="id_form-0-reference_number" value="" readonly></td>
-                            <td><button class="btn btn-success add-form-row">+</button></td>
+                            <td><button type="button" class="btn btn-success add-form-row"><i class="fa fa-table"></i></button></td>
                         </tr>
                     </div> 
                     {% endfor %}
@@ -186,7 +186,7 @@
         conditionRow.find('.btn.add-form-row')
         .removeClass('btn-success').addClass('btn-danger')
         .removeClass('add-form-row').addClass('remove-form-row')
-        .html('-');
+        .html('<i class="fa fa-trash"></i>');
         return false;
     }
 
