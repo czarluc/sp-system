@@ -379,23 +379,43 @@
     $('#ship_form').submit(function() {
         event.preventDefault();
 
-        Swal.fire({
-            title: 'Do you want to save the Inbounded Shipment {{ next_shipmentid }}?',
-            icon:'success',
-            showDenyButton: true,
-            confirmButtonText: `Yes`,
-            denyButtonText: `No`,
-        }).then((result) => {
-        if (result.isConfirmed) {
-            $(this).unbind('submit').submit();
+        if( checkselPO() ){
 
-        } else if (result.isDenied) {
-            Swal.fire('Changes are not saved', '', 'info');
+            Swal.fire({
+                title: 'Do you want to save the Inbounded Shipment {{ next_shipmentid }}?',
+                icon:'success',
+                showDenyButton: true,
+                confirmButtonText: `Yes`,
+                denyButtonText: `No`,
+            }).then((result) => {
+            if (result.isConfirmed) {
+                $(this).unbind('submit').submit();
+
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info');
+            }
+            });
+
+        }else{
+
+            toastr.error("Please select Purchase Orders first.");
+
         }
-        });
 
     });
 
+
+    function checkselPO(){
+        var rowCount = $('#po_table tr.tablerow').length;
+        console.log(rowCount)
+        
+        if( parseInt(rowCount) > 1 ){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
     </script>
 {% endblock javascripts %}
 
