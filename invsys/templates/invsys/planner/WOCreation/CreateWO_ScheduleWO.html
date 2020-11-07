@@ -169,7 +169,7 @@
             </div>
 
             <div class="col-12">
-                <button type="submit" id="btn_save" class="btn btn-block btn-success">Save Schedules</button>
+                <button type="submit" id="btn_save" class="btn btn-block btn-success">Save Created Schedules</button>
             </div>
 
         </div>
@@ -530,11 +530,15 @@
 
         req_quan = calculate_remquan(quantity);
 
+        console.log( wo_num )
+        console.log( event_date )
+        console.log( quantity )
+
         if( req_quan >= 0 && event_date && quantity > 0){
             
             $('#calendar').fullCalendar('renderEvent',
             {
-                title:wo_num,
+                title: wo_num,
                 start: event_date,
                 end: event_date,
                 allDay: true,
@@ -675,7 +679,6 @@
 
     function reset_inputs(){
         $("#event_id").val('');
-        $("#wo_num").val('');
         $("#event_date").val('');
         $("#quantity").val('');
     }

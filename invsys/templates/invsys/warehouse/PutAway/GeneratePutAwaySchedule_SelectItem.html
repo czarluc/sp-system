@@ -80,10 +80,10 @@
             </div>
             <div class="form-row align-items-center">
                 <div class="col-1.5">
-                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select to Schedule</button>
                 </div>
                 <div class="col-1.5">
-                    <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done</button>
+                    <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done Scheduling</button>
                 </div>
                 <div class="col-1.5">
                     <button type="button" id="backbtn" class="btn btn-info btn-lg">Back</button>
@@ -316,6 +316,8 @@
             $("#pa_card").hide();
 
             $("#backbtn").show();
+            $("#donebtn").hide();
+            $("#autoallbtn").hide();
 
         });
         $( "#bin_table" ).on("click", ".btn.btn-primary.bin_location", function () {
@@ -362,6 +364,8 @@
             document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
             $("#whse_card").hide();
+            $("#donebtn").show();
+            $("#autoallbtn").show();
         });
         
         $(".btn.btn-success.btn-lg").on("click", function () {
@@ -404,7 +408,8 @@
             $("#whse_card").hide();
 
             $("#backbtn").hide();
-            
+            $("#donebtn").show();
+            $("#autoallbtn").show();
         });
 
         
