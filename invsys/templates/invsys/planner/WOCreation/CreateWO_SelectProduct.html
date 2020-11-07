@@ -73,10 +73,10 @@
             </div>
             <div class="form-row align-items-center">
                 <div class="col-lg-1.5">
-                    <button type="button" id="selectbtn" class="btn btn-warning btn-lg check">Check</button>
+                    <button type="button" id="checkbtn" class="btn btn-warning btn-lg check">Check Product for Availability</button>
                 </div>
                 <div class="col-lg-1.5">
-                    <button type="button" id="selectbtn" class="btn btn-success btn-lg select">Select</button>
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg select">Select Product for Work-Order</button>
                 </div>
             </div>
         </div>
@@ -242,6 +242,8 @@
             sessionStorage.setItem('reloaded', 'yes');
         }
 
+        $("#selectbtn").hide();
+
         var counter2 = 0;
         $(table2.rows().nodes()).each(function(i, el){ 
             $(table2.rows(counter2).nodes().to$()).hide();
@@ -302,6 +304,10 @@
                 }
                 counter2 += 1;
             });
+
+            $("#selectbtn").hide();
+            $("#checkbtn").show();
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         });
 
 
@@ -309,6 +315,9 @@
             var prodnum = $('#name1').val();
             var prodquan = $('#name5').val();
             var prodclass = $('#name4').val();
+
+
+            window.opener.delete_BOM();
                                                    
             var counter2 = 0;
             $(table2.rows().nodes()).each(function(i, el){ 
@@ -345,42 +354,52 @@
             var prodnum = $('#name1').val();
             var prodquan = $('#name5').val();
 
-            var counter2 = 0;
-            $(table2.rows().nodes()).each(function(i, el){ 
-                var row_tag2 = table2.rows(counter2).nodes().to$();
-                var stockquan = 0
+            if( !(prodquan === "") ){
 
-                $(row_tag2).attr('class', 'tablerow bom_table');
+                var counter2 = 0;
+                $(table2.rows().nodes()).each(function(i, el){ 
+                    var row_tag2 = table2.rows(counter2).nodes().to$();
+                    var stockquan = 0
 
-                var itemprod_num = $(row_tag2).attr('data-prod_num');
-                var item_num = $(row_tag2).attr('data-itemnum');
-                var itemreq = $(row_tag2).attr('data-item_quan');
-                var totitemreq = parseInt(itemreq) * parseInt(prodquan);
-                var stockquan = getstockinstances(item_num, stockquan)
+                    $(row_tag2).attr('class', 'tablerow bom_table');
 
-                var totrequan_tag = $.parseHTML(table2.cell(counter2,4).data())[0];
-                var stockquan_tag = $.parseHTML(table2.cell(counter2,5).data())[0];
+                    var itemprod_num = $(row_tag2).attr('data-prod_num');
+                    var item_num = $(row_tag2).attr('data-itemnum');
+                    var itemreq = $(row_tag2).attr('data-item_quan');
+                    var totitemreq = parseInt(itemreq) * parseInt(prodquan);
+                    var stockquan = getstockinstances(item_num, stockquan)
 
-                $(row_tag2).attr('data-totreq',totitemreq);
-                $(row_tag2).attr('data-stockquan',stockquan);
+                    var totrequan_tag = $.parseHTML(table2.cell(counter2,4).data())[0];
+                    var stockquan_tag = $.parseHTML(table2.cell(counter2,5).data())[0];
 
-                if (itemprod_num === prodnum){
-                    $(totrequan_tag).text(totitemreq);
-                    $(stockquan_tag).text(stockquan);
-                    table2.cell(counter2,4).data($(totrequan_tag).prop('outerHTML'));
-                    table2.cell(counter2,5).data($(stockquan_tag).prop('outerHTML'));
-                    $(row_tag2).show();
+                    $(row_tag2).attr('data-totreq',totitemreq);
+                    $(row_tag2).attr('data-stockquan',stockquan);
 
-                    if ( totitemreq < stockquan ){
-                        $(row_tag2).attr('class', 'tablerow bom_table noissue');
-                    }else{
-                        $(row_tag2).attr('class', 'tablerow bom_table issue');
+                    if (itemprod_num === prodnum){
+                        $(totrequan_tag).text(totitemreq);
+                        $(stockquan_tag).text(stockquan);
+                        table2.cell(counter2,4).data($(totrequan_tag).prop('outerHTML'));
+                        table2.cell(counter2,5).data($(stockquan_tag).prop('outerHTML'));
+                        $(row_tag2).show();
+
+                        if ( totitemreq < stockquan ){
+                            $(row_tag2).attr('class', 'tablerow bom_table noissue');
+                        }else{
+                            $(row_tag2).attr('class', 'tablerow bom_table issue');
+                        }
+                    }else {
+                        $(row_tag2).hide();
                     }
-                }else {
-                    $(row_tag2).hide();
-                }
-                counter2 += 1; 
-            });  
+                    counter2 += 1; 
+                });
+
+                $("#selectbtn").show();
+                $("#checkbtn").hide();
+
+            }else{
+                toastr.error('Please input a proposed quantity to check for product availability.');
+            }
+            
         });
 
         function getstockinstances(item_num, stockquan){
