@@ -3,14 +3,67 @@
 {% block title %} Welcome {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}{% load static %}{% endblock stylesheets %}
 
 {% block content %}
-  <h2>Welcome to the Xylem Warehouse Inventory System! </h2>
-  <p class="lead">
-    If you already have an account, go ahead and <a href="{% url 'login' %}">log in</a>. 
-    <br> <br> 
-    If you are new to Xylem, get started by creating either an <a href="{% url 'signup' %}" > account </a>
-  </p>
+	<div class="container mt--8 pb-5">
+	      <div class="row justify-content-center">
+	        <div class="col-lg-5 col-md-7">
+
+	          <div class="card">
+	            <div class="card-body px-lg-5 py-lg-5">
+	              <div class="row justify-content-center">
+	                <h2><img src="{% static 'invsys/xylem.png' %}" width="100%" height="100%" class="d-inline-block align-top"></h2>
+	              </div>
+	              <div class="text-center text-muted mb-4">
+
+	                {% if error %}
+	                  <p>
+	                    Use default credentials for:
+	                    <br/>
+	                    whse user: testwhse / password123145
+	                    <br/>
+	                    production planner user: testplanner / password123145
+	                    <br/>
+	                    assembler user: testassembler / password123145
+	                    <br/>
+	                    or <a href="{% url 'signup' %}" >Sign-Up</a>
+	                  </p>
+	                  {{ error }}
+	                {% else %}
+	                  <p>
+	                    Use default credentials for:
+	                    <br/>
+	                    whse user: testwhse / password123145
+	                    <br/>
+	                    production planner user: testplanner / password123145
+	                    <br/>
+	                    assembler user: testassembler / password123145
+	                    <br/>
+	                    or <a href="{% url 'signup' %}" >Sign-Up</a>
+	                  </p>
+	                {% endif %}
+
+	              </div>                
+	                  <form method="post" novalidate>
+	                    {% csrf_token %}
+	                    <input type="hidden" name="next" value="{{ next }}">
+	                    <div class="form-group">
+	                        <label>Username:</label>
+	                        <input type="text" name="username" class="form-control" required="" id="id_username" value="{{scheduleid}}">
+	                    </div>
+	                    <div class="form-group">
+	                        <label>Password:</label>
+	                        <input type="password" name="password" class="form-control" required="" id="id_password" value="{{scheduleid}}">
+	                    </div>
+	                    <button type="submit" class="btn btn-primary d-inline-block">Log in</button>
+	                  </form>
+
+	            </div>      
+
+	      </div>
+	    </div>
+	  </div>
+	</div>
   <hr>
 {% endblock content %}
