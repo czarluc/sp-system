@@ -259,6 +259,8 @@
 
         $("#whse_card").hide();
 
+        $("#selectbtn").hide();
+
         $(table2.rows().nodes()).each(function(i, el){
             $(table2.rows(this).nodes().to$()).hide();
         });
@@ -342,7 +344,7 @@
             });
 
             toastr.info('Warehouse Bin ' + bin_location + ' is selected for part '+$('#name1').val());
-
+            $("#selectbtn").show();
         });
 
         $("#donebtn").on("click", function () {
@@ -360,6 +362,7 @@
             resetFields();
 
             $("#pa_card").show();
+            $("#selectbtn").hide();
 
             document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
@@ -402,6 +405,7 @@
             resetFields();
 
             $("#pa_card").show();
+            $("#selectbtn").hide();
 
             document.getElementById("pa_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
