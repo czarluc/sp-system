@@ -156,10 +156,10 @@ def upload_whse_location(instance, filename):
 
 class Warehouse(models.Model):
     bin_location = models.CharField(max_length=200, default='')
-    rack = models.CharField(max_length=200, default='')
-    column = models.CharField(max_length=200, default='')
-    layer = models.CharField(max_length=200, default='')
-    direction = models.CharField(max_length=200, default='')
+    rack = models.CharField(max_length=200, default='', blank=True, null=True)
+    column = models.CharField(max_length=200, default='', blank=True, null=True)
+    layer = models.CharField(max_length=200, default='', blank=True, null=True)
+    direction = models.CharField(max_length=200, default='', blank=True, null=True)
     item_cat = models.ForeignKey(ItemCat, default='1', blank=True, on_delete=models.CASCADE)
     prod_class = models.ForeignKey(ProdClass, default='1', blank=True, on_delete=models.CASCADE)
     barcode = models.CharField(max_length=100, default='', blank=True, null=True)

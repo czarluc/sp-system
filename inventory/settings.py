@@ -29,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*','sp-system-v1.herokuapp.com']
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 # Application definition
 

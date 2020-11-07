@@ -150,6 +150,9 @@ urlpatterns = [
         path('EditWarehouseBin/', warehouse.EditWarehouseBin, name='EditWarehouseBin'),
         path('EditWarehouseBin_getparts/', warehouse.EditWarehouseBin_getparts, name='EditWarehouseBin_getparts'),
         
+        #--BULK CREATE WHSE BIN--
+        path('ImportWarehouseBin/', warehouse.ImportWarehouseBin, name='ImportWarehouseBin'),
+        
         
 
     ], 'invsys'), namespace='warehouse')),

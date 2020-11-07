@@ -130,6 +130,11 @@ class WarehouseBinForm(forms.ModelForm):
             'prod_class',
             'image',)
 
+WarehouseBinFormset = modelformset_factory(
+    Warehouse,
+    fields=('rack','column','layer','direction'),
+    extra=1,
+    )
 
 #RECEIVING
 class ShipmentForm(forms.ModelForm):

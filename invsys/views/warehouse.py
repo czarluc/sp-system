@@ -54,6 +54,46 @@ def WarehouseTest(request):
     elif request.method == 'POST':
         return redirect('warehouse:warehouse_home')
 
+@login_required
+@warehouse_required
+def ImportWarehouseBin(request):
+    if request.method == 'GET':
+
+        whseformset = WarehouseBinFormset(queryset=Warehouse.objects.none(), prefix='form')
+
+        return render(request, 'invsys/warehouse/CheckInv/ImportWarehouseBin.html', {'whseformset':whseformset})
+    
+    elif request.method == 'POST':
+        whseformset = WarehouseBinFormset(request.POST , request.FILES, prefix='form')
+
+        if whseformset.is_valid():
+
+            counter = 1;
+            form_counter = 0;
+            for whseform in whseformset:
+                if counter < len(whseformset):
+                    form_whsebin = whseform.save(commit=False)
+
+                    item_cat = ItemCat.objects.get(item_cat=request.POST.get('form-'+str(form_counter)+'-item_cat'))
+                    prod_class = ProdClass.objects.get(prod_class=request.POST.get('form-'+str(form_counter)+'-prod_class'))
+
+                    whsebin = Warehouse.objects.create(
+                        bin_location=form_whsebin.rack+form_whsebin.column+"-"+form_whsebin.layer+form_whsebin.direction,
+                        rack=form_whsebin.rack,
+                        column=form_whsebin.column,
+                        layer=form_whsebin.layer,
+                        direction=form_whsebin.direction,
+                        item_cat=item_cat,
+                        prod_class=prod_class)
+                    whsebin.full_clean()
+                    whsebin.save()
+
+                    #whsebin.save()
+                    counter += 1
+                    form_counter += 1
+
+        return redirect('home')
+
 #Check Inventory
 #--Create Item--
 @login_required
