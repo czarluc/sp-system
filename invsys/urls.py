@@ -15,30 +15,30 @@ urlpatterns = [
         path('CreateProd/', warehouse.CreateProdwithItems, name='whse_add_prod'),
         path('CreateProd/SelectItem', warehouse.CreateProd_SelectItem, name='whse_add_prod_selectitem'),
 
+        #--DASHBOARD
         #SAMPLE DASHBOARD
         re_path(r'^Dashboard_get_data/$', warehouse.Dashboard_get_data, name='Dashboard_get_data'),
         re_path(r'^Dashboard_update_data/$', warehouse.Dashboard_update_data, name='Dashboard_update_data'),
+        #WHSE UTILIZATION
+        re_path(r'^Dashboard_get_whseutil/$', warehouse.Dashboard_get_whseutil, name='Dashboard_get_whseutil'),
         #RECEIVING DASHBOARD
-        re_path(r'^Dashboard_get_ship_acc/$', warehouse.Dashboard_get_ship_acc, name='Dashboard_get_ship_acc'),
-        re_path(r'^Dashboard_update_ship_acc/$', warehouse.Dashboard_update_ship_acc, name='Dashboard_update_ship_acc'),
-        re_path(r'^Dashboard_get_ship_time/$', warehouse.Dashboard_get_ship_time, name='Dashboard_get_ship_time'),
-        re_path(r'^Dashboard_update_ship_time/$', warehouse.Dashboard_update_ship_time, name='Dashboard_update_ship_time'),
+        re_path(r'^Dashboard_get_purchinbound/$', warehouse.Dashboard_get_purchinbound, name='Dashboard_get_purchinbound'),
+        re_path(r'^Dashboard_get_purchstatus/$', warehouse.Dashboard_get_purchstatus, name='Dashboard_get_purchstatus'),
         #PUTAWAY DASHBOARD
-        re_path(r'^Dashboard_get_pa_acc/$', warehouse.Dashboard_get_pa_acc, name='Dashboard_get_pa_acc'),
-        re_path(r'^Dashboard_update_pa_acc/$', warehouse.Dashboard_update_pa_acc, name='Dashboard_update_pa_acc'),
-        re_path(r'^Dashboard_get_pa_time/$', warehouse.Dashboard_get_pa_time, name='Dashboard_get_pa_time'),
-        re_path(r'^Dashboard_update_pa_time/$', warehouse.Dashboard_update_pa_time, name='Dashboard_update_pa_time'),
-        #STORAGE DASHBOARD
-        re_path(r'^Dashboard_get_storage_acc/$', warehouse.Dashboard_get_storage_acc, name='Dashboard_get_storage_acc'),
-        re_path(r'^Dashboard_update_storage_acc/$', warehouse.Dashboard_update_storage_acc, name='Dashboard_update_storage_acc'),
-        re_path(r'^Dashboard_get_storage_util/$', warehouse.Dashboard_get_storage_util, name='Dashboard_get_storage_util'),
-        re_path(r'^Dashboard_update_storage_util/$', warehouse.Dashboard_update_storage_util, name='Dashboard_update_storage_util'),
-        #ISSUANCE DASHBOARD
-        re_path(r'^Dashboard_get_issuance_acc/$', warehouse.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
-        re_path(r'^Dashboard_update_issuance_acc/$', warehouse.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
-        re_path(r'^Dashboard_get_issuance_prod/$', warehouse.Dashboard_get_issuance_prod, name='Dashboard_get_issuance_prod'),
-        re_path(r'^Dashboard_update_issuance_prod/$', warehouse.Dashboard_update_issuance_prod, name='Dashboard_update_issuance_prod'),
-        
+        re_path(r'^Dashboard_get_putaway/$', warehouse.Dashboard_get_putaway, name='Dashboard_get_putaway'),
+        #COMP ISSUANCE DASHBOARD
+        re_path(r'^Dashboard_get_compissuance/$', warehouse.Dashboard_get_compissuance, name='Dashboard_get_compissuance'),
+        #PART REQUEST DASHBOARD
+        re_path(r'^Dashboard_get_partreq/$', warehouse.Dashboard_get_partreq, name='Dashboard_get_partreq'),
+        #PART RETURN DASHBOARD
+        re_path(r'^Dashboard_get_partret/$', warehouse.Dashboard_get_partret, name='Dashboard_get_partret'),
+        #PRODUCT RECEIVE DASHBOARD
+        re_path(r'^Dashboard_get_prodrec/$', warehouse.Dashboard_get_prodrec, name='Dashboard_get_prodrec'),
+        #PRODUCT SHIP DASHBOARD
+        re_path(r'^Dashboard_get_prodship/$', warehouse.Dashboard_get_prodship, name='Dashboard_get_prodship'),
+        #---
+
+
         #--Receiving-Receive Shipment
         path('InboundShipment/', warehouse.InboundShipment, name='InboundShipment'),
         path('InboundShipment/SelectPO', warehouse.InboundShipment_SelectPONum, name='InboundShipment_SelectPONum'),

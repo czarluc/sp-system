@@ -3,51 +3,54 @@
 {% block title %} Home {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+{% endblock stylesheets %}
 
 {% block content %}
   <h1> Warehouse </h1>
 
-    <div class="card" id="card_sample">
-      <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Sample:</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card card-chart">
-                <div class="card-header card-header-danger">
-                  <h4 class="card-title">Shipment Accuracy</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="sample-chart"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  From: <input type="date" id="from_date_sample">
-                  To: <input type="date" id="to_date_sample">
-                  <button class="btn btn-success add-form-row ponum">Filter</button>
-                  <a href="#"> See more </a>
-                  </form>
-              </div>
-            </div>
-          </div>
+  <div class="row">
+    <div class="col-md-6">
 
+      <div class="card card-chart">
+          <div class="card-header card-header-warning">
+            <h4 class="card-title">Purchase Orders Imported:</h4>
+          </div>
+          <div class="card-body">
+            <canvas id="sample-chart"></canvas>
+            <form action="">
+              {% csrf_token %}
+            From: <input type="date" id="from_date_sample">
+            To: <input type="date" id="to_date_sample">
+            <button class="btn btn-success add-form-row ponum">Filter</button>
+            <a href="#"> "sample data" </a>
+            </form>
         </div>
       </div>
-    </div>
 
-    <div class="row">
+    </div>
+    <div class="col-md-6">
+
+      <div class="card card-chart">
+          <div class="card-header card-header-info">
+            <h4 class="card-title">Warehouse Utilization:</h4>
+          </div>
+          <div class="card-body">
+            <canvas id="whseutil_chart"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row">
       <div class="col-md-6">
         <div class="card card-chart">
             <div class="card-header card-header-info">
-              <h4 class="card-title">Inbound Shipments Status</h4>
+              <h4 class="card-title">Purchase Orders for Receiving</h4>
             </div>
             <div class="card-body">
-              <canvas id="ship_acc_chrt"></canvas>
-              <form action="">
-                {% csrf_token %}
-              <a href="#"> See more </a>
-              </form>
+              <canvas id="purchinbound_chart"></canvas>
           </div>
         </div>
       </div>
@@ -58,11 +61,7 @@
               <h4 class="card-title">Purchase Orders Status</h4>
             </div>
             <div class="card-body">
-              <canvas id="ship_time_chrt"></canvas>
-              <form action="">
-                {% csrf_token %}
-              <a href="#"> See more </a>
-              </form>
+              <canvas id="purchstatus_chart"></canvas>
           </div>
         </div>
       </div>
@@ -75,11 +74,7 @@
             <h4 class="card-title">Put Away Status:</h4>
           </div>
           <div class="card-body">
-            <canvas id="pa_acc_chrt"></canvas>
-            <form action="">
-              {% csrf_token %}
-            <a href="#"> See more </a>
-            </form>
+            <canvas id="putaway_chart"></canvas>
         </div>
       </div>
     </div>
@@ -90,10 +85,10 @@
             <h4 class="card-title">Component Issuance Status:</h4>
           </div>
           <div class="card-body">
-            <canvas id="storage_acc_chrt"></canvas>
+            <canvas id="compissue_chart"></canvas>
             <form action="">
               {% csrf_token %}
-            <a href="#"> See more </a>
+            <a href="#"> "sample data" </a>
             </form>
         </div>
       </div>
@@ -107,11 +102,7 @@
             <h4 class="card-title">Part Request Status:</h4>
           </div>
           <div class="card-body">
-            <canvas id="part_req_chrt"></canvas>
-            <form action="">
-              {% csrf_token %}
-            <a href="#"> See more </a>
-            </form>
+            <canvas id="partreq_chart"></canvas>
         </div>
       </div>
     </div>
@@ -122,10 +113,7 @@
             <h4 class="card-title">Part Return Status:</h4>
           </div>
           <div class="card-body">
-            <canvas id="part_ret_chrt"></canvas>
-            <form action="">
-            <a href="#"> See more </a>
-            </form>
+            <canvas id="partret_chart"></canvas>
         </div>
       </div>
     </div>
@@ -138,10 +126,7 @@
             <h4 class="card-title">Finished Products Status:</h4>
           </div>
           <div class="card-body">
-            <canvas id="prod_rec_chrt"></canvas>
-            <form action="">
-            <a href="#"> See more </a>
-            </form>
+            <canvas id="prodrec_chart"></canvas>
         </div>
       </div>
     </div>
@@ -152,10 +137,7 @@
             <h4 class="card-title">Product Shipping Status:</h4>
           </div>
           <div class="card-body">
-            <canvas id="prod_ship_chrt"></canvas>
-            <form action="">
-            <a href="#"> See more </a>
-            </form>
+            <canvas id="prodship_chart"></canvas>
         </div>
       </div>
     </div>
@@ -167,9 +149,6 @@
 {% block javascripts %}
 <script>
     $(document).ready(function(){
-
-      $("#card_sample").hide();
-
       var ctx = $("#sample-chart");
       var myChart = new Chart(ctx);
       var defaultData = []
@@ -258,195 +237,357 @@
         return false;
       });
 
-      var ctx_ship_acc = $("#ship_acc_chrt");
-      var myChart2 = new Chart(ctx_ship_acc);
+      initwhseutil_chart()
+
+      function initwhseutil_chart(){
+        $.ajax({
+            method: "GET",
+            url: "{% url 'warehouse:Dashboard_get_whseutil' %}",
+            success: function(data){
+                total_whsebin = data.total_whsebin;
+                loaded_whsebin = data.loaded_whsebin;
+
+                var label = [ "Non-Utilized Bins", "Utilized Bins" ]
+                var data = [ total_whsebin, loaded_whsebin ]
+
+                var ctx_whseutil = $("#whseutil_chart");
+
+                var chart_whseutil = new Chart(ctx_whseutil, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#f0ad4e",
+                        "#2ecc71",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+
+            },
+            error: function(error_data){
+                console.log("error")
+                console.log(error_data)
+            }
+        });
+      }
+
+      initpurchinbound_chart();
       
-      var ship_acc_labels = ['Inbound','Validated'];
-      var ship_acc_data = [5,4];
+      function initpurchinbound_chart(){
+        $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_purchinbound' %}",
+          success: function(data){
+              for_receiving = data.for_receiving;
+              validated = data.validated;
 
-      ctx_ship_acc = $("#ship_acc_chrt");
+              var label = [ "For Receiving", "Validated" ]
+              var data = [ for_receiving, validated ]
 
-      myChart2 = new Chart(ctx_ship_acc, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
+              var ctx_purchinbound = $("#purchinbound_chart");
 
-      var ctx_ship_time = $("#ship_time_chrt");
-      var myChart3 = new Chart(ctx_ship_time);
-      
-      var ship_acc_labels = ['Pending','Cleared','VDR'];
-      var ship_acc_data = [3,5,4];
+              var chart_purchinbound = new Chart(ctx_purchinbound, {
+                type: 'pie',
+                data: {
+                  labels: label,
+                  datasets: [{
+                    backgroundColor: [
+                      "#f0ad4e",
+                      "#2ecc71",
+                    ],
+                    data: data
+                  }]
+                }
+              });
 
-      ctx_ship_time = $("#ship_time_chrt");
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+        });
+      }
 
-      myChart3 = new Chart(ctx_ship_time, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-              "#f0ad4e",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
+      initpurchstatus_chart();
 
-      var ctx_pa_acc = $("#pa_acc_chrt");
-      var myChart4 = new Chart(ctx_pa_acc);
-      
-      var ship_acc_labels = ['Pending','Scheduled'];
-      var ship_acc_data = [0,3];
+      function initpurchstatus_chart(){
+        $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_purchstatus' %}",
+          success: function(data){
+              open_po = data.open_po;
+              closed_po = data.closed_po;
+              vdr_po = data.vdr_po;
 
-      ctx_pa_acc = $("#pa_acc_chrt");
+              var label = ['Open','Closed','VDR'];
+              var data = [open_po, closed_po, vdr_po];
 
-      myChart4 = new Chart(ctx_pa_acc, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
+              var ctx_purchstatus = $("#purchstatus_chart");
 
-      var ctx_storage_acc = $("#storage_acc_chrt");
-      var myChart5 = new Chart(ctx_storage_acc);
-      
-      var ship_acc_labels = ['Scheduled','Issued'];
-      var ship_acc_data = [0,5];
+              var chart_purchstatus = new Chart(ctx_purchstatus, {
+                type: 'pie',
+                data: {
+                  labels: label,
+                  datasets: [{
+                    backgroundColor: [
+                      "#e74c3c",
+                      "#2ecc71",
+                      "#f0ad4e",
+                    ],
+                    data: data
+                  }]
+                }
+              });
 
-      ctx_storage_acc = $("#storage_acc_chrt");
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+        });
+      }
 
-      myChart5 = new Chart(ctx_storage_acc, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
+      initputaway_chart();
 
-      var ctx_part_req = $("#part_req_chrt");
-      var myChart6 = new Chart(ctx_part_req);
-      
-      var ship_acc_labels = ['Pending','Scheduled','Issued'];
-      var ship_acc_data = [0,5,5];
+      function initputaway_chart(){
+        $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_putaway' %}",
+          success: function(data){
+              pa_pending = data.pa_pending;
+              pa_scheduled = data.pa_scheduled;
 
-      ctx_part_req = $("#part_req_chrt");
+              var label = ['Pending','Scheduled'];
+              var data = [pa_pending, pa_scheduled];
 
-      myChart6 = new Chart(ctx_part_req, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-              "#f0ad4e",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
+              var ctx_putaway = $("#putaway_chart");
 
-      var ctx_part_ret = $("#part_ret_chrt");
-      var myChart7 = new Chart(ctx_part_ret);
-      
-      var ship_acc_labels = ['Pending','Scheduled','Issued'];
-      var ship_acc_data = [0,3,8];
+              var chart_putaway = new Chart(ctx_putaway, {
+                type: 'pie',
+                data: {
+                  labels: label,
+                  datasets: [{
+                    backgroundColor: [
+                      "#e74c3c",
+                      "#2ecc71",
+                    ],
+                    data: data
+                  }]
+                }
+              });
 
-      ctx_part_ret = $("#part_ret_chrt");
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+        });
+      }
 
-      myChart7 = new Chart(ctx_part_ret, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-              "#f0ad4e",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
+      initcompissue_chart();
 
-      var ctx_prod_rec = $("#prod_rec_chrt");
-      var myChart8 = new Chart(ctx_prod_rec);
-      
-      var ship_acc_labels = ['Pending','Received'];
-      var ship_acc_data = [1,3];
+      function initcompissue_chart(){
+        $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_compissuance' %}",
+          success: function(data){
+              comp_pending = data.comp_pending;
+              comp_sched = data.comp_sched;
+              comp_issued = data.comp_issued;
 
-      ctx_prod_rec = $("#prod_rec_chrt");
+              var label = ['Pending', 'Scheduled','Issued'];
+              var data = [comp_pending, comp_sched, comp_issued];
 
-      myChart8 = new Chart(ctx_prod_rec, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-              "#f0ad4e",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
-      
-      var ctx_prod_ship = $("#prod_ship_chrt");
-      var myChart9 = new Chart(ctx_prod_ship);
-      
-      var ship_acc_labels = ['Pending','Shipped'];
-      var ship_acc_data = [4,8];
+              var ctx_compissue = $("#compissue_chart");
 
-      ctx_prod_ship = $("#prod_ship_chrt");
+              var chart_putaway = new Chart(ctx_compissue, {
+                type: 'pie',
+                data: {
+                  labels: label,
+                  datasets: [{
+                    backgroundColor: [
+                      "#e74c3c",
+                      "#2ecc71",
+                      "#f0ad4e",
+                    ],
+                    data: data
+                  }]
+                }
+              });
 
-      myChart9 = new Chart(ctx_prod_ship, {
-        type: 'pie',
-        data: {
-          labels: ship_acc_labels,
-          datasets: [{
-            backgroundColor: [
-              "#e74c3c",
-              "#2ecc71",
-              "#f0ad4e",
-            ],
-            data: ship_acc_data
-          }]
-        }
-      });
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+        });
+      }
+    
+
+    initpartreq_chart();
+
+      function initpartreq_chart(){
+        $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_partreq' %}",
+          success: function(data){
+              partreq_pending = data.partreq_pending;
+              partreq_sched = data.partreq_sched;
+              partreq_issued = data.partreq_issued;
+
+              var label = ['Pending', 'Scheduled','Issued'];
+              var data = [partreq_pending, partreq_sched, partreq_issued];
+
+              var ctx_partreq = $("#partreq_chart");
+
+              var chart_partreq = new Chart(ctx_partreq, {
+                type: 'pie',
+                data: {
+                  labels: label,
+                  datasets: [{
+                    backgroundColor: [
+                      "#e74c3c",
+                      "#2ecc71",
+                      "#f0ad4e",
+                    ],
+                    data: data
+                  }]
+                }
+              });
+
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+        });
+      }
 
 
-      
-      
-      
-      
+      initpartret_chart();
 
-      
+      function initpartret_chart(){
+        $.ajax({
+          method: "GET",
+          url: "{% url 'warehouse:Dashboard_get_partret' %}",
+          success: function(data){
+              partret_pending = data.partret_pending;
+              partret_sched = data.partret_sched;
+              partret_issued = data.partret_issued;
 
+              var label = ['Pending', 'Scheduled','Issued'];
+              var data = [partret_pending, partret_sched, partret_issued];
+
+              var ctx_partret = $("#partret_chart");
+
+              var chart_partret = new Chart(ctx_partret, {
+                type: 'pie',
+                data: {
+                  labels: label,
+                  datasets: [{
+                    backgroundColor: [
+                      "#e74c3c",
+                      "#2ecc71",
+                      "#f0ad4e",
+                    ],
+                    data: data
+                  }]
+                }
+              });
+
+          },
+          error: function(error_data){
+              console.log("error")
+              console.log(error_data)
+          }
+        });
+      }
+
+
+      initprodrec_chart()
+
+      function initprodrec_chart(){
+        $.ajax({
+            method: "GET",
+            url: "{% url 'warehouse:Dashboard_get_prodrec' %}",
+            success: function(data){
+                prodrec_pending = data.prodrec_pending;
+                prodrec_received = data.prodrec_received;
+
+                var label = [ "Pending", "Received" ]
+                var data = [prodrec_pending, prodrec_received]              
+
+                if ( (prodrec_pending===0) && (prodrec_received===0) ){
+                  var canvas = document.getElementById("prodrec_chart");
+                  var ctx = canvas.getContext("2d");
+                  ctx.font = "30px Helvetica";
+                  ctx.fillText("No Data Available", 10, 50);
+                }else{
+                  var ctx_prodrec = $("#prodrec_chart");
+
+                  var chart_prodrec = new Chart(ctx_prodrec, {
+                    type: 'pie',
+                    data: {
+                      labels: label,
+                      datasets: [{
+                        backgroundColor: [
+                          "#f0ad4e",
+                          "#2ecc71",
+                        ],
+                        data: data
+                      }]
+                    }
+                  }); 
+                }
+
+            },
+            error: function(error_data){
+                console.log("error")
+                console.log(error_data)
+            }
+        });
+      }
+
+
+      initprodship_chart()
+
+      function initprodship_chart(){
+        $.ajax({
+            method: "GET",
+            url: "{% url 'warehouse:Dashboard_get_prodship' %}",
+            success: function(data){
+                prodship_pending = data.prodship_pending;
+                prodship_shipped = data.prodship_shipped;
+
+                var label = [ "Pending", "Shipped" ]
+                var data = [ prodship_pending, prodship_shipped ]
+
+                var ctx_prodship = $("#prodship_chart");
+
+                var chart_prodship = new Chart(ctx_prodship, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#f0ad4e",
+                        "#2ecc71",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+
+            },
+            error: function(error_data){
+                console.log("error")
+                console.log(error_data)
+            }
+        });
+      }
 
     });
 

@@ -48,7 +48,13 @@ def WarehouseTest(request):
         whse_query = Warehouse.objects.all().values(
             'id',
             'bin_location',
-            'image')
+            'rack',
+            'column',
+            'layer',
+            'direction',
+            'image').order_by('rack','column')
+
+        print(whse_query)
 
         return render(request, 'invsys/warehouse/whsetest.html', { 'whse_set':whse_query })
     elif request.method == 'POST':
@@ -803,7 +809,7 @@ def ResolvePO_Function(request):
             resolve_po.save()
 
             Resolve_CheckPO(resolve_po.po_num)
-            DeleteRecLobbyBin()
+            DeleteRecLobbyBin_ResolvePO()
         else:
             print("resolvepo_form.errors")
             print(resolvepo_form.errors)
@@ -929,7 +935,7 @@ def ResolvePO_SelectPO(request):
         'ship_summary_set':ship_sum_list})
 
 
-def DeleteRecLobbyBin():
+def DeleteRecLobbyBin_ResolvePO():
     reclobbyset = Receiving_Lobby.objects.order_by('received_quantity')
     for reclobby in reclobbyset:
         if reclobby.received_quantity == 0:
@@ -1320,7 +1326,16 @@ def UpdateWhseItemPAFinish(refnum,binlocation,itemnum,itemquan):
 
 def UpdateReceivingLobbyPAFinish(pastrefnum, itemnum, itemquan):
     reclobbyitem = Receiving_Lobby.objects.get(reference_number=pastrefnum, item_number=itemnum)
-    if reclobbyitem.received_quantity == itemquan:
+
+    tot_req = reclobbyitem.received_quantity
+
+    putawaysummary_query = Put_Away_Summary.objects.filter(reference_number=pastrefnum, item_num=itemnum).values('stored_quantity')
+
+    tot_stored = 0;
+    for putawayitem in putawaysummary_query:
+        tot_stored += putawayitem.get('stored_quantity')
+
+    if tot_req == tot_stored:
         reclobbyitem.delete()
 
 #--View Put Away Schedule--
@@ -3707,6 +3722,8 @@ def perdelta(start, end, delta):
             date_list.append(end)
 
     return date_list
+
+#--SAMPLE UPDATE--
 def Dashboard_get_data(request):
     start_date = dt.date(2020, 1, 1)
     now = dt.datetime.now()
@@ -3729,7 +3746,6 @@ def Dashboard_get_data(request):
         "default" : count,
     }
     return JsonResponse(data) # http response
-
 def Dashboard_update_data(request):
     files = request.POST
 
@@ -3757,287 +3773,258 @@ def Dashboard_update_data(request):
     }
     return JsonResponse(data) # http response
 
+#WHSE UTIL
+def Dashboard_get_whseutil(request):
+    whse_query = Warehouse.objects.all().values('bin_location')
+
+    whse_item_query = Warehouse_Items.objects.all().values('bin_location__bin_location').distinct('bin_location__bin_location')
+    whse_prod_query = Warehouse_Products.objects.all().values('bin_location__bin_location').distinct('bin_location__bin_location')
+
+    whse_item = []
+    for item in whse_item_query:
+        whse_item.append(item.get('bin_location__bin_location'))
+
+    whse_prod = []
+    for prod in whse_prod_query:
+        whse_prod.append(prod.get('bin_location__bin_location'))
+
+    whseitem_query = set(whse_item)
+    whseprod_query = set(whse_prod)
+
+    total_whsebin = 0
+    loaded_whsebin = 0
+
+    for whsebin in whse_query:
+        if whsebin.get('bin_location') in whseitem_query: #bin is with items
+            loaded_whsebin += 1
+
+        elif whsebin.get('bin_location') in whseprod_query: #bin is with products
+            loaded_whsebin += 1
+
+        total_whsebin += 1
+
+    total_whsebin -= loaded_whsebin
+
+    data = {
+        "total_whsebin" : total_whsebin,
+        "loaded_whsebin" : loaded_whsebin,
+    }
+    return JsonResponse(data) # http response
+
 #RECEIVING DASHBOARD
-def Dashboard_get_ship_acc(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
+def Dashboard_get_purchinbound(request):
+    inbound_query = InboundLobby.objects.all().values('shipment_num__shipment_num')
 
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    shipment_list = []
+    for inbound in inbound_query:
+        shipment_list.append( inbound.get('shipment_num__shipment_num') )
 
-    count = []
+    shipo_query = Shipment_PO.objects.filter(shipment_num__shipment_num__in=shipment_list).values('validated')
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    for_receiving = 0
+    validated = 0
 
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_ship_acc(request):
-    files = request.POST
+    for shipo in shipo_query:
+        if shipo.get('validated') == True: #bin is with items
+            validated += 1
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
+        for_receiving += 1
 
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    for_receiving -= validated
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "for_receiving" : for_receiving,
+        "validated" : validated,
     }
     return JsonResponse(data) # http response
 
-def Dashboard_get_ship_time(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
 
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
+def Dashboard_get_purchstatus(request):
+    po_query = Purchase_Order.objects.all().values('po_number', 'cleared', 'issues')
 
-    count = []
+    open_po = 0
+    closed_po = 0
+    vdr_po = 0
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_ship_time(request):
-    files = request.POST
-
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
-
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    for po in po_query:
+        if po.get('cleared') == True: #po is cleared
+            closed_po += 1
+        if po.get('cleared') == False and po.get('issues') == True:
+            vdr_po += 1
+        if po.get('cleared') == False and po.get('issues') == False:
+            open_po += 1
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "open_po" : open_po,
+        "closed_po" : closed_po,
+        "vdr_po" : vdr_po,
     }
     return JsonResponse(data) # http response
 
 #PUTAWAY DASHBOARD
-def Dashboard_get_pa_acc(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
+def Dashboard_get_putaway(request):
+    reclobby_query = Receiving_Lobby.objects.all()
 
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    pa_pending = 0
+    pa_scheduled = 0
 
-    count = []
+    for reclobby in reclobby_query:
+        pa_pending += (reclobby.received_quantity - reclobby.scheduled_quantity)
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    paitem_query = Put_Away_Items.objects.filter(stored=False).values('required_quantity')
 
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_pa_acc(request):
-    files = request.POST
-
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
-
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    for paitem in paitem_query:
+        pa_scheduled += paitem.get('required_quantity')
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "pa_pending" : pa_pending,
+        "pa_scheduled" : pa_scheduled,
     }
     return JsonResponse(data) # http response
 
-def Dashboard_get_pa_time(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
+#COMP ISSUANCE DASHBOARD
+def Dashboard_get_compissuance(request):
+    prodsched_query = WO_Production_Schedule.objects.filter(scheduled=False)
 
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    comp_pending = 0
+    comp_sched = 0
+    comp_issued = 0
 
-    count = []
+    for prodsched in prodsched_query:
+        comp_pending += 1
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    woissuancesched_query = WO_Issuance_Schedule.objects.filter(cleared=False).values('schedule_num')
 
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_pa_time(request):
-    files = request.POST
+    sched_list = []
+    for woissuancesched in woissuancesched_query:
+        sched_list.append( woissuancesched.get('schedule_num') )
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
+    woissuancelist_query = WO_Issuance_List.objects.filter(schedule_num__schedule_num__in=sched_list).values('cleared')
 
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    for woissuancelist in woissuancelist_query:
+        if woissuancelist.get('cleared') == True:
+            comp_issued += 1
+        elif woissuancelist.get('cleared') == False:
+            comp_sched += 1
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "comp_pending" : comp_pending,
+        "comp_sched" : comp_sched,
+        "comp_issued": comp_issued,
     }
     return JsonResponse(data) # http response
 
-#STORAGE DASHBOARD
-def Dashboard_get_storage_acc(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
+#PART REQUEST DASHBOARD
+def Dashboard_get_partreq(request):
+    partreq_query = Warehouse_Items.objects.filter(status="Allocated for Part Request")
 
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    partreq_pending = 0
+    partreq_sched = 0
+    partreq_issued = 0
 
-    count = []
+    for partreq in partreq_query:
+        partreq_pending += partreq.quantity
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    requestsched_query = Request_Schedule.objects.filter(cleared=False).values('schedule_num')
 
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_storage_acc(request):
-    files = request.POST
+    reqsched_list = []
+    for requestsched in requestsched_query:
+        reqsched_list.append( requestsched.get('schedule_num') )
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
+    requestitem_query = Request_Item.objects.filter(schedule_num__schedule_num__in=reqsched_list).values('quantity','cleared')
 
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    for requestitem in requestitem_query:
 
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+        if requestitem.get('cleared') == True:
+            partreq_issued += requestitem.get('quantity')
+        else:
+            partreq_sched += requestitem.get('quantity')
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "partreq_pending" : partreq_pending,
+        "partreq_sched" : partreq_sched,
+        "partreq_issued": partreq_issued,
     }
     return JsonResponse(data) # http response
 
-def Dashboard_get_storage_util(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
+#PART RETURN DASHBOARD
+def Dashboard_get_partret(request):
+    assdiscitems_query = Assembly_Discrepancy.objects.filter(status="Waiting for Return")
 
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    partret_pending = 0
+    partret_sched = 0
+    partret_issued = 0
 
-    count = []
+    for assdiscitems in assdiscitems_query:
+        partret_pending += assdiscitems.quantity
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    returnsched_query = ComponentReturn_Schedule.objects.filter(cleared=False).values('schedule_num')
 
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_storage_util(request):
-    files = request.POST
+    retsched_list = []
+    for returnsched in returnsched_query:
+        retsched_list.append( returnsched.get('schedule_num') )
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
+    returnitem_query = ComponentReturn_Item.objects.filter(schedule_num__schedule_num__in=retsched_list).values('quantity','cleared')
 
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    for returnitem in returnitem_query:
 
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+        if returnitem.get('cleared') == True:
+            partret_issued += returnitem.get('quantity')
+        else:
+            partret_sched += returnitem.get('quantity')
+
 
     data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-
-#ISSUANCE DASHBOARD
-def Dashboard_get_issuance_acc(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
-
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_issuance_acc(request):
-    files = request.POST
-
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
-
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    data = {
-        "labels" : label,
-        "default" : count,
+        "partret_pending" : partret_pending,
+        "partret_sched" : partret_sched,
+        "partret_issued": partret_issued,
     }
     return JsonResponse(data) # http response
 
-def Dashboard_get_issuance_prod(request):
-    start_date = dt.date(2020, 1, 1)
-    now = dt.datetime.now()
-    end_date = dt.datetime.strptime(now.strftime("%Y-%m-%d"),'%Y-%m-%d').date()
+#PRODUCT RECEIVE DASHBOARD
+def Dashboard_get_prodrec(request):
+    prodsched_finishlist = WO_Finished.objects.filter(cleared=False)
 
-    label = [ start_date + dt.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    prodrec_pending = 0
+    prodrec_received = 0
 
-    count = []
+    for prodsched in prodsched_finishlist:
+        prodrec_pending += 1
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    now = datetime.now().replace(tzinfo=pytz.utc)
+
+    prodsched_received_query = WO_Finished.objects.filter(cleared=True, date_out=now)
+
+    for prodsched_received in prodsched_received_query:
+        prodrec_received += 1
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "prodrec_pending" : prodrec_pending,
+        "prodrec_received" : prodrec_received,
     }
     return JsonResponse(data) # http response
-def Dashboard_update_issuance_prod(request):
-    files = request.POST
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
 
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
+#PRODUCT SHIP DASHBOARD
+def Dashboard_get_prodship(request):
+    ship_lobby_query = Shipping_Lobby.objects.all()
 
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    prodship_pending = 0
+    prodship_shipped = 0
+
+    for ship_lobby in ship_lobby_query:
+        prodship_pending += 1
+
+    now = datetime.now().replace(tzinfo=pytz.utc)
+
+    ship_out_query = Shipping_Outbound.objects.filter(date_out=now)
+
+    for ship_out in ship_out_query:
+        prodship_shipped += 1
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "prodship_pending" : prodship_pending,
+        "prodship_shipped" : prodship_shipped,
     }
     return JsonResponse(data) # http response
 
