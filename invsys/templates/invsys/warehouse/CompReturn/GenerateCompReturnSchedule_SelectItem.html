@@ -200,10 +200,10 @@
                             if ( item_num === $(button_tag1).attr('data-item_num') ){
                                 $(button_tag1).attr('disabled', true);
                                 $(row_tag1).attr('class', 'tablerow highlight');
-                            }
-                            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
-                            counter1 += 1;                     
+                            }    
                         }
+                        table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+                        counter1 += 1;
                     });
 
                     toastr.success('Part ' + item_num +' from Work Order Schedule ' + prod_sched + " is added to the schedule.");

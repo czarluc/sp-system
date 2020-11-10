@@ -12,6 +12,10 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
+
+class Purchase_Order_Admin(admin.ModelAdmin):
+    readonly_fields = ['purchase_date']
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Assembly)
 admin.site.register(AssemblyLine)
@@ -92,6 +96,13 @@ admin.site.register(RecProduct_ProductToWhse_Transaction)
 admin.site.register(Shipping_Lobby)
 admin.site.register(Shipping_Outbound)
 admin.site.register(Shipping_Outbound_Transaction)
+
+#PACK PRODUCTS
+admin.site.register(Packing_Schedule)
+admin.site.register(Packing_Product)
+admin.site.register(Packing_Summary)
+admin.site.register(Packing_Finish_Transaction)
+admin.site.register(Packing_Schedule_Transaction)
 
 #SHRINKAGE
 admin.site.register(Shrinkage_Type)

@@ -97,6 +97,26 @@
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
+            <a href="#nope" data-toggle="collapse" data-target="#drop12" class="nav-link"> <img src="{% static 'invsys/Navbar/Main/Packing2.png' %}" width="30" height="30" class="d-inline-block align-top">   Packing<span class="caret"></span></a>
+                <ul id="drop12" class="collapse" data-parent="#sideNavParent">
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:GeneratePackingSchedule' %}">Generate Packing Schedule</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewOngoingPacking' %}">View Ongoing Packing</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:FinishPacking' %}">Finish Packing</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewPackingSummary' %}">Packing Summary</a>
+                    </li>
+                </ul>
+          </li>
+          <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
             <a href="#nope" data-toggle="collapse" data-target="#drop4" class="nav-link"><img src="{% static 'invsys/Navbar/Main/OutShipment.png' %}" width="30" height="30" class="d-inline-block align-top">   Shipping<span class="caret"></span></a>
                 <ul id="drop4" class="collapse" data-parent="#sideNavParent">
                     <li>

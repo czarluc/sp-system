@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %} Finish Packing {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style>
+    input[readonly="readonly"] {
+        border:0px;
+    }
+    input:not([name="notes"]){ 
+        text-align: center; 
+    }
+    .table-striped tbody tr.highlight td { 
+        background-color: #87CEFA;
+    }
+    .table-striped tbody tr.noissue td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.issue td { 
+    background-color: #d9534f;
+    }
+    #sum_table tr td:nth-child(6), #sum_table th:nth-child(6){
+        display: none;
+    }
+    #sum_table tr td:nth-child(8), #sum_table th:nth-child(8){
+        display: none;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<h2> Finish a Packing Schedule</h2>
+    <form class="form-horizontal" method="POST" action="" id="form_finpacking">
+        {% csrf_token %}
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Packing Schedule:</h4>
+        </div>
+        <div class="card-body">
+            <div class="form-row align-items-center">
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_schedule_num">Scheduled Number:</label>
+                        <input type="text" name="sched_num" class="form-control" readonly id="id_sched_num">
+                    </div>
+                </div>
+                <div class="col-1">
+                    <button class="btn btn-success add-schednum">+</button>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="id_date_scheduled">Scheduled Date:</label>
+                        <input type="text" name="date_scheduled" class="form-control" readonly id="id_date_scheduled">
+                   </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_notes">Notes:</label>
+                        <input type="text" name="notes" class="form-control" maxlength="200" id="id_notes" readonly>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Packing Summary:</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto" id="sum_table">
+                    <thead class="thead-dark">
+                        <tr class="tablehead">
+                            <th scope="col">Work-Order</th>
+                            <th scope="col">Production Schedule</th>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Required Quantity</th>
+                            <th scope="col">Picked Quantity</th>
+                            <th scope="col">Bin Location ID</th>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Discrepancy</th>
+                            <th scope="col">Discrepancy Quantity</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date Scheduled</th>
+                            <th scope="col">Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ packingsummaryformset.management_form }}
+                        {% for formsetsum in packingsummaryformset %}
+                        <div class="row form-row">
+                            <tr class="tablerow sum" id="id_formsetsum-{{forloop.counter0}}">
+                                <td><input type="text" name="formsetsum-0-wo_num" class="form-control" id="id_formsetsum-0-wo_num" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-reference_number" class="form-control" id="id_formsetsum-0-reference_number" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-prod_num" class="form-control" id="id_formsetsum-0-prod_num" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-required_quantity" class="form-control" id="id_formsetsum-0-required_quantity" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-picked_quantity" class="form-control" id="id_formsetsum-0-picked_quantity" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-bin_location" class="form-control" id="id_formsetsum-0-bin_location" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-bin_locationTEXT" class="form-control" id="id_formsetsum-0-bin_locationTEXT" value="" readonly></td>
+                                
+                                <td><input type="text" name="formsetsum-0-discrepancy" class="form-control" id="id_formsetsum-0-discrepancy" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-discrepancy_quantity" class="form-control" id="id_formsetsum-0-discrepancy_quantity" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-status" class="form-control" id="id_formsetsum-0-status" value="" readonly></td>
+
+                                <td><input type="text" name="formsetsum-0-date_sched" class="form-control" id="id_formsetsum-0-date_sched" value="" readonly></td>
+
+                                <td><button class="btn btn-success btn-sm add-form-row item" title="Add"><i class="fa fa-table"></i></button><button class="btn btn-primary edit-form-row btn-sm" type="button" data-toggle="modal" title="Edit"><i class="fa fa-edit"></i></button></td>
+                            </tr>
+                        </div>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-row align-top">
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-block btn-success">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+    let finPacking_selProd;
+    $(document).ready(function(){
+        window.name = "finPacking";
+
+        $('#sum_table tr.tablerow:last').find('.btn.edit-form-row')
+        .hide();
+    });
+
+    $('#sum_table').on('click', '.edit-form-row', function(event) {
+        var parent_row = $(this).closest('tr');
+        console.log(parent_row.attr('class'));
+        if(parent_row.attr('class') === "tablerow sum highlight"){
+            parent_row.attr('class', 'tablerow sum');
+            $(this).html('<i class="fa fa-edit"></i>');
+            var counter = 0;
+
+            var req_quan = 0;
+            var picked_quan = 0;
+
+            parent_row.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        counter++;
+                    } else if(counter === 3){ //Required Quantity
+                        $(this).attr("readonly", true);
+                        req_quan = $(this).val();
+                        counter++;
+                    } else if(counter === 4){ //Picked Quantity
+                        $(this).attr("readonly", true);
+                        picked_quan = $(this).val();
+                        counter++;
+                    } else {
+                        counter++;
+                    }
+                }
+            });
+
+            var status = '' 
+            var disc = false;
+            var discQuan = parseInt(req_quan) - parseInt(picked_quan);
+            if(discQuan === 0){ //Non-issue
+                disc = false;
+                status = 'Non-Issue';
+                parent_row.attr('class','tablerow sum noissue');
+            }else if (discQuan > 0){//Short-Shipped
+                disc = true;
+                status = 'Short-Shipped';
+                parent_row.attr('class','tablerow sum issue');
+            }else {//Over-Shipped
+                disc = true;
+                status = 'Over-Shipped';
+                parent_row.attr('class','tablerow sum issue');
+            }
+            
+            var counter = 0;
+            parent_row.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        counter++;
+                    } else if(counter === 7){ //Discrepancy
+                        $(this).val(disc);
+                        counter++;
+                    } else if(counter === 8){ //Discrepancy Quantity
+                        $(this).val(discQuan);
+                        counter++;
+                    } else if(counter === 9){ //Status
+                        $(this).val(status);
+                        counter++;
+                    } else {
+                        counter++;
+                    }
+                }
+            });
+            
+            
+        }else{
+            parent_row.attr('class','tablerow sum highlight');
+            $(this).html('<i class="fa fa-check"></i>');
+            var counter = 0;
+            parent_row.find('input[type=text]').each(function (i, el) {
+                var name = $(this).attr('name');
+                if(name) {
+                    if (counter === 0){
+                        counter++;
+                    } else if(counter === 4){ //Picked Quantity
+                        $(this).attr("readonly", false);
+                        counter++;
+                    } else {
+                        counter++;
+                    }
+                }
+            });
+        
+        }
+    });
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+)');
+        var replacement = prefix + '-' + ndx;
+        if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id) el.id = el.id.replace(id_regex, replacement);
+        if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+    
+    function cloneMore(prefix, wo_num, prod_sched, prod_num, req_quan, bin_id, bin_loc, date_sched) { //selector - .form-row:last | prefix - form
+        var lastrowtbl = $('#sum_table tr.tablerow.sum:last').clone(true);
+        var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+        var currentnum = total - 1;
+        var counter = 0;
+
+        $('#sum_table tr.tablerow.sum:last').find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                if (counter === 0){ //wo_num
+                    $(this).val(wo_num);
+                    counter++;
+                } else if(counter === 1){ //prod_sched
+                    $(this).val(prod_sched);
+                    counter++;
+                }else if(counter === 2){ //prod_num
+                    $(this).val(prod_num);
+                    counter++;
+                }else if(counter === 3){ //req_quan
+                    $(this).val(req_quan);
+                    counter++;
+                }else if(counter === 5){ //bin_id
+                    $(this).val(bin_id);
+                    counter++;
+                }else if(counter === 6){ //bin_loc
+                    $(this).val(bin_loc);
+                    counter++;
+                }else if(counter === 10){ //date_sched
+                    $(this).val(date_sched);
+                    counter++;
+                }else {
+                    counter++;
+                }
+            }
+        });
+
+        $('#sum_table tr.tablerow.sum:last').attr('class','tablerow sum issue');
+
+        $('#sum_table tr.tablerow.sum:last').find('.btn.edit-form-row')
+        .show();
+
+        var lastrowtbl_sliced = lastrowtbl.attr('id').slice(0,-1);
+        lastrowtbl.attr('id', lastrowtbl_sliced+total);
+        lastrowtbl.find('input[type=text]').each(function (i, el) {
+            var name = $(this).attr('name');
+            if(name) {
+                name = name.replace('-' + currentnum + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name' : name, 'id' : id}).val('').removeAttr('checked');
+            }
+        });
+
+        total++;
+        $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        $('#sum_table tr.tablerow.sum:last').after(lastrowtbl);
+
+        var conditionRow = $('#sum_table tr.tablerow.sum:not(:last)');
+        conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('<i class="fa fa-trash"></i>');
+
+        return false;
+    }
+
+    function deleteForm(prefix, btn) {
+        var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (total > 1){
+            btn.closest('#sum_table tr.tablerow').remove();
+            var forms = $('#sum_table tr.tablerow');
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            for (var i=0, formCount=forms.length; i<formCount; i++) {
+
+                $(forms.get(i)).find(':input[type=text]').each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+
+                $(forms.get(i)).each(function() {
+                    updateElementIndex(this, prefix, i);
+                });
+            }
+            total--;
+            $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+        }
+        return false;
+    }
+
+    $(document).on('click', '.remove-form-row', function(e){
+        e.preventDefault();
+        deleteForm('formsetsum', $(this));
+        return false;
+    });
+
+
+    $(document).on('click', '.add-schednum', function(e){
+        if ( finPacking_selProd && !finPacking_selProd.closed ){
+            finPacking_selProd.focus();
+            return false;                
+        }else{
+            finPacking_selProd = window.open("{% url 'warehouse:FinishPacking_SelectPASched' %}");
+            return false;
+        }        
+    });
+
+    $(document).on('click', '.add-paitem', function(e){
+        var schednum = $("#id_schedule_num").val();
+        var itemurl = "SelectItem/";
+        itemurl += schednum;
+        //var wewewe = window.open(itemurl);
+        return false;
+    });
+
+    $('#form_finpacking').submit(function() {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Do you want to save the verified Packing Schedule '+ $("#id_sched_num").val() +'?',
+            icon:'success',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+        }).then((result) => {
+        if (result.isConfirmed) {
+            $(this).unbind('submit').submit();
+
+        } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info');
+        }
+        });
+
+    });
+
+</script>
+{% endblock javascripts %}

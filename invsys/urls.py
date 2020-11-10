@@ -107,6 +107,14 @@ urlpatterns = [
         path('ViewCompReturnSummary/', warehouse.ViewCompReturnSummary, name='ViewCompReturnSummary'),
         path('ViewOngoingCompReturn/', warehouse.ViewOngoingCompReturn, name='ViewOngoingCompReturn'),
         
+        #--Packing
+        path('GeneratePackingSchedule/', warehouse.GeneratePackingSchedule, name='GeneratePackingSchedule'),
+        path('GeneratePackingSchedule/SelectItem', warehouse.GeneratePackingSchedule_SelectItem, name='GeneratePackingSchedule_SelectItem'),
+        path('FinishPacking/', warehouse.FinishPacking, name='FinishPacking'),
+        path('FinishPacking/SelectPASched', warehouse.FinishPacking_SelectPASched, name='FinishPacking_SelectPASched'),
+        path('ViewPackingSummary/', warehouse.ViewPackingSummary, name='ViewPackingSummary'),
+        path('ViewOngoingPacking/', warehouse.ViewOngoingPacking, name='ViewOngoingPacking'),
+
         #--WHSE UPDATES
         path('ReportDMMR/', warehouse.ReportDMMR, name='ReportDMMR'),
         path('ReportDMMR/SelectItem', warehouse.ReportDMMR_SelectItem, name='ReportDMMR_SelectItem'),

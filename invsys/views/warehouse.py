@@ -1220,7 +1220,6 @@ def FinishPutAway(request):
                     counter += 1
 
             pasum_query = Put_Away_Summary.objects.filter(schedule_num=pa_sched)
-            print(pasum_query)
             for pa_sum in pasum_query:
 
                 try: #Check if the pa_sum exist in the pa_item
@@ -5825,3 +5824,248 @@ def ViewOngoingCompReturn(request):
         'compreturn_item_set':compreturn_item_query})
 
 
+#PACKING-----------------------------------
+#--Generate Packing Schedule--
+@login_required
+@warehouse_required
+def GeneratePackingSchedule(request):
+    template_name = 'invsys/warehouse/Packing/GeneratePackingSchedule.html'
+    if request.method == 'GET':
+        packingscheduleform = PackingScheduleForm(request.GET or None)
+        #Populating Initial Forms
+        packingschedules = Packing_Schedule.objects.all()
+        if len(packingschedules) > 0:
+            next_scheduleid = Packing_Schedule.objects.order_by('-schedule_num').first().schedule_num + 1
+        else:
+            next_scheduleid = 1
+        prodformset = PackingProductFormset(queryset=Packing_Product.objects.none())
+        return render(request, template_name, {'scheduleform': packingscheduleform,'prodformset': prodformset, 'scheduleid':next_scheduleid})
+    
+    elif request.method == 'POST' :
+        packingscheduleform = PackingScheduleForm(request.POST)
+        prodformset = PackingProductFormset(request.POST, request.FILES)
+
+        if packingscheduleform.is_valid() and prodformset.is_valid():
+            # Save the Schedule first before 
+            packingschedule = packingscheduleform.save(commit=False)
+            packingschedule.save()
+
+            counter = 1
+            for form in prodformset:
+                if counter < len(prodformset):
+                    #Loop through each form in the formset to get each of the items
+                    packing_prod = form.save(commit=False)
+                    packing_prod.schedule_num = packingschedule
+                    packing_prod.save()
+                    UpdateWhseBin_PackingSched(packing_prod.bin_location, packing_prod.reference_number)
+                    RecordPackingSched_Transac(packing_prod.reference_number, packing_prod.prod_num, packing_prod.required_quantity, packing_prod.bin_location, request.user.username) #Record Schedule Transactions
+                    
+                    counter += 1 
+
+        return redirect('home')
+
+def UpdateWhseBin_PackingSched( bin_loc, ref_num):
+    whseprod_obj = Warehouse_Products.objects.get(bin_location__bin_location=bin_loc, reference_number=ref_num)
+    whseprod_obj.status = "Scheduled for Packing"
+    whseprod_obj.save()
+
+def RecordPackingSched_Transac(ref_num, prod_num, prod_quan, bin_loc, user):
+    packingschedtransac = Packing_Schedule_Transaction.objects.create(
+        reference_number=ref_num,
+        transaction_type="Scheduled for Packing",
+        transaction_location=bin_loc,
+        prod_number=prod_num,
+        prod_quantity=prod_quan,
+        user_name=user,
+        user_department="WHSE")
+    packingschedtransac.full_clean()
+    packingschedtransac.save()
+
+@login_required
+@warehouse_required
+def GeneratePackingSchedule_SelectItem(request):
+    template_name = 'invsys/warehouse/Packing/GeneratePackingSchedule_SelectWO.html'
+
+    whse_prod_query = Warehouse_Products.objects.filter(status="In Stock").values(
+        'bin_location__id',
+        'bin_location__bin_location',
+        'prod_number__prod_number',
+        'prod_number__prod_class__prod_class',
+        'quantity',
+        'reference_number')
+
+    whseprod_list = []
+    for whse_prod in whse_prod_query:
+        details = {}
+        for i in whse_prod:
+            if i == "bin_location__bin_location":
+                details['bin_loc'] = whse_prod[i]
+            elif i == "prod_number__prod_number":
+                details['prod_num'] = whse_prod[i]
+            elif i == "prod_number__prod_class__prod_class":
+                details['prod_class'] = whse_prod[i]
+            elif i == "quantity":
+                details['prod_quan'] = whse_prod[i]
+            elif i == "bin_location__id":
+                details['bin_id'] = whse_prod[i]
+        prodsched_obj = WO_Production_Schedule.objects.get(id=whse_prod.get('reference_number'))
+        details['wo_num'] = prodsched_obj.work_order_number.work_order_number
+        details['prod_sched'] = prodsched_obj.id
+        whseprod_list.append(details)
+
+    return render(request, template_name, {'whseprod_list':whseprod_list})
+
+#--Finish Packing--
+@login_required
+@warehouse_required
+def FinishPacking(request):
+    template_name = 'invsys/warehouse/Packing/FinishPacking.html'
+    if request.method == 'GET':
+        
+        packingsummaryformset = PackingSummaryFormset(queryset=Packing_Summary.objects.none(), prefix='formsetsum')
+        
+        return render(request, template_name, {'packingsummaryformset':packingsummaryformset})
+
+    elif request.method == 'POST' :
+        sched_num = request.POST.get("sched_num",'')
+        packing_sched = Packing_Schedule.objects.get(schedule_num=sched_num)
+
+        packingsummaryformset = PackingSummaryFormset(request.POST , request.FILES, prefix='formsetsum')
+
+        if packingsummaryformset.is_valid():
+            now = datetime.now().replace(tzinfo=pytz.utc)
+            
+            counter = 1
+            for packingsum_form in packingsummaryformset:
+                if counter < len(packingsummaryformset):
+                    packing_sum = packingsum_form.save(commit=False)
+                    packing_sum.schedule_num = packing_sched
+                    packing_sum.date_scheduled = packing_sched.date_scheduled
+                    packing_sum.date_picked = now
+                    packing_sum.save()
+                    counter += 1
+
+            packingsum_query = Packing_Summary.objects.filter(schedule_num=packing_sched)
+            for packing_sum in packingsum_query:
+
+                try: #Check if the packing_sum exist in the packing_prod
+                    packing_prod = Packing_Product.objects.get(schedule_num=packing_sched, wo_num=packing_sum.wo_num, prod_num=packing_sum.prod_num, bin_location=packing_sum.bin_location, reference_number=packing_sum.reference_number)
+                    if (packing_sum.required_quantity >= packing_sum.picked_quantity):
+                        packing_prod.picked = True
+                        packing_prod.save()
+
+                        prod_sched_obj = WO_Production_Schedule.objects.get(id=packing_sum.reference_number)
+
+                        AddtoShippingLobby_PackingSched(prod_sched_obj, request.user.username)
+                        AddWhsetoShippingLobbyTransac(prod_sched_obj, packing_sum.bin_location.bin_location)
+
+                        RecordPackingFinish_Transac(packing_prod.reference_number, packing_sum.prod_num, packing_sum.picked_quantity, request.user.username)
+                        
+                        UpdateWhseProd_PackingFinish(packing_prod.reference_number, packing_sum.bin_location, packing_sum.prod_num, packing_sum.picked_quantity)
+                        
+                except packing_prod.DoesNotExist: #There are no prod in packing_prod
+                    pass                
+                        
+            packing_products = Packing_Product.objects.filter(schedule_num=packing_sched)
+
+            prodcounter = 0
+            clearedcounter = 0
+
+            for packing_prod in packing_products:
+                prodcounter += 1
+                if packing_prod.picked == True:
+                    clearedcounter += 1
+
+            if prodcounter == clearedcounter:
+                packing_sched.cleared = True
+                packing_sched.save()
+
+        else:
+            print("packingsummaryformset.errors")
+            print(packingsummaryformset.errors)
+        return redirect('home')
+
+@login_required
+@warehouse_required
+def FinishPacking_SelectPASched(request):
+    template_name = 'invsys/warehouse/Packing/FinishPacking_SelectPackingSched.html'
+
+    packingscheduleset = Packing_Schedule.objects.filter(cleared=False).values( #Query for Packing schedules
+        'schedule_num',
+        'date_scheduled',
+        'notes',)
+
+    packingschedules = Packing_Schedule.objects.filter(cleared=False) #Queries for Packing Schedule products
+    packingitems = Packing_Product.objects.filter(schedule_num__in=packingschedules).values(
+        'schedule_num',
+        'wo_num__work_order_number',
+        'reference_number',
+        'prod_num__prod_number',
+        'required_quantity',
+        'bin_location__id',
+        'bin_location__bin_location',
+        'picked',)
+
+    return render(request, template_name, {'packingscheduleset':packingscheduleset, 
+        'packingitems':packingitems})
+
+def AddtoShippingLobby_PackingSched(prod_sched, user):
+    now = datetime.now().replace(tzinfo=pytz.utc)
+    new_shiplby = Shipping_Lobby.objects.create(
+        prod_sched = prod_sched,
+        prod_number=prod_sched.work_order_number.prod_number,
+        quantity=prod_sched.quantity,
+        date_received=now,
+        received_by="Warehouse Personnel 1",
+        checked_by=user,
+        notes="Notes",
+        )
+    new_shiplby.full_clean()
+    new_shiplby.save()
+def AddWhsetoShippingLobbyTransac(prod_sched, bin_loc):
+    whse_shiplby_transac = Shipping_WhseProduct_Transaction.objects.create(
+        reference_number=prod_sched.id,
+        transaction_type="Moved for Packing",
+        transaction_location= bin_loc,
+        prod_number=prod_sched.work_order_number.prod_number,
+        prod_quantity=prod_sched.quantity,
+        )
+    whse_shiplby_transac.full_clean()
+    whse_shiplby_transac.save()
+
+def RecordPackingFinish_Transac(ref_num, prod_num, prod_quan, user):
+    packingfinishtransac = Packing_Finish_Transaction.objects.create(
+        reference_number=ref_num,
+        transaction_type="Finished Packing",
+        transaction_location="Shipping Lobby",
+        prod_number=prod_num,
+        prod_quantity=prod_quan,
+        user_name=user,
+        user_department="WHSE")
+    packingfinishtransac.full_clean()
+    packingfinishtransac.save()
+
+def UpdateWhseProd_PackingFinish(ref_num, bin_loc, prod_num, pick_quan):
+    whseprod_obj = Warehouse_Products.objects.get(bin_location=bin_loc, reference_number=ref_num, status="Scheduled for Packing", prod_number=prod_num)
+    whseprod_obj.quantity -= pick_quan
+    whseprod_obj.save()
+
+    if whseprod_obj.quantity == 0:
+        whseprod_obj.delete()
+
+#--View Ongoing Comp Return--
+@login_required
+@warehouse_required
+def ViewPackingSummary(request):
+    template_name = 'invsys/warehouse/Packing/ViewPackingSummary.html'
+
+    return render(request, template_name, {})
+
+
+#--View Ongoing Comp Return--
+@login_required
+@warehouse_required
+def ViewOngoingPacking(request):
+    template_name = 'invsys/warehouse/Packing/ViewOngoingPacking.html'
+
+    return render(request, template_name, {})

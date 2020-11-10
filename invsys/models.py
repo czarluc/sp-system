@@ -843,6 +843,77 @@ class Shipping_WhseProduct_Transaction(models.Model):
     def __str__(self):
         return '%s %s' % (str(self.reference_number), str(self.prod_number))
 
+#---PACK PRODUCTS---
+class Packing_Schedule(models.Model):
+    schedule_num = models.AutoField(primary_key=True)
+    date_scheduled = models.DateField(auto_now=False)
+    notes = models.CharField(max_length=200, default='')
+    cleared = models.BooleanField(default=False)
+    issues = models.BooleanField(default=False)
+    class Meta: 
+        verbose_name = "Packing Schedule"
+        verbose_name_plural = "Packing Schedules"
+    def __str__(self):
+        return str(self.schedule_num)
+class Packing_Product(models.Model):
+    schedule_num = models.ForeignKey(Packing_Schedule, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    wo_num = models.ForeignKey(Work_Order, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    prod_num = models.ForeignKey(Product, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    required_quantity = models.IntegerField(blank=True, null=True)
+    bin_location = models.ForeignKey(Warehouse, default='1', blank=True, on_delete=models.CASCADE)
+    reference_number = models.CharField(max_length=200, default='', blank=True, null=True)
+    picked = models.BooleanField(default=False)
+    class Meta: 
+        verbose_name = "Packing Product"
+        verbose_name_plural = "Packing Products"
+    def __str__(self):
+        return '%s %s %s' % (str(self.schedule_num), str(self.prod_num), str(self.reference_number))
+class Packing_Summary(models.Model):
+    schedule_num = models.ForeignKey(Packing_Schedule, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    wo_num = models.ForeignKey(Work_Order, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    prod_num = models.ForeignKey(Product, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    required_quantity = models.IntegerField(blank=True, null=True)
+    picked_quantity = models.IntegerField(blank=True, null=True)
+    bin_location = models.ForeignKey(Warehouse, default='1', blank=True, on_delete=models.CASCADE)
+    discrepancy = models.BooleanField(default=False)
+    discrepancy_quantity = models.IntegerField(blank=True, null=True)
+    status = models.CharField(max_length=200, default='', blank=True, null=True)
+    date_scheduled = models.DateField(auto_now_add=False)
+    date_picked = models.DateField(auto_now_add=False)
+    reference_number = models.CharField(max_length=200, default='', blank=True, null=True)
+    class Meta: 
+        verbose_name = "Packing Summary"
+        verbose_name_plural = "Packing Summaries"
+    def __str__(self):
+        return '%s %s %s' % (str(self.schedule_num), str(self.prod_num), str(self.reference_number))
+class Packing_Finish_Transaction(models.Model):
+    reference_number = models.CharField(max_length=200, default='')
+    transaction_type = models.CharField(max_length=200, default='')
+    transaction_date = models.DateField(auto_now_add=True)
+    transaction_location = models.CharField(max_length=200, default='')
+    prod_number = models.ForeignKey(Product, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    prod_quantity = models.IntegerField(blank=True, null=True)
+    user_name = models.CharField(max_length=200, default='', blank=True, null=True)
+    user_department = models.CharField(max_length=200, default='', blank=True, null=True)
+    class Meta: 
+        verbose_name = "Finished Packing Transaction"
+        verbose_name_plural = "Finished Packing Transactions"
+    def __str__(self):
+        return '%s %s' % (self.reference_number, self.prod_number)
+class Packing_Schedule_Transaction(models.Model):
+    reference_number = models.CharField(max_length=200, default='')
+    transaction_type = models.CharField(max_length=200, default='')
+    transaction_date = models.DateField(auto_now_add=True)
+    transaction_location = models.CharField(max_length=200, default='')
+    prod_number = models.ForeignKey(Product, default='1', blank=True, null=True, on_delete=models.CASCADE)
+    prod_quantity = models.IntegerField(blank=True, null=True)
+    user_name = models.CharField(max_length=200, default='', blank=True, null=True)
+    user_department = models.CharField(max_length=200, default='', blank=True, null=True)
+    class Meta: 
+        verbose_name = "Packing Schedule Transaction"
+        verbose_name_plural = "Packing Schedule Transactions"
+    def __str__(self):
+        return '%s %s' % (str(self.reference_number), str(self.prod_number))
 
 #SHRINKAGE
 class Shrinkage_Type(models.Model):
@@ -1429,3 +1500,5 @@ class Events(models.Model):
 
     def __str__(self):
         return self.name
+
+

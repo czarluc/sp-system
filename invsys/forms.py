@@ -335,6 +335,31 @@ class Shipping_OutboundForm(forms.ModelForm):
         model = Shipping_Outbound
         fields = ('wo_num','ship_out_num','notes',)
 
+#PACKING
+#--PACKING CREATE SCHEDULE--
+class PackingScheduleForm(forms.ModelForm):
+    class Meta:
+        model = Packing_Schedule
+        fields = ('schedule_num','date_scheduled','notes',)
+PackingProductFormset = modelformset_factory(
+    Packing_Product,
+        fields=('wo_num','prod_num','required_quantity','bin_location','reference_number',),
+        extra=1,
+        )
+PackingSummaryFormset = modelformset_factory(
+    Packing_Summary,
+        fields=('wo_num',
+            'prod_num',
+            'required_quantity',
+            'picked_quantity',
+            'bin_location',
+            'discrepancy',
+            'discrepancy_quantity',
+            'status',
+            'reference_number',),
+        extra=1,
+        )
+
 
 #SHRINKAGE REPORT
 class Shrinkage_Ass_ReportForm(forms.ModelForm):
@@ -513,3 +538,4 @@ Purchase_Order_Item_Formset = modelformset_factory(
         fields=('po_number','item_number', 'item_quantity'),
         extra=1,
     )
+

@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %} Generate Put Away Schedule {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% load static %}
+<style>
+    input:not([name="notes"]){ 
+    text-align: center; 
+    }
+    .table-striped tbody tr.done td { 
+    background-color: #5cb85c;
+    }
+    .table-striped tbody tr.warning td { 
+    background-color: #f0ad4e;
+    }
+    .table-striped tbody tr.highlight td { 
+    background-color: #87CEFA;
+    }
+    #purch_items tr { 
+        color: white;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <h2>Select Products to schedule for Packing</h2>
+    <br>
+
+    <div class="card" id="select_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Packing Product Details:</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Work-Order Number</label>
+                        <input type ="text" class="form-control" id="wo_num" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Production Schedule</label>
+                        <input type ="text" class="form-control" id="prod_sched" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Product Number</label>
+                        <input type ="text" class="form-control" id="prod_num" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Product Class</label>
+                        <input type ="text" class="form-control" id="prod_class" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Bin Location</label>
+                        <input type ="text" class="form-control" id="bin_loc" readonly/>
+                        <input type ="hidden" class="form-control" id="bin_id" readonly/>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>Product Quantity</label>
+                        <input type ="text" class="form-control" id="prod_quan" readonly/>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row align-items-center">
+                <div class="col-1.5">
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select to Schedule</button>
+                </div>
+                <div class="col-1.5">
+                    <button type="button" id="autoallbtn" class="btn btn-info btn-lg">Auto-Select Other Work-Orders</button>
+                </div>
+                <div class="col-1.5">
+                    <button type="button" id="donebtn" class="btn btn-warning btn-lg">Done Scheduling</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="card" id="whse_card">
+        <div class="card-header card-header-tabs card-header-info">
+            <h4 class="card-title">Products in Warehouse: </h4>
+        </div>
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped w-auto mx-auto" id="whse_prod">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Work-Order</th>
+                            <th scope="col">Production Schedule</th>
+
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Quantity</th>
+
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Bin ID</th>
+                            <th scope="col">Bin Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for instance in whseprod_list %}
+                            <tr class="tablerow" data-wo_num="{{instance.wo_num}}" data-prod_sched="{{instance.prod_sched}}" data-prod_num="{{instance.prod_num}}" data-prod_quan="{{instance.prod_quan}}" data-prod_class="{{instance.prod_class}}" data-bin_id="{{instance.bin_id}}" data-bin_loc="{{instance.bin_loc}}">
+                                <td>{{ instance.wo_num }}</td>
+                                <td><button type="button" class="btn btn-primary prod_sched" data-wo_num="{{instance.wo_num}}" data-prod_sched="{{instance.prod_sched}}" data-prod_num="{{instance.prod_num}}" data-prod_quan="{{instance.prod_quan}}" data-prod_class="{{instance.prod_class}}" data-bin_id="{{instance.bin_id}}" data-bin_loc="{{instance.bin_loc}}">{{ instance.prod_sched }}</button></td>
+                                <td>{{ instance.prod_num }}</td>
+                                <td>{{ instance.prod_quan }}</td>
+                                <td>{{ instance.prod_class }}</td>
+                                <td>{{ instance.bin_id }}</td>
+                                <td>{{ instance.bin_loc }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+    let table1;
+    table1 = $("#whse_prod").DataTable({
+        pageLength : 5,
+        lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+
+    $(window).on('load', function() {
+        document.getElementById("whse_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+        if ( prod_list.length > 0 ){
+            prod_list.forEach(function(item) {
+                selectProdsched( item );
+            });
+        }
+    });
+
+    $(document).ready(function(){
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
+
+        $("#selectbtn").hide();
+        $("#autoallbtn").hide();
+
+        $( "#whse_prod" ).on("click", ".btn.btn-primary.prod_sched", function () {
+            var btn = this;
+
+            var wo_num = btn.dataset.wo_num;
+            var prod_sched = btn.dataset.prod_sched;
+            var prod_num = btn.dataset.prod_num;
+            var prod_quan = btn.dataset.prod_quan;
+            var prod_class = btn.dataset.prod_class;
+            var bin_id = btn.dataset.bin_id;
+            var bin_loc = btn.dataset.bin_loc;
+
+            $("#wo_num").val( wo_num );
+            $("#prod_sched").val( prod_sched );
+            $("#prod_num").val( prod_num );
+            $("#prod_class").val( prod_class );
+            $("#bin_loc").val( bin_loc );
+            $("#bin_id").val( bin_id );
+            $("#prod_quan").val( prod_quan );
+
+            toastr.info('Product ' + prod_num + ' from Work-Order ' + wo_num + ' Schedule ' + prod_sched + ' is selected. <br> Currently in Warehouse Bin '+bin_loc);
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+            $("#selectbtn").show();
+            $("#autoallbtn").show();
+        });
+
+        $("#donebtn").on("click", function () {
+            var goBack = window.open('', 'genpacking');
+            goBack.focus();
+            window.close();
+        });
+
+        $( "#selectbtn" ).on("click", function(){
+            var wo_num = $("#wo_num").val();
+            var prod_sched = $("#prod_sched").val();
+            var prod_num = $("#prod_num").val();
+            var prod_class = $("#prod_class").val();
+            var bin_loc = $("#bin_loc").val();
+            var bin_id = $("#bin_id").val();
+            var prod_quan = $("#prod_quan").val();
+
+            if ( !(wo_num === "") ){
+                if ( checkifDisabled(wo_num, prod_sched, bin_loc) ){
+                    toastr.error('Product ' + prod_num + ' from Work-Order ' + wo_num + ' Schedule ' + prod_sched + ' is already selected to the schedule.');
+                }else{
+
+                    window.opener.cloneMore('form', wo_num, prod_num, prod_quan, bin_id, bin_loc, prod_sched);
+
+                    var counter1 = 0;
+                    $(table1.rows().nodes()).each(function(i, el){ 
+                        var row_tag1 = table1.rows(counter1).nodes().to$();
+                        var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                        if ( wo_num === $(button_tag1).attr('data-wo_num') ){
+                            if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                                if ( bin_loc === $(button_tag1).attr('data-bin_loc') ){
+                                    $(button_tag1).attr('disabled', true);
+                                    $(row_tag1).attr('class', 'tablerow highlight');
+                                }                                
+                            }                    
+                        }
+                        table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+                        counter1 += 1; 
+                    });
+
+                    toastr.success('Product ' + prod_num + ' from Work-Order ' + wo_num + ' Schedule ' + prod_sched + ' is selected to the schedule.');
+                }
+            }else{
+                toastr.error('Please select a Product.');
+            }
+        });
+
+        function checkifDisabled(wo_num, prod_sched, bin_loc){
+            var status = false;
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                if ( wo_num === $(button_tag1).attr('data-wo_num') ){
+                    if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                        if ( bin_loc === $(button_tag1).attr('data-bin_loc') ){
+                            if($(button_tag1).is(":disabled")){
+                                status = true;
+                            }else{
+                                status = false;
+                            }
+                        }
+                    }               
+                }
+                counter1 += 1;
+            });
+            return status;
+        }
+
+        $("#autoallbtn").on('click', function(){
+            var wo_num = $("#wo_num").val();
+
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 = table1.rows(counter1).nodes().to$();
+                var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+                if ( wo_num === $(row_tag1).attr('data-wo_num') ){
+                    if(!($(button_tag1).is(":disabled"))){
+
+                        var prod_sched = $(row_tag1).attr('data-prod_sched');
+                        var prod_num = $(row_tag1).attr('data-prod_num');
+                        var prod_class = $(row_tag1).attr('data-prod_class');
+                        var bin_loc = $(row_tag1).attr('data-bin_loc');
+                        var bin_id = $(row_tag1).attr('data-bin_id');
+                        var prod_quan = $(row_tag1).attr('data-prod_quan');
+
+
+                        window.opener.cloneMore('form', wo_num, prod_num, prod_quan, bin_id, bin_loc, prod_sched);
+
+                        $(button_tag1).attr('disabled', true);
+                        $(row_tag1).attr('class', 'tablerow highlight');
+                    }
+                }
+                table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+                counter1 += 1;
+            });
+
+        });
+    });
+        
+    function selectProdsched(prod_sched_details){
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+            if ( prod_sched_details[0] === $(button_tag1).attr('data-wo_num') ){
+                if ( prod_sched_details[1] === $(button_tag1).attr('data-prod_sched') ){
+                    if ( prod_sched_details[2] === $(button_tag1).attr('data-bin_loc') ){
+                        $(button_tag1).attr('disabled', true);
+                        $(row_tag1).attr('class', 'tablerow highlight');
+                    }
+                }
+            }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
+        });
+    }
+
+    function deselectProdsched(wo_num, prod_sched, bin_loc){
+        var counter1 = 0;
+        $(table1.rows().nodes()).each(function(i, el){ 
+            var row_tag1 = table1.rows(counter1).nodes().to$();
+            var button_tag1 = $.parseHTML(table1.cell(counter1,1).data())[0];
+
+            if ( wo_num === $(button_tag1).attr('data-wo_num') ){
+                if ( prod_sched === $(button_tag1).attr('data-prod_sched') ){
+                    if ( bin_loc === $(button_tag1).attr('data-bin_loc') ){
+                        $(button_tag1).attr('disabled', false);
+                        $(row_tag1).attr('class', 'tablerow');
+                    }
+                }
+            }
+            table1.cell(counter1,1).data($(button_tag1).prop('outerHTML'));
+            counter1 += 1;
+        });
+    }
+
+</script>
+{% endblock javascripts %}
