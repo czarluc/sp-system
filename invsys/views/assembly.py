@@ -343,18 +343,29 @@ def AddWOAssembly_List(prodsched, date_received):
 @assembly_required
 def FinishCompIssuance_SelectCompIssuanceSched(request):
     template_name = 'invsys/warehouse/CompIssuance/FinishCompIssuance_SelectCompIssuanceSched.html'
-    wo_issuancesched = WO_Issuance_Schedule.objects.filter(cleared=False).values(
-        'schedule_num',
-        'date_scheduled',
-        'notes',
-        'issues',)
-
     compissuance = WO_Issuance_Schedule.objects.filter(cleared=False)
     compissueschedules = []
     for schedule in compissuance:
         compissueschedules.append(schedule)
 
-    wo_issuelist = WO_Issuance_List.objects.filter(schedule_num__in=compissueschedules, prod_sched__issued=False).values(
+    user = request.user
+    assembly_user_query = Assembly.objects.get( user=user )
+    assembly_name = assembly_user_query.assemblyline.name
+
+    assembly_prodclass = ''
+
+    if assembly_name == "eSV Assembly":
+        assembly_prodclass = "eSV"
+    elif assembly_name == "Jets Assembly":
+        assembly_prodclass = "Jets"
+    elif assembly_name == "AC Fire Assembly":
+        assembly_prodclass = "AC Fire"
+    elif assembly_name == "GISO Assembly":
+        assembly_prodclass = "GISO"
+    elif assembly_name == "GS Assembly":
+        assembly_prodclass = "GS"
+
+    wo_issuelist = WO_Issuance_List.objects.filter(schedule_num__in=compissueschedules, prod_sched__issued=False, prod_sched__work_order_number__prod_number__prod_class__prod_class=assembly_prodclass).values(
         'schedule_num',
         'prod_sched__id',
         'prod_sched__date_required',
@@ -362,14 +373,26 @@ def FinishCompIssuance_SelectCompIssuanceSched(request):
         'prod_sched__work_order_number__prod_number__prod_number',
         'prod_sched__work_order_number__prod_number__prod_class__prod_class',
         'prod_sched__quantity',)
+
+    sched_list = []
+    prodsched_list = []
+    for wo in wo_issuelist:
+        prodsched_list.append( wo.get('prod_sched__id') )
+        sched_list.append( wo.get('schedule_num') )
         
-    wo_itemissuelist = WO_Issuance_Item.objects.filter(schedule_num__in=compissueschedules).values(
+    wo_itemissuelist = WO_Issuance_Item.objects.filter(schedule_num__in=compissueschedules, prod_sched__id__in=prodsched_list).values(
         'prod_sched__id',
         'item_num__item_number',
         'item_num__item_cat__item_cat',
         'item_quantity',
         'bin_location__id',
         'bin_location__bin_location',)
+
+    wo_issuancesched = WO_Issuance_Schedule.objects.filter(schedule_num__in=sched_list,cleared=False).values(
+        'schedule_num',
+        'date_scheduled',
+        'notes',
+        'issues',)
 
     return render(request, template_name,{'wo_issuancesched':wo_issuancesched,'wo_issuelist':wo_issuelist,'wo_itemissuelist':wo_itemissuelist})
 
@@ -972,7 +995,23 @@ def Dashboard_get_wostatus(request):
     wo_coupled = 0
     wo_tested = 0
 
-    prod_sched_query = WO_Production_Schedule.objects.filter(received=False)
+    user = request.user
+    assembly_user_query = Assembly.objects.get( user=user )
+    assembly_name = assembly_user_query.assemblyline.name
+    assembly_prodclass = ''
+
+    if assembly_name == "eSV Assembly":
+        assembly_prodclass = "eSV"
+    elif assembly_name == "Jets Assembly":
+        assembly_prodclass = "Jets"
+    elif assembly_name == "AC Fire Assembly":
+        assembly_prodclass = "AC Fire"
+    elif assembly_name == "GISO Assembly":
+        assembly_prodclass = "GISO"
+    elif assembly_name == "GS Assembly":
+        assembly_prodclass = "GS"
+
+    prod_sched_query = WO_Production_Schedule.objects.filter(received=False, work_order_number__prod_number__prod_class__prod_class=assembly_prodclass)
 
     for prod_sched in prod_sched_query:
 
