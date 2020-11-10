@@ -15,9 +15,11 @@ from ..models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from datetime import date, timedelta
+from datetime import datetime as dt
 import json
 import datetime
 from django.utils import timezone
+import pytz
 
 
 class PlannerSignUpView(CreateView):
@@ -733,119 +735,167 @@ def getItemStock(item_num):
     
     return avail_quan
 
+#COMP ISSUANCE DASHBOARD
+def Dashboard_get_compissuance(request):
+    prodsched_query = WO_Production_Schedule.objects.filter(scheduled=False)
+
+    comp_pending = 0
+    comp_sched = 0
+    comp_issued = 0
+
+    for prodsched in prodsched_query:
+        comp_pending += 1
+
+    woissuancesched_query = WO_Issuance_Schedule.objects.filter(cleared=False).values('schedule_num')
+
+    sched_list = []
+    for woissuancesched in woissuancesched_query:
+        sched_list.append( woissuancesched.get('schedule_num') )
+
+    woissuancelist_query = WO_Issuance_List.objects.filter(schedule_num__schedule_num__in=sched_list).values('cleared')
+
+    for woissuancelist in woissuancelist_query:
+        if woissuancelist.get('cleared') == True:
+            comp_issued += 1
+        elif woissuancelist.get('cleared') == False:
+            comp_sched += 1
+
+    data = {
+        "comp_pending" : comp_pending,
+        "comp_sched" : comp_sched,
+        "comp_issued": comp_issued,
+    }
+    return JsonResponse(data) # http response
+
 #ISSUANCE TIMELINESS
-def Dashboard_get_issuance_acc(request):
-
-    now = datetime.datetime.now()
-
-    label = ["Non-Issue", "Over-Shipped", "Short-Shipped"]
-
-    count = []
-
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    print(len(count))
-    print(label)
-    print(count)
-
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-
-def Dashboard_update_issuance_acc(request):
-    files = request.POST
-
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
-
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
 
 #WORK ORDER STATUS
-def Dashboard_get_issuance_acc(request):
+def Dashboard_get_wostatus(request):
+    wo_sched = 0
+    wo_assembled = 0
+    wo_coupled = 0
+    wo_tested = 0
 
-    now = datetime.datetime.now()
+    prod_sched_query = WO_Production_Schedule.objects.filter(received=False)
 
-    label = ["Non-Issue", "Over-Shipped", "Short-Shipped"]
+    for prod_sched in prod_sched_query:
 
-    count = []
-
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    print(len(count))
-    print(label)
-    print(count)
-
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_issuance_acc(request):
-    files = request.POST
-
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
-
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+        if prod_sched.scheduled == False and prod_sched.issued == False: #Not yet scheduled for issuance
+            pass
+        elif prod_sched.scheduled == True and prod_sched.issued == False: #Not yet issued but scheduled
+            wo_sched += 1
+        elif prod_sched.issued == True and prod_sched.assembled == False: #Not yet assembled but issued
+            wo_assembled += 1
+        elif prod_sched.assembled == True and prod_sched.coupled == False: #Not yet coupled but assembled
+            wo_coupled += 1
+        elif prod_sched.coupled == True and prod_sched.tested == False: #Not yet tested but coupled
+            wo_tested += 1
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "wo_sched" : wo_sched,
+        "wo_assembled": wo_assembled,
+        "wo_coupled":wo_coupled,
+        "wo_tested":wo_tested
     }
     return JsonResponse(data) # http response
+
+
 #ASSEMBLY PRODUCTIVITY
-def Dashboard_get_issuance_acc(request):
+def Dashboard_get_assprod(request):
+    date_7 = dt.today()
+    date_6 = dt.today() - timedelta(days=1)
+    date_5 = dt.today() - timedelta(days=2)
+    date_4 = dt.today() - timedelta(days=3)
+    date_3 = dt.today() - timedelta(days=4)
+    date_2 = dt.today() - timedelta(days=5)
+    date_1 = dt.today() - timedelta(days=6)
 
-    now = datetime.datetime.now()
+    week_7 = date_7.strftime('%A')
+    week_6 = date_6.strftime('%A')
+    week_5 = date_5.strftime('%A')
+    week_4 = date_4.strftime('%A')
+    week_3 = date_3.strftime('%A')
+    week_2 = date_2.strftime('%A')
+    week_1 = date_1.strftime('%A')
 
-    label = ["Non-Issue", "Over-Shipped", "Short-Shipped"]
+    eSV_label = []
+    eSV_prod = []
 
-    count = []
+    Jets_label = []
+    Jets_prod = []
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    ACFire_label = []
+    ACFire_prod = []
 
-    print(len(count))
-    print(label)
-    print(count)
+    GISO_label = []
+    GISO_prod = []
+
+    GS_label = []
+    GS_prod = []
+
+
+    date_label = [week_1, week_2, week_3, week_4, week_5, week_6, week_7];
+    Jets_label = [week_1, week_2, week_3, week_4, week_5, week_6, week_7];
+    ACFire_label = [week_1, week_2, week_3, week_4, week_5, week_6, week_7];
+    GISO_label = [week_1, week_2, week_3, week_4, week_5, week_6, week_7];
+    GS_label = [week_1, week_2, week_3, week_4, week_5, week_6, week_7];
+
+    eSV_prod = getprodquan("eSV", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    Jets_prod = getprodquan("Jets", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    ACFire_prod = getprodquan("AC Fire", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    GISO_prod = getprodquan("GISO", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    GS_prod = getprodquan("GS", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+
+    prod_sched_query = WO_Finished.objects.filter()    
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "date_label":date_label,
+        "eSV_prod": eSV_prod,
+        "Jets_prod": Jets_prod,
+        "ACFire_prod": ACFire_prod,
+        "GISO_prod": GISO_prod,
+        "GS_prod": GS_prod
     }
     return JsonResponse(data) # http response
-def Dashboard_update_issuance_acc(request):
-    files = request.POST
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
+def getprodquan(prod_class, date_7, date_6, date_5, date_4, date_3, date_2, date_1):
+    prod_quan = []
+    prod_7 = 0
+    prod_6 = 0
+    prod_5 = 0
+    prod_4 = 0
+    prod_3 = 0
+    prod_2 = 0
+    prod_1 = 0
 
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    prodfinish_7 = WO_Finished.objects.filter( date_out=date_7, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_7:
+        prod_7 += prodfinish.prod_sched.quantity
 
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    prodfinish_6 = WO_Finished.objects.filter( date_out=date_6, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_6:
+        prod_6 += prodfinish.prod_sched.quantity
 
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
+    prodfinish_5 = WO_Finished.objects.filter( date_out=date_5, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_5:
+        prod_5 += prodfinish.prod_sched.quantity
+
+    prodfinish_4 = WO_Finished.objects.filter( date_out=date_4, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_4:
+        prod_4 += prodfinish.prod_sched.quantity
+
+    prodfinish_3 = WO_Finished.objects.filter( date_out=date_3, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_3:
+        prod_3 += prodfinish.prod_sched.quantity
+
+    prodfinish_2 = WO_Finished.objects.filter( date_out=date_2, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_2:
+        prod_2 += prodfinish.prod_sched.quantity
+
+    prodfinish_1 = WO_Finished.objects.filter( date_out=date_1, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_1:
+        prod_1 += prodfinish.prod_sched.quantity
+
+    prod_quan = [prod_1, prod_2, prod_3, prod_4, prod_5, prod_6, prod_7]
+
+    return prod_quan

@@ -220,6 +220,8 @@ class Work_Order(models.Model):
     finished_completion_date = models.DateField(auto_now=False, auto_now_add=False, blank=True, null=True)
     creation_date = models.DateField(auto_now=False, auto_now_add=False)
     allocated = models.BooleanField(default=False)
+    finished = models.BooleanField(default=False)
+    shipped = models.BooleanField(default=False)
     notes = models.CharField(max_length=200, default='')
 
     class Meta: 
@@ -240,6 +242,7 @@ class Work_Order_Item_List(models.Model):
     def __str__(self):
         return '%s %s' % (self.work_order_number, self.item_number)
 
+#---SP_RECEIVE---
 #RECEIVING PROCESS
 class Purchase_Order(models.Model):
     po_number = models.CharField(max_length=200, default='', primary_key=True)
@@ -519,6 +522,8 @@ class Put_Away_Schedule_Transaction(models.Model):
     def __str__(self):
         return '%s %s' % (str(self.reference_number), str(self.item_number))
 
+
+#---WO_CREATEISSUE
 #Work Order Creation
 class WO_Production_Schedule(models.Model):
     work_order_number = models.ForeignKey(Work_Order, default='1', blank=True, null=True, on_delete=models.CASCADE)
@@ -648,7 +653,7 @@ class WO_Issuance_Disc_Transaction(models.Model):
     def __str__(self):
         return '%s %s' % (str(self.reference_number), str(self.item_number))
 
-
+#---SP_ASSEMBLY---
 #Assembly
 class WO_Assembly(models.Model):
     prod_sched = models.ForeignKey(WO_Production_Schedule, default='1', blank=True, null=True, on_delete=models.CASCADE)
@@ -1070,6 +1075,7 @@ class ComponentReturn_Summary_Transaction(models.Model):
         return '%s %s' % (str(self.reference_number), str(self.item_number))
 
 
+#---SP_INVENTORY_UPDATE---
 #INVENTORY ADJUSTMENT
 class IAF_code(models.Model):
     iaf_code = models.CharField(max_length=200, default='', blank=True, null=True)
@@ -1411,6 +1417,7 @@ class Transfer_Add_Transaction(models.Model):
         verbose_name_plural = "Transfer Add Transactions"
     def __str__(self):
         return '%s %s' % (str(self.reference_number), str(self.item_number))
+
 
 #SAMPLE MODEL
 class Events(models.Model):

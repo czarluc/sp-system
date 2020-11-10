@@ -23,6 +23,8 @@
   <script src="https://kit.fontawesome.com/badcf52c71.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.css" integrity="sha512-oe8OpYjBaDWPt2VmSFR+qYOdnTjeV9QPLJUeqZyprDEQvQLJ9C5PCFclxwNuvb/GQgQngdCXzKSFltuHD3eCxA==" crossorigin="anonymous" />
 
+  {% load static %}
+
   <!-- Specific Page CSS goes HERE  -->
   {% block stylesheets %}{% endblock stylesheets %}
 
@@ -61,4 +63,22 @@
   {% block javascripts %}{% endblock javascripts %}
   
 </body>
+{% if user.is_authenticated and user.is_assembly %}
+<script>
+  getassemblyline()
+  function getassemblyline(){
+    $.ajax({
+      method: "GET",
+      url: "{% url 'assembly:Sidebar_get_assemblyline' %}",
+      success: function(data){
+        $("#user_assembly").text(data.user_assemblyline)
+      },
+      error: function(error_data){
+          console.log("error")
+          console.log(error_data)
+      }
+    });
+  }
+</script>
+{% endif %}
 </html>

@@ -13,9 +13,10 @@ from ..decorators import assembly_required
 from ..forms import *
 from ..models import *
 
+from datetime import datetime as dt
 from datetime import date, timedelta, datetime
 import pytz
-
+from django.http import JsonResponse
 
 class AssemblySignUpView(CreateView):
     model = User
@@ -956,117 +957,177 @@ def ViewPartReqSummary(request):
         'req_sum_set':req_sum_list,})
 
 
-#ISSUANCE ACCURACY
-def Dashboard_get_issuance_acc(request):
+#--SIDEBAR GET ASSEMBLYLINE
+def Sidebar_get_assemblyline(request):
+    user = request.user
+    assembly_user_query = Assembly.objects.get( user=user )
 
-    now = datetime.datetime.now()
+    data = { 'user_assemblyline':assembly_user_query.assemblyline.name }
+    return JsonResponse(data) # http response
 
-    label = ["Non-Issue", "Over-Shipped", "Short-Shipped"]
+#WORK ORDER STATUS
+def Dashboard_get_wostatus(request):
+    wo_sched = 0
+    wo_assembled = 0
+    wo_coupled = 0
+    wo_tested = 0
 
-    count = []
+    prod_sched_query = WO_Production_Schedule.objects.filter(received=False)
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    for prod_sched in prod_sched_query:
 
-    print(len(count))
-    print(label)
-    print(count)
+        if prod_sched.scheduled == False and prod_sched.issued == False: #Not yet scheduled for issuance
+            pass
+        elif prod_sched.scheduled == True and prod_sched.issued == False: #Not yet issued but scheduled
+            wo_sched += 1
+        elif prod_sched.issued == True and prod_sched.assembled == False: #Not yet assembled but issued
+            wo_assembled += 1
+        elif prod_sched.assembled == True and prod_sched.coupled == False: #Not yet coupled but assembled
+            wo_coupled += 1
+        elif prod_sched.coupled == True and prod_sched.tested == False: #Not yet tested but coupled
+            wo_tested += 1
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "wo_sched" : wo_sched,
+        "wo_assembled": wo_assembled,
+        "wo_coupled":wo_coupled,
+        "wo_tested":wo_tested
     }
     return JsonResponse(data) # http response
-def Dashboard_update_issuance_acc(request):
-    files = request.POST
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
-
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
 #ASSEMBLY TIMELINESS
-def Dashboard_get_issuance_acc(request):
+def Dashboard_get_asstime(request):
+    prod_onsched = 0
+    prod_late = 0
 
-    now = datetime.datetime.now()
+    time_label = ["On Schedule", "Late"]
+    prod_time = []
 
-    label = ["Non-Issue", "Over-Shipped", "Short-Shipped"]
+    user = request.user
+    assembly_user_query = Assembly.objects.get( user=user )
+    assembly_name = assembly_user_query.assemblyline.name
 
-    count = []
+    wo_query = Work_Order.objects.all()
 
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    if assembly_name == "eSV Assembly":
+        wo_query = Work_Order.objects.filter(prod_number__prod_class__prod_class="eSV", finished=False)
+    elif assembly_name == "Jets Assembly":
+        wo_query = Work_Order.objects.filter(prod_number__prod_class__prod_class="Jets", finished=False)
+    elif assembly_name == "AC Fire Assembly":
+        wo_query = Work_Order.objects.filter(prod_number__prod_class__prod_class="AC Fire", finished=False)
+    elif assembly_name == "GISO Assembly":
+        wo_query = Work_Order.objects.filter(prod_number__prod_class__prod_class="GISO", finished=False)
+    elif assembly_name == "GS Assembly":
+        wo_query = Work_Order.objects.filter(prod_number__prod_class__prod_class="GS", finished=False)
 
-    print(len(count))
-    print(label)
-    print(count)
+    for wo in wo_query:
+        if dt.today().date() < wo.required_completion_date: #Check if the date today is still less than the required completion date
+            prod_onsched += 1
+        elif dt.today().date() > wo.required_completion_date:
+            prod_late += 1
 
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-def Dashboard_update_issuance_acc(request):
-    files = request.POST
-
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
-
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
-
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    data = {
-        "labels" : label,
-        "default" : count,
-    }
-    return JsonResponse(data) # http response
-#PRODUCTION VOLUME
-def Dashboard_get_issuance_acc(request):
-
-    now = datetime.datetime.now()
-
-    label = ["Non-Issue", "Over-Shipped", "Short-Shipped"]
-
-    count = []
-
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
-
-    print(len(count))
-    print(label)
-    print(count)
+    prod_time = [prod_onsched, prod_late]
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "time_label" : time_label,
+        "prod_time": prod_time
     }
     return JsonResponse(data) # http response
-def Dashboard_update_issuance_acc(request):
-    files = request.POST
 
-    start_date = datetime.datetime.strptime(files.get("from"), '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(files.get("to"), '%Y-%m-%d').date()
+def getWOdone_dashboard( wo_num ):
+    total_done = 0
+    prodsched_query = WO_Production_Schedule.objects.filter(work_order_number__work_order_number=wo_num)
 
-    label = [ start_date + datetime.timedelta(n) for n in range(int ((end_date - start_date).days))]
+    for prod_sched in prodsched_query:
+        if prod_sched.received == True:
+            total_done += prod_sched.quantity
 
-    count = []
-    for date in label:
-        count.append(Purchase_Order.objects.filter(purchase_date=date).count())
+    return total_done
+
+
+
+#ASSEMBLY PRODUCTIVITY
+def Dashboard_get_assprod(request):
+    date_7 = dt.today()
+    date_6 = dt.today() - timedelta(days=1)
+    date_5 = dt.today() - timedelta(days=2)
+    date_4 = dt.today() - timedelta(days=3)
+    date_3 = dt.today() - timedelta(days=4)
+    date_2 = dt.today() - timedelta(days=5)
+    date_1 = dt.today() - timedelta(days=6)
+
+    week_7 = date_7.strftime('%A')
+    week_6 = date_6.strftime('%A')
+    week_5 = date_5.strftime('%A')
+    week_4 = date_4.strftime('%A')
+    week_3 = date_3.strftime('%A')
+    week_2 = date_2.strftime('%A')
+    week_1 = date_1.strftime('%A')
+
+    user = request.user
+    assembly_user_query = Assembly.objects.get( user=user )
+    assembly_name = assembly_user_query.assemblyline.name
+
+    date_label = []
+    ass_prod = []
+
+    date_label = [week_1, week_2, week_3, week_4, week_5, week_6, week_7];
+
+    if assembly_name == "eSV Assembly":
+        ass_prod = getprodquan("eSV", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    elif assembly_name == "Jets Assembly":
+        ass_prod = getprodquan("Jets", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    elif assembly_name == "AC Fire Assembly":
+        ass_prod = getprodquan("AC Fire", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    elif assembly_name == "GISO Assembly":
+        ass_prod = getprodquan("GISO", date_7, date_6, date_5, date_4, date_3, date_2, date_1)
+    elif assembly_name == "GS Assembly":
+        ass_prod = getprodquan("GS", date_7, date_6, date_5, date_4, date_3, date_2, date_1) 
 
     data = {
-        "labels" : label,
-        "default" : count,
+        "date_label":date_label,
+        "ass_prod": ass_prod
     }
     return JsonResponse(data) # http response
+
+def getprodquan(prod_class, date_7, date_6, date_5, date_4, date_3, date_2, date_1):
+    prod_quan = []
+    prod_7 = 0
+    prod_6 = 0
+    prod_5 = 0
+    prod_4 = 0
+    prod_3 = 0
+    prod_2 = 0
+    prod_1 = 0
+
+    prodfinish_7 = WO_Finished.objects.filter( date_out=date_7, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_7:
+        prod_7 += prodfinish.prod_sched.quantity
+
+    prodfinish_6 = WO_Finished.objects.filter( date_out=date_6, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_6:
+        prod_6 += prodfinish.prod_sched.quantity
+
+    prodfinish_5 = WO_Finished.objects.filter( date_out=date_5, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_5:
+        prod_5 += prodfinish.prod_sched.quantity
+
+    prodfinish_4 = WO_Finished.objects.filter( date_out=date_4, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_4:
+        prod_4 += prodfinish.prod_sched.quantity
+
+    prodfinish_3 = WO_Finished.objects.filter( date_out=date_3, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_3:
+        prod_3 += prodfinish.prod_sched.quantity
+
+    prodfinish_2 = WO_Finished.objects.filter( date_out=date_2, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_2:
+        prod_2 += prodfinish.prod_sched.quantity
+
+    prodfinish_1 = WO_Finished.objects.filter( date_out=date_1, prod_sched__work_order_number__prod_number__prod_class__prod_class=prod_class )
+    for prodfinish in prodfinish_1:
+        prod_1 += prodfinish.prod_sched.quantity
+
+    prod_quan = [prod_1, prod_2, prod_3, prod_4, prod_5, prod_6, prod_7]
+
+    return prod_quan

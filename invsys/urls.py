@@ -174,16 +174,17 @@ urlpatterns = [
         path('CheckPart/', planner.CheckPart, name='CheckPart'),
         path('CheckProduct/', planner.CheckProduct, name='CheckProduct'),
 
-
+        #COMP ISSUANCE DASHBOARD
+        re_path(r'^Dashboard_get_compissuance/$', planner.Dashboard_get_compissuance, name='Dashboard_get_compissuance'),
+        
         #ISSUANCE TIMELINESS
-        re_path(r'^Dashboard_get_issuance_time/$', planner.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
-        re_path(r'^Dashboard_update_issuance_time/$', planner.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
+        #re_path(r'^Dashboard_get_issuance_time/$', planner.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
+        #re_path(r'^Dashboard_update_issuance_time/$', planner.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
         #WORK ORDER STATUS
-        re_path(r'^Dashboard_get_wo_stat/$', planner.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
-        re_path(r'^Dashboard_update_wo_stat/$', planner.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
+        re_path(r'^Dashboard_get_wostatus/$', planner.Dashboard_get_wostatus, name='Dashboard_get_wostatus'),
+
         #ASSEMBLY PRODUCTIVITY
-        re_path(r'^Dashboard_get_ass_prod/$', planner.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
-        re_path(r'^Dashboard_update_ass_prod/$', planner.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
+        re_path(r'^Dashboard_get_assprod/$', planner.Dashboard_get_assprod, name='Dashboard_get_assprod'),
         
     ], 'invsys'), namespace='planner')),
 
@@ -215,17 +216,18 @@ urlpatterns = [
         path('FinishPartReqIssuance/SelectPartReqSched/', warehouse.FinishPartReqIssuance_SelectPartReqSched, name='FinishPartReqIssuance_SelectPartReqSched'),
         path('ViewPartReqSummary/', assembly.ViewPartReqSummary, name='ViewPartReqSummary'),
         
-        #ISSUANCE ACCURACY
-        re_path(r'^Dashboard_get_issuance_acc/$', assembly.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
-        re_path(r'^Dashboard_update_issuance_acc/$', assembly.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
-        
+
+        #-- SIDEBAR GET ASSEMBLYLINE
+        re_path(r'^Sidebar_get_assemblyline/$', assembly.Sidebar_get_assemblyline, name='Sidebar_get_assemblyline'),
+
+        #WORK ORDER STATUS
+        re_path(r'^Dashboard_get_wostatus/$', assembly.Dashboard_get_wostatus, name='Dashboard_get_wostatus'),
+
         #ASSEMBLY TIMELINESS
-        re_path(r'^Dashboard_get_ass_time/$', assembly.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
-        re_path(r'^Dashboard_update_ass_time/$', assembly.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
+        re_path(r'^Dashboard_get_asstime/$', assembly.Dashboard_get_asstime, name='Dashboard_get_asstime'),
         
         #PRODUCTION VOLUME
-        re_path(r'^Dashboard_get_prod_vol/$', assembly.Dashboard_get_issuance_acc, name='Dashboard_get_issuance_acc'),
-        re_path(r'^Dashboard_update_prod_vol/$', assembly.Dashboard_update_issuance_acc, name='Dashboard_update_issuance_acc'),
+        re_path(r'^Dashboard_get_assprod/$', assembly.Dashboard_get_assprod, name='Dashboard_get_assprod'),
         
     ], 'invsys'), namespace='assembly')),
 ]

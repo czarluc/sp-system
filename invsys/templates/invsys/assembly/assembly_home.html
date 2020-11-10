@@ -14,15 +14,11 @@
     <div class="row">
       <div class="col-md-6">
         <div class="card card-chart">
-            <div class="card-header card-header-danger">
-              <h4 class="card-title">Work Orders Status</h4>
+            <div class="card-header card-header-warning">
+              <h4 class="card-title">Work Order Status</h4>
             </div>
             <div class="card-body">
-              <canvas id="issuance_acc_chrt"></canvas>
-              <form action="">
-                {% csrf_token %}
-              <a href="#"> See more </a>
-              </form>
+              <canvas id="wostatus_chart"></canvas>
           </div>
         </div>
       </div>
@@ -33,11 +29,7 @@
               <h4 class="card-title">Assembly Timeliness</h4>
             </div>
             <div class="card-body">
-              <canvas id="ass_time_chrt"></canvas>
-              <form action="">
-                {% csrf_token %}
-              <a href="#"> See more </a>
-              </form>
+              <canvas id="asstime_chart"></canvas>
           </div>
         </div>
       </div>
@@ -49,15 +41,11 @@
     	</div>
     	<div class="col-md-6">
             <div class="card card-chart">
-                <div class="card-header card-header-success">
+                <div class="card-header card-header-info">
                   <h4 class="card-title">Production Volume</h4>
                 </div>
                 <div class="card-body">
-                  <canvas id="prod_vol_chrt"></canvas>
-                  <form action="">
-                    {% csrf_token %}
-                  <a href="#"> See more </a>
-                  </form>
+                  <canvas id="assprod_chart"></canvas>
               </div>
             </div>
       	</div>
@@ -70,84 +58,116 @@
 <script>
 	$(document).ready(function(){
 	
-	var ctx_issuance_acc = $("#issuance_acc_chrt");
-	var myChart1 = new Chart(ctx_issuance_acc);
+	initwostatus_chart();
 
-	var ship_acc_labels = ['Scheduled','Issued','Assembled','Coupled','Tested','Received'];
-	var ship_acc_data = [1,3,8,3,2,5];
+	function initwostatus_chart(){
+		$.ajax({
+		  method: "GET",
+		  url: "{% url 'assembly:Dashboard_get_wostatus' %}",
+		  success: function(data){
+		      wo_sched = data.wo_sched;
+		      wo_assembled = data.wo_assembled;
+		      wo_coupled = data.wo_coupled;
+		      wo_tested = data.wo_tested;
 
-	ctx_issuance_acc = $("#issuance_acc_chrt");
+		      var label = ['In Schedule','In Assembly','In Coupling','In Testing'];
+		      var data = [wo_sched, wo_assembled, wo_coupled, wo_tested];
 
-	myChart1 = new Chart(ctx_issuance_acc, {
-	type: 'pie',
-	data: {
-	  labels: ship_acc_labels,
-	  datasets: [{
-	    backgroundColor: [
-	      "#f7f7f7",
-	      "#2ecc71",
-	      "#f0ad4e",
-	      "#5bc0de",
-	      "#292b2c",
-	      "#e74c3c",
-	    ],
-	    data: ship_acc_data
-	  }]
+		      var ctx_wostatus = $("#wostatus_chart");
+
+		      var chart_wostatus = new Chart(ctx_wostatus, {
+		        type: 'pie',
+		        data: {
+		          labels: label,
+		          datasets: [{
+		            backgroundColor: [
+				      "#f7f7f7",
+				      "#2ecc71",
+				      "#f0ad4e",
+				      "#5bc0de",
+				      "#292b2c",
+				      "#e74c3c",
+				    ],
+		            data: data
+		          }]
+		        }
+		      });
+
+		  },
+		  error: function(error_data){
+		      console.log("error")
+		      console.log(error_data)
+		  }
+		});
 	}
-	});
 
-	var ctx_ass_time = $("#ass_time_chrt");
-	var myChart2 = new Chart(ctx_ass_time);
+	initasstime_chart();
 
-	var ship_acc_labels = ['On Time','Delayed'];
-	var ship_acc_data = [3,8];
+	function initasstime_chart(){
+		$.ajax({
+		  method: "GET",
+		  url: "{% url 'assembly:Dashboard_get_asstime' %}",
+		  success: function(data){
+		      var ctx_asstime = $("#asstime_chart");
 
-	ctx_ass_time = $("#ass_time_chrt");
+		      var chart_asstime = new Chart(ctx_asstime, {
+		        type: 'pie',
+		        data: {
+		          labels: data.time_label,
+		          datasets: [{
+		            backgroundColor: [
+				      "#2ecc71",
+				      "#e74c3c",
+				    ],
+		            data: data.prod_time
+		          }]
+		        }
+		      });
 
-	myChart2 = new Chart(ctx_ass_time, {
-	type: 'pie',
-	data: {
-	  labels: ship_acc_labels,
-	  datasets: [{
-	    backgroundColor: [
-	      "#2ecc71",
-	      "#e74c3c",
-	    ],
-	    data: ship_acc_data
-	  }]
+		  },
+		  error: function(error_data){
+		      console.log("error")
+		      console.log(error_data)
+		  }
+		});
 	}
-	});
 
-	var ctx_prod_vol = $("#prod_vol_chrt");
-	var myChart3 = new Chart(ctx_prod_vol);
+	initassprod_chart();
 
-	var ship_acc_labels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-	var ship_acc_data = [1,3,8,3,0,0];
+	function initassprod_chart(){
+		$.ajax({
+		  method: "GET",
+		  url: "{% url 'assembly:Dashboard_get_assprod' %}",
+		  success: function(data){
+		      var ctx_assprod = $("#assprod_chart");
 
-	ctx_prod_vol = $("#prod_vol_chrt");
+		      var chart_assprod = new Chart(ctx_assprod, {
+		        type: 'bar',
+		        data: {
+		          labels: data.date_label,
+		          datasets: [{
+		            backgroundColor: [
+		            	"#9932CC", 
+		            	"#2ecc71", 
+		            	"#f0ad4e",
+		            	"#5bc0de",
+		            	"#292b2c"],
+		            data: data.ass_prod
+		          }]
+		        },options: {
+					legend: {
+						display: false
+					}
+			    }
+		      });
 
-	myChart3 = new Chart(ctx_prod_vol, {
-	type: 'bar',
-	data: {
-	  labels: ship_acc_labels,
-	  datasets: [{
-	    backgroundColor: [
-	      "#9932CC",
-	      "#2ecc71",
-	      "#f0ad4e",
-	      "#5bc0de",
-	      "#292b2c",
-	      "#e74c3c",
-	    ],
-	    data: ship_acc_data
-	  }]
-	},
-	options: {
-        legend: {
-            display: false
-         },
-    }
-	});
+		  },
+		  error: function(error_data){
+		      console.log("error")
+		      console.log(error_data)
+		  }
+		});
+	}
 
 	});
 </script>

@@ -1083,7 +1083,7 @@ def RecordPASchedTransac(refnum,itemnum,itemquan):
     paschedtransac.save()
 def UpdateReceivingLobbyPASched(itemnum, itemquan, pastrefnum):
     recitem = Receiving_Lobby.objects.get(reference_number=pastrefnum, item_number=itemnum)
-    recitem.scheduled_quantity = itemquan
+    recitem.scheduled_quantity += itemquan
     if recitem.received_quantity == recitem.scheduled_quantity:
         recitem.status = "All parts scheduled for PutAway"
     else:
@@ -1710,8 +1710,9 @@ def checkWO_Finish(prod_sched):
         if prod_sched.received == True:
             total_done += 1
 
-    if total_created == total_done:
+    if total_created == total_done: #All work-Order Schedules are done!
         wo_obj.finished_completion_date = datetime.now().replace(tzinfo=pytz.utc)
+        wo_obj.finished = True
         wo_obj.save()
 
 
@@ -1827,9 +1828,9 @@ def ShipProduct(request):
             ship_lobby_list = Shipping_Lobby.objects.all()
 
             for ship_lobby in ship_lobby_list:
-                print(ship_lobby.prod_sched.work_order_number)
-                print(wo_num_obj)
                 if ship_lobby.prod_sched.work_order_number == wo_num_obj:
+                    wo_num_obj.shipped = True
+                    wo_num_obj.save()
                     AddShipping_Outbound_Transaction(ship_lobby.prod_sched.id, now, ship_lobby.prod_sched.work_order_number.prod_number, ship_lobby.prod_sched.quantity)
                     ship_lobby.delete()
             print("passed through!")
