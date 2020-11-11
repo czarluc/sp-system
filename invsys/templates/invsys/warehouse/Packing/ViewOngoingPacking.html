@@ -38,7 +38,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for instance in putaway_sched_set %}
+                {% for instance in packing_sched_set %}
                     <tr class="tablerow" id="sched-{{forloop.counter}}">
 
                         <td><button type="button" class="btn btn-primary sched" data-sched_num="{{instance.schedule_num}}" data-date_sched="{{ instance.date_scheduled }}" data-notes="{{ instance.notes }}" id="sched-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
@@ -57,31 +57,33 @@
 
 <div class="card">
     <div class="card-header card-header-tabs card-header-info">
-        <h4 class="card-title">Required Items:</h4>
+        <h4 class="card-title">Required Products:</h4>
     </div>
     <div class="card-body">
         <div class="table-responsive"> <!--Shrnk Items-->
             <table class="table table-hover table-striped table-bordered nowrap" id="req_table">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col">Reference Number</th>
-                        <th scope="col">Item Number</th>
-                        <th scope="col">Item Description</th>
-                        <th scope="col">Item Category</th>
+                        <th scope="col">Work-Order</th>
+                        <th scope="col">Production Schedule</th>
+                        <th scope="col">Product Number</th>
+                        <th scope="col">Product Description</th>
+                        <th scope="col">Product Type</th>
                         <th scope="col">Product Class</th>
-                        <th scope="col">Put Away Item Quantity</th>
+                        <th scope="col">Required Quantity</th>
                         <th scope="col">Bin location</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for instance in putaway_item_set %}
-                    <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}" data-date_scheduled="{{ instance.schedule_num__date_scheduled }}" data-ref_num="{{ instance.reference_number }}" data-item_num="{{ instance.item_num__item_number }}" data-item_desc="{{ instance.item_num__item_desc }}" data-item_cat="{{ instance.item_num__item_cat__item_cat }}" data-prod_class="{{ instance.item_num__prod_class__prod_class }}" data-item_quan="{{ instance.required_quantity }}" data-bin_loc="{{ instance.bin_location__bin_location }}">
+                {% for instance in packing_prod_set %}
+                    <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}" data-date_scheduled="{{ instance.schedule_num__date_scheduled }}" data-wo_num="{{ instance.wo_num__work_order_number }}" data-prod_sched="{{ instance.reference_number }}" data-prod_num="{{ instance.prod_num__prod_number }}" data-prod_desc="{{ instance.prod_num__prod_desc }}" data-prod_type="{{ instance.prod_num__prod_type }}" data-prod_class="{{ instance.prod_num__prod_class__prod_class }}" data-item_quan="{{ instance.required_quantity }}" data-bin_loc="{{ instance.bin_location__bin_location }}">
 
+                        <td>{{ instance.wo_num__work_order_number }}</td>
                         <td>{{ instance.reference_number }}</td>
-                        <td>{{ instance.item_num__item_number }}</td>
-                        <td>{{ instance.item_num__item_desc }}</td>
-                        <td>{{ instance.item_num__item_cat__item_cat }}</td>
-                        <td>{{ instance.item_num__prod_class__prod_class }}</td>
+                        <td>{{ instance.prod_num__prod_number }}</td>
+                        <td>{{ instance.prod_num__prod_desc }}</td>
+                        <td>{{ instance.prod_num__prod_type }}</td>
+                        <td>{{ instance.prod_num__prod_class__prod_class }}</td>
                         <td>{{ instance.required_quantity }}</td>
                         <td>{{ instance.bin_location__bin_location }}</td>
 
@@ -152,7 +154,7 @@ $(document).ready(function() {
     table.buttons().container()
         .appendTo( '#sched_table_wrapper .col-md-6:eq(0)' );
 
-    var table2 = $('#req_table').DataTable({
+    table2 = $('#req_table').DataTable({
         paging: false, info: false,
         dom: "<'row'<'col-md-6'B><'col-md-2'<'customselect trans'>><'col-md-4'f>>" +
         "<'row'<'col-md-12'rtip>>",
@@ -232,11 +234,11 @@ $(document).ready(function() {
             if ($(row_tag2).is(":visible")){
 
                 item_list.push( {
-                    'sched_num': $(row_tag2).attr('data-sched_num'), 'date_scheduled': $(row_tag2).attr('data-date_scheduled'), 
-                    'ref_num': $(row_tag2).attr('data-ref_num'), 'item_num': $(row_tag2).attr('data-item_num'),
-                    'item_desc': $(row_tag2).attr('data-item_desc'), 'prod_class': $(row_tag2).attr('data-prod_class'),
-                    'item_quan': $(row_tag2).attr('data-item_quan'), 'bin_loc': $(row_tag2).attr('data-bin_loc'),
-                    'item_cat': $(row_tag2).attr('data-item_cat')
+                    'sched_num': $(row_tag2).attr('data-sched_num'), 'date_scheduled': $(row_tag2).attr('data-date_scheduled'),
+                    'wo_num': $(row_tag2).attr('data-wo_num'), 'prod_sched': $(row_tag2).attr('data-prod_sched'),
+                    'prod_num': $(row_tag2).attr('data-prod_num'), 'prod_desc': $(row_tag2).attr('data-prod_desc'),
+                    'prod_type': $(row_tag2).attr('data-prod_type'), 'prod_class': $(row_tag2).attr('data-prod_class'),
+                    'item_quan': $(row_tag2).attr('data-item_quan'), 'bin_loc': $(row_tag2).attr('data-bin_loc')
                 });      
             }
             counter2 += 1;
@@ -247,11 +249,11 @@ $(document).ready(function() {
             now_prodsched = item.prod_sched;
 
             new_arr.push({
-                'sched_num': item.sched_num, 'date_scheduled': item.date_scheduled, 
-                'ref_num': item.ref_num, 'item_num': item.item_num,
-                'item_desc': item.item_desc, 'prod_class': item.prod_class,
-                'item_quan': item.item_quan, 'bin_loc': item.bin_loc,
-                'item_cat': item.item_cat
+                'sched_num':item.sched_num, 'date_scheduled':item.date_scheduled,
+                'wo_num':item.wo_num, 'prod_sched':item.prod_sched,
+                'prod_num':item.prod_num, 'prod_desc':item.prod_desc,
+                'prod_type':item.prod_type, 'prod_class':item.prod_class,
+                'item_quan':item.item_quan, 'bin_loc':item.bin_loc
             });
 
             if (parseInt(counter) == parseInt(item_list.length) ) {
@@ -285,20 +287,21 @@ $(document).ready(function() {
             doc.setTextColor(0, 0, 0);
             doc.setDrawColor(0, 0, 0);
 
-            doc.text('Parts to Put-Away', 14, 40);     
+            doc.text('Products for Packing', 14, 40);     
             
-            var item_columns = ["Reference Number", "Item Number", "Item Description", 
-                "Item Category", "Product Class", "Required Quantity", "Bin Location"];
+            var item_columns = ["Work-Order","Production Schedule", "Product Number", "Product Description", 
+                "Product Type", "Product Class", "Required Quantity", "Bin Location"];
 
             var item_rows = []
 
             item_list.forEach(function(item) { //new table
 
                 var item_details = [
-                    item.ref_num,
-                    item.item_num,
-                    item.item_desc,
-                    item.item_cat,                    
+                    item.wo_num,
+                    item.prod_sched,
+                    item.prod_num,
+                    item.prod_desc,                    
+                    item.prod_type,
                     item.prod_class,
                     item.item_quan,
                     item.bin_loc,];  
@@ -331,7 +334,7 @@ $(document).ready(function() {
             console.log(pageInfo);
             console.log();
 
-            doc.text('Page ' + doc.internal.getNumberOfPages() + " of " + tot_pages + " - Put Away Schedule " + item_list[0].sched_num, (doc.internal.pageSize.width / 2) - 20, (doc.internal.pageSize.height) - 10 );
+            doc.text('Page ' + doc.internal.getNumberOfPages() + " of " + tot_pages + " - Packing Schedule " + item_list[0].sched_num, (doc.internal.pageSize.width / 2) - 20, (doc.internal.pageSize.height) - 10 );
 
 
             if (parseInt(counter) == parseInt(compissue_list.length) ) {
@@ -344,9 +347,9 @@ $(document).ready(function() {
 
         });
 
-        doc.save("PutAway_"+ compissue_list[0][0].sched_num +'.pdf');
+        doc.save("Packing_"+ compissue_list[0][0].sched_num +'.pdf');
 
-        toastr.success('Put Away Schedule ' + compissue_list[0][0].sched_num + ' is downloaded.');
+        toastr.success('Packing Schedule ' + compissue_list[0][0].sched_num + ' is downloaded.');
 
     }
 
@@ -365,7 +368,7 @@ $(document).ready(function() {
         doc.rect(70, 15, 150, 20);
         doc.setFontSize(20);
         doc.setFontType('bold');
-        doc.text(105, 27, 'Put Away Schedule');
+        doc.text(105, 27, 'Packing List Schedule');
 
         doc.setFontSize(10);
         doc.setFontType('normal');

@@ -6059,7 +6059,30 @@ def UpdateWhseProd_PackingFinish(ref_num, bin_loc, prod_num, pick_quan):
 def ViewPackingSummary(request):
     template_name = 'invsys/warehouse/Packing/ViewPackingSummary.html'
 
-    return render(request, template_name, {})
+    packing_sched_list = Packing_Schedule.objects.filter(cleared=True).values(
+        'schedule_num',
+        'date_scheduled',
+        'cleared',
+        'issues',
+        'notes',)
+    
+    packing_sum_list = Packing_Summary.objects.filter(schedule_num__cleared=True).values(
+        'schedule_num__schedule_num',
+        'wo_num__work_order_number',
+        'reference_number',
+        'prod_num__prod_number',
+        'prod_num__prod_class__prod_class',
+        'required_quantity',
+        'picked_quantity',
+        'discrepancy_quantity',
+        'status',
+        'date_scheduled',
+        'date_picked',
+        'bin_location__bin_location',)
+
+    return render(request, template_name, 
+        {'packing_sched_set':packing_sched_list,
+        'packing_sum_set':packing_sum_list,})
 
 
 #--View Ongoing Comp Return--
@@ -6068,4 +6091,34 @@ def ViewPackingSummary(request):
 def ViewOngoingPacking(request):
     template_name = 'invsys/warehouse/Packing/ViewOngoingPacking.html'
 
-    return render(request, template_name, {})
+    packing_sched_query = Packing_Schedule.objects.filter(cleared=False).values(
+        'schedule_num',
+        'date_scheduled',
+        'notes',
+        'cleared',
+        'issues',)
+
+    packing_sched_list = []
+    for packing_sched in packing_sched_query:
+        packing_sched_list.append(packing_sched.get('schedule_num'))
+
+    packing_prod_query = Packing_Product.objects.filter(schedule_num__schedule_num__in=packing_sched_list).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+
+        'wo_num__work_order_number',
+        'reference_number',
+        'prod_num__prod_number',
+        'prod_num__prod_desc',
+        'prod_num__prod_type',
+        'prod_num__prod_class__prod_class',
+        'required_quantity',
+        'bin_location__bin_location',).order_by(
+        'required_quantity',
+        'prod_num__prod_class__prod_class',
+        'prod_num__prod_type',
+        'bin_location__bin_location',)
+
+    return render(request, template_name, 
+        {'packing_sched_set':packing_sched_query, 
+        'packing_prod_set':packing_prod_query})
