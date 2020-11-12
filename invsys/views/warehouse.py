@@ -4305,6 +4305,7 @@ def CheckShippingLobby(request):
         'ship_lobby_set':ship_lobby_query})
 
 
+
 #VIEW INVENTORY
 @login_required
 @warehouse_required
@@ -6491,3 +6492,134 @@ def ExportPacking(request):
 
     return render(request, template_name, 
         {'packing_sum_set':packing_sum_list,})
+
+
+@login_required
+@warehouse_required
+def ImportItems(request):
+    if request.method == 'GET':
+
+        itemformset = ItemFormset(queryset=Item.objects.none(), prefix='form')
+
+        return render(request, 'invsys/warehouse/CheckInv/ImportItems.html', {'itemformset':itemformset})
+    
+    elif request.method == 'POST':
+        itemformset = ItemFormset(request.POST , request.FILES, prefix='form')
+
+        if itemformset.is_valid():
+
+            counter = 1;
+            form_counter = 0;
+            for itemform in itemformset:
+                if counter < len(itemformset):
+                    item = itemform.save(commit=False)
+
+                    uom = Uom.objects.get(uom=request.POST.get('form-'+str(form_counter)+'-uom'))
+                    item_cat = ItemCat.objects.get(item_cat=request.POST.get('form-'+str(form_counter)+'-item_cat'))
+                    prod_class = ProdClass.objects.get(prod_class=request.POST.get('form-'+str(form_counter)+'-prod_class'))
+
+                    item.uom = uom
+                    item.item_cat = item_cat
+                    item.prod_class = prod_class
+                    item.save()
+                    counter += 1
+                    form_counter += 1
+
+        return redirect('home')
+
+#--UPDATE PURCHASE ORDERS---
+@login_required
+@warehouse_required
+def ImportProducts(request):
+    if request.method == 'GET':
+
+        prodformset = ProductFormset(queryset=Product.objects.none(), prefix='form')
+
+        return render(request, 'invsys/warehouse/CheckInv/ImportProducts.html', {'prodformset':prodformset})
+    
+    elif request.method == 'POST':
+
+        return redirect('home')
+
+def importprod_setprod(request):
+    prod_set = json.loads(request.POST.get('prod_set[]'))
+    item_set = json.loads(request.POST.get('item_set[]'))
+    
+    for prod in prod_set:
+        count = 0
+        prod_num = ''
+        prod_desc = ''
+        uom = ''
+        prod_type = ''
+        prod_class = ''
+        price = ''
+        notes = ''
+
+        for details in prod:
+            if count == 0: #prod_num
+                prod_num = details
+                count += 1
+            elif count == 1: #prod_desc
+                prod_desc = details
+                count += 1
+            elif count == 2: #uom
+                uom = details
+                count += 1
+            elif count == 3: #prod_type
+                prod_type = details
+                count += 1
+            elif count == 4: #prod_class
+                prod_class = details
+                count += 1
+            elif count == 5: #price
+                price = details
+                count += 1
+            elif count == 6: #notes
+                notes = details
+                count += 1
+
+        uom_obj = Uom.objects.get(uom=uom)
+        prod_class_obj = ProdClass.objects.get(prod_class=prod_class)
+
+        prod_obj = Product.objects.create(
+            prod_number= prod_num,
+            prod_desc= prod_desc,
+            uom= uom_obj,
+            prod_type= prod_type,
+            prod_class= prod_class_obj,
+            price= price,
+            notes= notes)
+        prod_obj.full_clean()
+        prod_obj.save()
+
+
+    for item in item_set:
+        count = 0
+        prod_num= ''
+        item_num = ''
+        item_quan = 0
+
+        for details in item:
+            if count == 0: #prod_num
+                prod_num = details
+                count += 1
+            elif count == 1: #item_num
+                item_num = details
+                count += 1
+            elif count == 2: #item_quan
+                item_quan = details
+                count += 1
+
+        prod_obj = Product.objects.get(prod_number=prod_num)
+        item_obj = Item.objects.get(item_number=item_num)
+
+        prod_item_obj = ProductItemList.objects.create(
+            prod_number= prod_obj,
+            item_number= item_obj,
+            quantity= item_quan)
+
+        prod_item_obj.full_clean()
+        prod_item_obj.save()
+
+    data = {}
+    return JsonResponse(data)

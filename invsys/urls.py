@@ -175,6 +175,10 @@ urlpatterns = [
         
         #--BULK CREATE WHSE BIN--
         path('ImportWarehouseBin/', warehouse.ImportWarehouseBin, name='ImportWarehouseBin'),
+        path('ImportItems/', warehouse.ImportItems, name='ImportItems'),
+        path('ImportProducts/', warehouse.ImportProducts, name='ImportProducts'),
+        path('importprod_setprod/', warehouse.importprod_setprod, name='importprod_setprod'),
+        
         
         
 
