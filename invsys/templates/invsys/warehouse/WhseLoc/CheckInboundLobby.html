@@ -6,7 +6,11 @@
 {% block stylesheets %}
 
 {% endblock stylesheets %}
-
+<style>
+    #ponum_table tr td:nth-child(1), #ponum_table th:nth-child(1){
+        display: none;
+    }
+</style>
 {% block content %}
 
 <h2>View Inbound Lobby</h2>
@@ -69,6 +73,7 @@
             <table class="table table-hover table-striped table-bordered nowrap" id="ponum_table">
                 <thead class="thead-light">
                     <tr>
+                        <th scope="col">Shipment Number</th>
                         <th scope="col">Purchase Order Number</th>
                         <th scope="col">Purchase Date</th>
                         <th scope="col">Notes</th>
@@ -78,6 +83,7 @@
                 <tbody>
                 {% for instance in po_set %}
                     <tr class="tablerow" id="ponum-{{forloop.counter}}" data-ship_num="{{ instance.shipment_num__shipment_num }}">
+                        <td>{{ instance.shipment_num__shipment_num }}</td>
                         <td>{{ instance.po_num__po_number }}</td>
                         <td>{{ instance.po_num__purchase_date }}</td>
                         <td>{{ instance.po_num__notes }}</td>
@@ -119,18 +125,10 @@ $(document).ready(function() {
         };
     };
 
-    $(".btn.btn-primary.ship_num").on("click", function(){
-        btn = this;
-        var ship_num = btn.dataset.ship_num;
-
-        toastr.info('Shipment '+ ship_num + " is selected.");
-    })
-
     var table = $('#inbound_table').DataTable({
-        dom: "<'row'<'col-lg-6'B>>" +
+        dom: "<'row'>" +
         "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
         "<'row'<'col-md-12'rtip>>",
-        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
@@ -145,8 +143,47 @@ $(document).ready(function() {
       table.columns().search('').draw();
     });
 
-    $('#ponum_table').DataTable({searching: false, paging: false, info: false,
+    var table2 = $('#ponum_table').DataTable({
+        searching: false, paging: false, info: false,
+        dom: "<'row'<'col-lg-6'B>>" +
+        "<'row'<'col-md-4'l>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    columns: ':visible',
+                    rows: ':visible' 
+                }
+            }, 'csv', 'pdf' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    });
+
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
+    });
+
+    $(".btn.btn-primary.ship_num").on("click", function(){
+        btn = this;
+        var ship_num = btn.dataset.ship_num;
+
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
+            var ponum_ship_num = $(row_tag2).attr('data-ship_num');
+
+            if (ship_num === ponum_ship_num){
+                $(row_tag2).show();
+            }else {
+                $(row_tag2).hide();
+            }
+            counter2 += 1;
+        });
+
+
+        toastr.info('Shipment '+ ship_num + " is selected.");
     });
 
 });

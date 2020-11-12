@@ -15,6 +15,12 @@
     #req_table tr {
        text-align: center;   
     }
+    #req_table tr td:nth-child(1), #req_table th:nth-child(1){
+        display: none;
+    }
+    #req_table tr td:nth-child(2), #req_table th:nth-child(2){
+        display: none;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -64,6 +70,8 @@
             <table class="table table-hover table-striped table-bordered nowrap" id="req_table">
                 <thead class="thead-dark">
                     <tr>
+                        <th scope="col">Schedule Number</th>
+                        <th scope="col">Date Schedule</th>
                         <th scope="col">Reference Number</th>
                         <th scope="col">Item Number</th>
                         <th scope="col">Item Description</th>
@@ -77,6 +85,8 @@
                 {% for instance in putaway_item_set %}
                     <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}" data-date_scheduled="{{ instance.schedule_num__date_scheduled }}" data-ref_num="{{ instance.reference_number }}" data-item_num="{{ instance.item_num__item_number }}" data-item_desc="{{ instance.item_num__item_desc }}" data-item_cat="{{ instance.item_num__item_cat__item_cat }}" data-prod_class="{{ instance.item_num__prod_class__prod_class }}" data-item_quan="{{ instance.required_quantity }}" data-bin_loc="{{ instance.bin_location__bin_location }}">
 
+                        <td>{{ instance.schedule_num__schedule_num }}</td>
+                        <td>{{ instance.schedule_num__date_scheduled }}</td>
                         <td>{{ instance.reference_number }}</td>
                         <td>{{ instance.item_num__item_number }}</td>
                         <td>{{ instance.item_num__item_desc }}</td>
@@ -160,12 +170,11 @@ $(document).ready(function() {
                 {
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: ':visible',
                         rows: ':visible' 
                     }
                 },
                 {
-                    text: 'Print',
+                    text: 'PDF',
                     action: function ( e, dt, node, config ) {
                         var check_rows = 0;
 
@@ -181,7 +190,7 @@ $(document).ready(function() {
                             toastr.error('Please select an Put Away Schedule.');
                         }
                     }
-                }, 'pdf' ],
+                }],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 

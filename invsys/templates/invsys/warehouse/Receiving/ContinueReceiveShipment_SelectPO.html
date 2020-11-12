@@ -16,8 +16,7 @@
 </style>
 {% endblock stylesheets %}
 
-{% block content %} 
-HELLO
+{% block content %}
     <h2>Select a PO Number</h2>
     <br>
 
@@ -267,6 +266,10 @@ HELLO
 
     $(document).ready(function(){
 
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+        
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -403,6 +406,8 @@ HELLO
 
             toastr.success('Purchase Order ' + $('#po_num').val() + ' from Shipment Number '+ $('#ship_num').val() + " is selected.");
 
+            window.opener.showtoast($('#po_num').val(),$('#ship_num').val());
+            
             var goBack = window.open('', 'Validate_VDR');
             goBack.focus();
             window.close();
@@ -458,7 +463,9 @@ HELLO
                 counter1 += 1;
             });
 
-            toastr.info('Shipment Number '+ ship_num + " is selected.");
+            toastr.info('Shipment Number '+ ship_num + " is selected. Please select a Purchase Order.");
+
+            document.getElementById("po_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         });
 
         $( "#po_table" ).on("click", ".btn.btn-primary", function () {
@@ -505,7 +512,10 @@ HELLO
                 counter5 += 1;
             });
 
-            toastr.info('Purchase Order '+ po_num + " is selected.");
+            toastr.info('Purchase Order '+ po_num + " is selected. Please confirm.");
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
 
         });    
     });

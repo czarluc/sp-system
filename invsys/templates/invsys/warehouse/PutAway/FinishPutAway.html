@@ -129,9 +129,34 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
 <script type="text/javascript">
+    let finpa_selSched;
     $(document).ready(function(){
-        window.name = "Fin_PA";
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        window.name = "finpa";
 
         $('#sum_table tr.tablerow:last').find('.btn.edit-form-row')
         .hide();
@@ -321,8 +346,13 @@
 
 
     $(document).on('click', '.add-schednum', function(e){
-        var newwin = window.open("{% url 'warehouse:FinishPutAway_SelectPASched' %}");
-        return false;
+        if ( finpa_selSched && !finpa_selSched.closed ){
+                finpa_selSched.focus();
+                return false;
+        }else{
+            finpa_selSched = window.open("{% url 'warehouse:FinishPutAway_SelectPASched' %}");
+            return false;
+        }
     });
 
     $(document).on('click', '.add-paitem', function(e){
@@ -352,6 +382,17 @@
         });
 
     });
+
+    function deleteall(){
+        $("#sum_table").find('.remove-form-row').each(function (i, el) {
+            $(this).trigger('click');
+        });
+    }
+
+    function showtoast(sched_num){
+        toastr.success('Put Away Schedule ' + sched_num + " is verification.");
+        toastr.info('Please validate the items.');
+    }
 
 </script>
 {% endblock javascripts %}

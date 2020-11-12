@@ -79,7 +79,7 @@
         <div class="card">
             
             <div class="card-header card-header-tabs card-header-info">
-                <h4 class="card-title">Work Orders received in Assembly</h4>
+                <h4 class="card-title">Work Orders received in Assembly <span id="span_from"></span><span id="span_to"></span></h4>
             </div>
             <div class="card-body">
                 <div class="table-responsive"> <!--Work Order List-->
@@ -110,7 +110,7 @@
                 </div>
             </div>
         </div>
-
+    </div>
     
 
     <div class="card">
@@ -178,6 +178,11 @@
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+        
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -221,20 +226,19 @@
             if ($("#date_from").val()){
                 minDateFilter = new Date($("#date_from").val());
                 minDateFilter = moment( minDateFilter);
+                $("#span_from").text(" from "+minDateFilter.format('MM/DD/YYYY'));
             }
 
             if ( $("#date_to").val() ){
                 maxDateFilter = new Date($("#date_to").val());
                 maxDateFilter = moment( maxDateFilter);
+                $("#span_to").text(" to "+maxDateFilter.format('MM/DD/YYYY'));
             }
-            console.log("DATE");
 
             var counter = 0;
             $(table.rows().nodes()).each(function(i, el){ 
                 var row_tag =  table.rows(counter).nodes().to$();
                 var startDate = moment($(row_tag).attr('data-rec_date'));
-
-                console.log( minDateFilter + "---" + startDate + "---" + maxDateFilter );
 
                 if(minDateFilter && maxDateFilter){
 
@@ -249,17 +253,6 @@
                 counter += 1;
             });
         });
-
-            
-        $( "#datepicker" ).change(function () {
-            var dateText = $(this).val();
-            $('#label_reqdate').html(dateText + ":");
-            
-        });
-
-        $('#datepicker').val(new Date().toISOString().slice(0, 10));
-
-        $('#label_reqdate').html($("#datepicker").val() + ":");
         
         var counter = 0;
         $(table.rows().nodes()).each(function(i, el){ 

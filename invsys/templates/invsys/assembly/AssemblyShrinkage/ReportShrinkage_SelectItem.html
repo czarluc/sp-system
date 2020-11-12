@@ -103,6 +103,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>          
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+        
         toasterOptions();
         function toasterOptions() {
             toastr.options = {

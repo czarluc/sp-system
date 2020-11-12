@@ -33,27 +33,30 @@
 <body class="">
   <div class="wrapper ">
 
-    {% include 'includes/sidebar.html' %}
+    <div id="div_sidebar">
+      {% include 'includes/sidebar.html' %}
+    </div>
 
-    <div class="main-panel">
-
+    <div class="main-panel" id="div_main">
+      <div id="div_nav">
       {% include 'includes/navigation.html' %}
+      </div>
 
       <!-- End Navbar -->
-      <div class="content">
+      <div class="content" >
         <div class="container-fluid">
 
           {% block content %}{% endblock content %}
 
         </div>
       </div>
-
+      <div id="div_footer">      
       {% include 'includes/footer.html' %}
-
+      </div>
     </div>
   </div>
 
-  {% include 'includes/fixed-plugin.html' %}
+  <!--{% include 'includes/fixed-plugin.html' %}-->
 
   {% include 'includes/scripts.html' %}
 

@@ -218,11 +218,29 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+    let table1, table2, table3
+
+    table1 = $("#sched_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    table2 = $("#wo_table").DataTable({info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+    table3 = $("#bom_table").DataTable({
+            searching: false, paging: false, info: false,
+            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
     $(window).on('load', function() {
         document.getElementById("issuance_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -244,12 +262,16 @@
             };
         };
 
-        $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-            $(this).hide();
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            $(table2.rows(counter2).nodes().to$()).hide();
+            counter2 += 1;
         });
 
-        $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-            $(this).hide();
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            $(table3.rows(counter3).nodes().to$()).hide();
+            counter3 += 1;
         });
 
         $( "#sched_table" ).on("click", ".btn.btn-primary.schednum", function () {
@@ -261,15 +283,17 @@
             var notes = btn.dataset.notes;
             $('#txt_notes').val(notes);
 
-            $('#wo_table').find('tr.tablerow.wo_table').each(function (i, el) {
-                var wo_row = this;
-                var wo_schednum = wo_row.dataset.schednum
-                prod_sched = wo_row.dataset.prodsched;
+            var counter2 = 0;
+            $(table2.rows().nodes()).each(function(i, el){ 
+                var row_tag2 = table2.rows(counter2).nodes().to$();
+                var wo_schednum = $(row_tag2).attr('data-schednum');
+                var prod_sched = $(row_tag2).attr('data-prodsched');
                 if (wo_schednum === schednum){
-                    $(this).show();
+                    $(row_tag2).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag2).hide();
                 }
+                counter2 += 1;
             });
 
             toastr.info('Schedule Number ' + schednum + " is selected.");
@@ -291,15 +315,17 @@
             $('#txt_prod_class').val(prodclass);
             $('#txt_quan').val(schedquan);
 
-            $('#bom_table').find('tr.tablerow.bom_table').each(function (i, el) {
-                var bomrow = this;
-                var bom_prodsched = bomrow.dataset.prodsched;
+            var counter3 = 0;
+            $(table3.rows().nodes()).each(function(i, el){
+                var row_tag3 = table3.rows(counter3).nodes().to$();
+                var bom_prodsched = $(row_tag3).attr('data-prodsched');
                 
                 if (bom_prodsched === prodsched){
-                    $(this).show();
+                    $(row_tag3).show();
                 }else {
-                    $(this).hide();
+                    $(row_tag3).hide();
                 }
+                counter3 += 1;
             });
 
             toastr.info('Production Schedule ' + prodsched + ' from Work Order Number ' + wonum + " is selected.");
@@ -332,20 +358,23 @@
 
             window.opener.showreqitem(prodsched);
 
-            $('#bom_table').find('tr.tablerow').each(function (i, el) {
-                if ($(this).is(":visible")){
-                    var itemrow = this;
-                    var prodsched = itemrow.dataset.prodsched;
-                    var itemnum = itemrow.dataset.item_num;
+            var counter3 = 0;
+            $(table3.rows().nodes()).each(function(i, el){
+                var row_tag3 = table3.rows(counter3).nodes().to$();
+                if ($(row_tag3).is(":visible")){
+                    
+                    var prodsched = $(row_tag3).attr('data-prodsched');
+                    var itemnum = $(row_tag3).attr('data-item_num');
                     var daterec = currentdate;
                     var rec_quan = 0;
                     var notes = '';
-                    var req_quan = itemrow.dataset.req_quan;
-                    var binloc = itemrow.dataset.binloc;
-                    var binlocid = itemrow.dataset.binlocid;
+                    var req_quan = $(row_tag3).attr('data-req_quan');
+                    var binloc = $(row_tag3).attr('data-binloc');
+                    var binlocid = $(row_tag3).attr('data-binlocid');
 
                     window.opener.cloneMore('formsetitem',prodsched, itemnum, daterec, rec_quan, notes, req_quan, binloc, binlocid);
                 }
+                counter3 += 1;
             });
 
             toastr.success('Production Schedule ' + prodsched + ' from Schedule Number '+$('#txt_sched_num').val()+ "is selected for verification.");
@@ -354,17 +383,6 @@
             goBack.focus();
             window.close();
 
-        });
-
-        $("#sched_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#wo_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
-        $("#bom_table").DataTable({
-            searching: false, paging: false, info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
         });
 
     });

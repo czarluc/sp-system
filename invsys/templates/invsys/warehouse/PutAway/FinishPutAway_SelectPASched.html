@@ -63,7 +63,7 @@
                 <div class="card-body">
 
                     <div class="table-responsive"> <!--Put Away Schedule Table-->
-                        <table class="table table-hover table-striped w-auto" id="sched_table" >
+                        <table class="table table-hover table-striped table-bordered" id="sched_table" style="width:100%">
                             <thead class="thead-light">
                                 <tr>
                                     <th scope="col">Put Away Schedule Number</th>
@@ -96,7 +96,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive"> <!--Put Away Items-->
-                    <table class="table table-hover table-striped w-auto" id="item_table">
+                    <table class="table table-hover table-striped table-bordered nowrap" id="item_table" style="width:100%">
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Schedule Number</th>
@@ -154,6 +154,11 @@
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -174,6 +179,15 @@
                 "hideMethod": "fadeOut"
             };
         };
+
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
         
         var counter2 = 0;
         $(table2.rows().nodes()).each(function(i, el){ 
@@ -204,40 +218,48 @@
                 counter2 += 1;
             });
 
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
             toastr.info('Put Away Schedule ' + schednum + " is selected.");
         });
         
         $(".btn.btn-success.btn-lg").on("click", function () {
-            var sched_num = $('#name1').val();
-            var date_sched = $('#name2').val();
-            var notes = $('#name3').val();
+            if( $('#name1').val() === "" ){
+                toastr.error('Select a Put Away Schedule first.');
+            }else{
+                window.opener.deleteall();
 
-            $(window.opener.document).find('#id_sched_num').val(sched_num);
-            $(window.opener.document).find('#id_date_scheduled').val(date_sched);
-            $(window.opener.document).find('#id_notes').val(notes);
-            alert("Put Away Schedule " + sched_num + " has been selected");
+                var sched_num = $('#name1').val();
+                var date_sched = $('#name2').val();
+                var notes = $('#name3').val();
 
-            var counter2 = 0;
-            $(table2.rows().nodes()).each(function(i, el){ 
-                var row_tag2 = table2.rows(counter2).nodes().to$();
-                if ($(row_tag2).is(":visible")){
-                    
-                    var item_num = $(row_tag2).attr('data-item_num');
-                    var req_quan = $(row_tag2).attr('data-req_quan');
-                    var bin_id = $(row_tag2).attr('data-bin_id');
-                    var bin_loc = $(row_tag2).attr('data-bin_loc');
-                    var ref_num = $(row_tag2).attr('data-ref_num');
+                $(window.opener.document).find('#id_sched_num').val(sched_num);
+                $(window.opener.document).find('#id_date_scheduled').val(date_sched);
+                $(window.opener.document).find('#id_notes').val(notes);
 
-                    window.opener.cloneMore('formsetsum', item_num, req_quan, bin_id, bin_loc, ref_num);
-                }
-                counter2 += 1;
-            });
+                var counter2 = 0;
+                $(table2.rows().nodes()).each(function(i, el){ 
+                    var row_tag2 = table2.rows(counter2).nodes().to$();
+                    if ($(row_tag2).is(":visible")){
+                        
+                        var item_num = $(row_tag2).attr('data-item_num');
+                        var req_quan = $(row_tag2).attr('data-req_quan');
+                        var bin_id = $(row_tag2).attr('data-bin_id');
+                        var bin_loc = $(row_tag2).attr('data-bin_loc');
+                        var ref_num = $(row_tag2).attr('data-ref_num');
 
-            toastr.success('Put Away Schedule ' + schednum + " is verification.");
+                        window.opener.cloneMore('formsetsum', item_num, req_quan, bin_id, bin_loc, ref_num);
+                    }
+                    counter2 += 1;
+                });
 
-            var goBack = window.open('', 'Fin_PA');
-            goBack.focus();
-            window.close();
+                window.opener.showtoast(sched_num);
+                var goBack = window.open('', 'finpa');
+                goBack.focus();
+                window.close();
+            }   
+
+            
         });
 
     });

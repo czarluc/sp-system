@@ -82,13 +82,45 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
 <script type="text/javascript">
+    let resolvePO_selPO;
     $(document).ready(function(){
-        window.name = "Resolve_PO";
+        window.name = "resolvePO";
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
 
         $(document).on('click', '.add-form-row.ponum', function(e){
-            var wewewe = window.open("{% url 'warehouse:ResolvePO_SelectPO' %}");
-            return false;
+            if ( resolvePO_selPO && !resolvePO_selPO.closed ){
+                resolvePO_selPO.focus();
+                return false;                
+            }else{
+                resolvePO_selPO = window.open("{% url 'warehouse:ResolvePO_SelectPO' %}");
+                return false;
+
+            }
+
+            
         });
 
     });
@@ -108,22 +140,33 @@
     $('#form_resolvePO').submit(function() {
         event.preventDefault();
 
-        Swal.fire({
-            title: 'Do you want to save the created Resolution for Purchase Order ' + $("#id_po_num").val() + '?',
-            icon:'success',
-            showDenyButton: true,
-            confirmButtonText: `Yes`,
-            denyButtonText: `No`,
-        }).then((result) => {
-        if (result.isConfirmed) {
-            $(this).unbind('submit').submit();
+        if( $("#id_po_num").val() === "" ){
+            toastr.error("Please select a Purchase Order first.");
+        }else{
+            Swal.fire({
+                title: 'Do you want to save the created Resolution for Purchase Order ' + $("#id_po_num").val() + '?',
+                icon:'success',
+                showDenyButton: true,
+                confirmButtonText: `Yes`,
+                denyButtonText: `No`,
+            }).then((result) => {
+            if (result.isConfirmed) {
+                $(this).unbind('submit').submit();
 
-        } else if (result.isDenied) {
-            Swal.fire('Changes are not saved', '', 'info');
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info');
+            }
+            });
+
         }
-        });
 
+        
     });
+
+    function showtoast(po_num){
+            toastr.success('Purchase Order ' + po_num + " is selected.");
+            toastr.info('Please confirm.');
+    }
 
 </script>
 {% endblock javascripts %}

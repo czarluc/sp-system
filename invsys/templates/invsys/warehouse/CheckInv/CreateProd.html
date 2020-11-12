@@ -10,6 +10,12 @@
         width: 200px;
         height: 200px;
     }
+    #part_table tr td:nth-child(1), #part_table th:nth-child(1){
+        display: none;
+    }
+    input { 
+    text-align: center; 
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -140,7 +146,9 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script type="text/javascript">
+    let createprod_selItem;
     $(document).ready(function(){
+        window.name='createprod'
 
         $('#id_image').change(function(e) {
             $("#image_prev").remove();
@@ -237,8 +245,13 @@
     }
     
     $(document).on('click', '.add-form-row', function(e){
-        var newwin = window.open("{% url 'warehouse:whse_add_prod_selectitem' %}");
-        return false;
+        if ( createprod_selItem && !createprod_selItem.closed ){
+            createprod_selItem.focus();
+            return false;                
+        }else{
+            createprod_selItem = window.open("{% url 'warehouse:whse_add_prod_selectitem' %}");
+            return false;
+        }
     });
     
     $(document).on('click', '.remove-form-row', function(e){

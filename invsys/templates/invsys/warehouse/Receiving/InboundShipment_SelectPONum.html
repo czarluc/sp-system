@@ -31,8 +31,6 @@
                         <input type ="text" class="form-control" id="name1" readonly/>
                     </div>
                 </div>
-            </div>
-            <div class="form-row align-items-center">
                 <div class="col-1.5">
                     <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select to Shipment</button>
                 </div>
@@ -132,6 +130,11 @@
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -169,6 +172,7 @@
             counter2 += 1;
         });
 
+        $("#selectbtn").hide();
 
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
             var po_num = $('#name1').val();
@@ -245,7 +249,8 @@
             });
 
             toastr.info('Purchase Order ' + po_num + ' is selected.');
-
+            $("#selectbtn").show();
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         });
 
     });

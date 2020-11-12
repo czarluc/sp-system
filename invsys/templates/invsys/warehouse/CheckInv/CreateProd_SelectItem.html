@@ -10,7 +10,7 @@
 {% block content %} 
 <h2>Select an Item</h2>
 
-    <div class="card">
+    <div class="card" id="select_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Product Details:</h4>
         </div>
@@ -58,14 +58,13 @@
                 </div>
             </div>
             <div class="form-row align-items-center">
-                <div class="col-4">
-                    <button type="button" id="selectbtn" class="btn btn-success btn-lg"> Select </button>
-                </div>
+                <button type="button" id="selectbtn" class="btn btn-success btn-lg"> Select to Product </button>
+                <button type="button" id="donebtn" class="btn btn-warning btn-lg"> Done selecting Items </button>
             </div>
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="item_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Select Items for Product:</h4>
         </div>
@@ -101,8 +100,50 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+
 <script>          
+
+    $(window).on('load', function() {
+        document.getElementById("item_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
+
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
             var itemnum = $('#name1').val();
             var itemdesc = $('#name2').val();
@@ -112,14 +153,17 @@
 
             var quantity = $('#name6').val();
 
-            if(quantity > 0) {
-                window.opener.cloneMore('form', itemnum, quantity);
-                alert("Item "+itemnum+" added with quantity of "+quantity);
-            }else {
-                alert("Please enter a quantity!");
+            if( itemnum === "" ){
+                toastr.error("Please select an Item first.");
+            }else{
+                if(quantity > 0) {
+                    window.opener.cloneMore('form', itemnum, quantity);
+                    toastr.success("Item "+itemnum+" added with quantity of "+quantity);
+                    resetfields();
+                }else {
+                    toastr.error("Please enter a quantity!");
+                }
             }
-
-
             /*
             window.opener.document.querySelector("tbody").insertAdjacentHTML("beforeend", '<tr><td scope="row">'+ itemid +'</td><td>'+ itemnum +'</td><td>'+ itemdesc +'</td><td>'+ itemuom +'</td><td>'+ itemcat +'</td><td>'+ itemprodclass +'</td><td>'+ quantity +'</td><td><button type="submit" class="btn btn-danger deleteDep" onclick="deleteRow()">Delete</button></td></tr>');
 
@@ -130,6 +174,15 @@
             */
         });
 
+        function resetfields(){
+            $('#name1').val('');
+            $('#name2').val('');
+            $('#name3').val('');
+            $('#name4').val('');
+            $('#name5').val('');
+            $('#name6').val('');
+        }
+
         $( "#item_table" ).on("click", ".btn.btn-primary", function () {
             var item = this;
             $('#name1').val(item.dataset.itemnum);
@@ -137,10 +190,18 @@
             $('#name3').val(item.dataset.itemuom);
             $('#name4').val(item.dataset.itemcat);
             $('#name5').val(item.dataset.itemprodclass);
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         });
 
         $('#item_table').DataTable({
             "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        });
+
+        $("#donebtn").on('click', function(){
+            var goBack = window.open('', 'createprod');
+            goBack.focus();
+            window.close();
         });
 
     });

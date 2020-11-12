@@ -140,6 +140,11 @@
     }); 
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+        
         toasterOptions();
         function toasterOptions() {
             toastr.options = {

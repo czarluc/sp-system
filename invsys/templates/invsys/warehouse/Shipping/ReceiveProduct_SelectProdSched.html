@@ -72,55 +72,38 @@
         </div>
     </div>
 
-    <div class="card" id="wo_card">
-        <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Date Selection:</h4>
-        </div>
-        <div class="card-body">
-            <div class="form-row align-items-center">
-                <div class="col-4">
-                    <div class="form-group">
-                        <label>Select a Received Date:</label>
-                        <input type="date" class="form-control" id="datepicker">
-                    </div>
-                </div>
+    <div class="form-row align-items-center" id="wo_card">
+        <div class="card">
+            <div class="card-header card-header-tabs card-header-info">
+                <h4 class="card-title"> Work Orders received for final checking <span id="span_from"></span><span id="span_to"></span></h4>
             </div>
-            <div class="form-row align-items-center">
-
-                <div class="card">
-                    <div class="card-header card-header-tabs card-header-info">
-                        <h4 class="card-title"> Work Orders received for final checking at <label id="label_reqdate"></label></h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive"> <!--Work Order List-->
-                        <table class="table table-hover table-striped w-auto" id="wo_table" >
-                            <thead class="thead-light">
-                                <tr>
-                                    <th scope="col">Product Schedule ID</th>
-                                    <th scope="col">Work Order Number</th>
-                                    <th scope="col">Product Number</th>
-                                    <th scope="col">Product Class</th>
-                                    <th scope="col">Scheduled Quantity</th>
-                                    <th scope="col">Date Received</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for instance in wo_finishlist %}
-                                <tr class="tablerow wo_table" id="wo-{{forloop.counter}}" data-rec_date="{{ instance.date_received|date:'Y-m-d' }}">
-                                    <td>{{ instance.prod_sched__id }}</td>
-                                    <td><button type="button" class="btn btn-primary item_number" data-prodsched="{{instance.prod_sched__id}}" data-wonum="{{instance.prod_sched__work_order_number__work_order_number}}" data-prodnum="{{instance.prod_sched__work_order_number__prod_number__prod_number}}" data-prodclass="{{instance.prod_sched__work_order_number__prod_number__prod_class__prod_class}}" data-schedquan="{{instance.prod_sched__quantity}}" data-rec_date="{{ instance.date_received|date:'m/d/Y' }}">{{ instance.prod_sched__work_order_number__work_order_number }}</button></td>
-                                    <td>{{ instance.prod_sched__work_order_number__prod_number__prod_number }}</td>
-                                    <td>{{ instance.prod_sched__work_order_number__prod_number__prod_class__prod_class }}</td>
-                                    <td>{{ instance.prod_sched__quantity }}</td>
-                                    <td>{{ instance.date_received|date:'m/d/Y' }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table> 
-                        </div>
-                    </div>
+            <div class="card-body">
+                <div class="table-responsive"> <!--Work Order List-->
+                <table class="table table-hover table-striped w-auto" id="wo_table" >
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Product Schedule ID</th>
+                            <th scope="col">Work Order Number</th>
+                            <th scope="col">Product Number</th>
+                            <th scope="col">Product Class</th>
+                            <th scope="col">Scheduled Quantity</th>
+                            <th scope="col">Date Received</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for instance in wo_finishlist %}
+                        <tr class="tablerow wo_table" id="wo-{{forloop.counter}}" data-rec_date="{{ instance.date_received|date:'Y-m-d' }}">
+                            <td>{{ instance.prod_sched__id }}</td>
+                            <td><button type="button" class="btn btn-primary item_number" data-prodsched="{{instance.prod_sched__id}}" data-wonum="{{instance.prod_sched__work_order_number__work_order_number}}" data-prodnum="{{instance.prod_sched__work_order_number__prod_number__prod_number}}" data-prodclass="{{instance.prod_sched__work_order_number__prod_number__prod_class__prod_class}}" data-schedquan="{{instance.prod_sched__quantity}}" data-rec_date="{{ instance.date_received|date:'m/d/Y' }}">{{ instance.prod_sched__work_order_number__work_order_number }}</button></td>
+                            <td>{{ instance.prod_sched__work_order_number__prod_number__prod_number }}</td>
+                            <td>{{ instance.prod_sched__work_order_number__prod_number__prod_class__prod_class }}</td>
+                            <td>{{ instance.prod_sched__quantity }}</td>
+                            <td>{{ instance.date_received|date:'m/d/Y' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table> 
                 </div>
-
             </div>
         </div>
     </div>
@@ -162,9 +145,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
     let table1, table2
-    table1 = $('#wo_table').DataTable({info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    table1 = $('#wo_table').DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
+
+
+    $("div.date_from").html("From"+"<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("To"+"<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Product Schedule ID</option><option>Work Order Number</option><option>Product Number</option><option>Product Class</option></select>");
+
     table2 = $('#bom_table').DataTable({
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
@@ -203,29 +196,48 @@
             }
             sessionStorage.setItem('reloaded', 'yes');
         }
-            
-        $( "#datepicker" ).change(function () {
-            var dateText = $(this).val();
-            $('#label_reqdate').innerHTML = dateText;
-            getWO();
+
+        $('#select_trans').change(function() {
+            $("#date_from").val('');
+            $("#date_to").val('');
+            table1.columns().search('').draw();
         });
 
-        function getWO(){
+        $(".date").change(function () {
+            var minDateFilter = ''
+            var maxDateFilter = ''
+
+            if ($("#date_from").val()){
+                minDateFilter = new Date($("#date_from").val());
+                minDateFilter = moment( minDateFilter);
+                $("#span_from").text(" from "+minDateFilter.format('MM/DD/YYYY'));
+            }
+
+            if ( $("#date_to").val() ){
+                maxDateFilter = new Date($("#date_to").val());
+                maxDateFilter = moment( maxDateFilter);
+                $("#span_to").text(" to "+maxDateFilter.format('MM/DD/YYYY'));
+            }
+
             var counter1 = 0;
             $(table1.rows().nodes()).each(function(i, el){ 
-                var row_tag1 = table1.rows(counter1).nodes().to$();
-                var rec_date = $(row_tag1).attr('data-rec_date');
-                var date_sel = $("#datepicker").val();
+                var row_tag1 =  table1.rows(counter1).nodes().to$();
+                var startDate = moment($(row_tag1).attr('data-rec_date'));
 
-                if(date_sel === rec_date){
-                    $(row_tag1).show();
+                if(minDateFilter && maxDateFilter){
+
+                    if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
+                        $(row_tag1).show();
+                    }else{
+                        $(row_tag1).hide();
+                    }
                 }else{
-                    $(row_tag1).hide();
+                    $(row_tag1).show();
                 }
                 counter1 += 1;
             });
-        }
-
+        });
+            
         var counter1 = 0;
         $(table1.rows().nodes()).each(function(i, el){ 
             $(table1.rows(counter1).nodes().to$()).hide();
@@ -267,6 +279,7 @@
                 }
                 counter2 += 1;
             });
+
             toastr.info('Production Schedule '+ prodsched + " from Work Order Number " + wonum + " is selected.");
 
             document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
@@ -289,10 +302,7 @@
             $(window.opener.document).find('#sched_quan').val(schedquan);
             $(window.opener.document).find('#id_date_received').val(sched_date);
             
-            window.opener.showreqitem(prodsched);
-
-            toastr.success('Production Schedule '+ prodsched + " from Work Order Number " + wonum + "is selected for Update.");
-
+            window.opener.showtoast("prodsched", prodsched, wonum);
             var goBack = window.open('', 'Rec_Prod');
             goBack.focus();
             window.close();

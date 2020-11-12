@@ -100,8 +100,8 @@
 <script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
-	var minDateFilter = "";// Date range filter
-	var maxDateFilter = "";
+    var minDateFilter = "";// Date range filter
+    var maxDateFilter = "";
 
 $(document).ready(function() {
     toasterOptions();
@@ -125,10 +125,10 @@ $(document).ready(function() {
         };
     };
 
-	$.fn.dataTable.moment( 'DD-MM-YYY' );
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
 
     var table = $('#trans_table').DataTable({
-    	paging: false, info: false,
+        paging: false, info: false,
         dom: "<'row'<'col-md-4'B><'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
         "<'row'<'col-md-12'rtip>>",
         buttons: [ 'copy', {
@@ -137,7 +137,7 @@ $(document).ready(function() {
                     columns: ':visible',
                     rows: ':visible' 
                 }
-            }, 'csv', 'pdf' ],
+            }, 'csv' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
@@ -152,46 +152,46 @@ $(document).ready(function() {
     });
 
     $('#select_trans').change(function() {
-    	$("#date_from").val('');
-		$("#date_to").val('');
-    	table.columns().search('').draw();
+        $("#date_from").val('');
+        $("#date_to").val('');
+        table.columns().search('').draw();
     });
 
     $(".date").change(function () {
-    	if ($("#date_from").val()){
-    		minDateFilter = new Date($("#date_from").val());
-    		minDateFilter = moment( minDateFilter , 'DD-MM-YYYY' ).valueOf();
-    	}
+        if ($("#date_from").val()){
+            minDateFilter = new Date($("#date_from").val());
+            minDateFilter = moment( minDateFilter , 'DD-MM-YYYY' ).valueOf();
+        }
 
-    	if ( $("#date_to").val() ){
-    		maxDateFilter = new Date($("#date_to").val());
-    		maxDateFilter = moment( maxDateFilter, 'DD-MM-YYYY' ).valueOf();
-    	}
+        if ( $("#date_to").val() ){
+            maxDateFilter = new Date($("#date_to").val());
+            maxDateFilter = moment( maxDateFilter, 'DD-MM-YYYY' ).valueOf();
+        }
 
-		$.fn.dataTable.ext.search.push(
-			function(settings, data, dataIndex) {
-				var min = minDateFilter;
-				var max = maxDateFilter;
-				var startDate = moment(data[document.querySelector('#select_trans').selectedIndex], 'DD-MM-YYYY').valueOf();
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                var min = minDateFilter;
+                var max = maxDateFilter;
+                var startDate = moment(data[document.querySelector('#select_trans').selectedIndex], 'DD-MM-YYYY').valueOf();
 
-				if(min && max){
+                if(min && max){
 
-					if( (startDate) >= (min) & (startDate) <= (max) ){
-						return true;
-					}else{
-						console.log( " false ");
-						return false;
-					}
+                    if( (startDate) >= (min) & (startDate) <= (max) ){
+                        return true;
+                    }else{
+                        console.log( " false ");
+                        return false;
+                    }
 
-				}else{
-					return true;
-				}
-			}
-		);
+                }else{
+                    return true;
+                }
+            }
+        );
 
-		table.draw();
-		$.fn.dataTable.ext.search.pop();
- 	});
+        table.draw();
+        $.fn.dataTable.ext.search.pop();
+    });
 });
 </script>
 {% endblock javascripts %}

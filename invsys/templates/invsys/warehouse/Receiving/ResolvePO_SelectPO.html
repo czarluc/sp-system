@@ -33,9 +33,9 @@
                     <input type ="text" class="form-control" id="po_num" readonly/>
                 </div>
             </div>
-        </div>
-        <div class="form-row align-items-center">
-            <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg btn-success">Select</button>
+            <div class="col-1">
+                <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg btn-success">Select</button>
+            </div>
         </div>
     </div>
 </div>
@@ -46,8 +46,8 @@
     </div>
     <div class="card-body">
         <div class="table-responsive"><!--PO Num Table-->
-            <table class="table table-hover table-striped w-auto" id="po_table">
-                <thead class="thead-light">
+            <table class="table table-hover table-striped table-bordered" id="po_table">
+                <thead class="thead-dark">
                     <tr>
                         <th scope="col">PO Number</th>
                         <th scope="col">Purchase Date</th>
@@ -77,7 +77,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive"> <!--PO Num Table-->
-            <table class="table table-hover table-striped w-auto" id="ship_table">
+            <table class="table table-hover table-striped table-bordered" id="ship_table">
                 <thead class="thead-light">
                     <tr>
                         <th scope="col">Shipment Number</th>
@@ -235,8 +235,6 @@
     </div>
 </div>
 
-    
-
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
@@ -262,6 +260,10 @@
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
 
         toasterOptions();
         function toasterOptions() {
@@ -319,32 +321,35 @@
 
 
         $( ".btn.btn-success.btn-lg" ).on("click", function () {
-            $(window.opener.document).find('#id_po_num').val($('#po_num').val()); //PO Number
 
+            if( $('#po_num').val() === "" ){
+                toastr.error("Please select a Purchase Order first.");
+            }else{
+                $(window.opener.document).find('#id_po_num').val($('#po_num').val()); //PO Number
+                window.opener.deletereqitem();
 
-            window.opener.deletereqitem();
+                var counter5 = 0;
+                $(table5.rows().nodes()).each(function(i, el){ 
+                    var row_tag5 = table5.rows(counter5).nodes().to$();
+                    if ($(row_tag5).is(":visible")){
 
-            var counter5 = 0;
-            $(table5.rows().nodes()).each(function(i, el){ 
-                var row_tag5 = table5.rows(counter5).nodes().to$();
-                if ($(row_tag5).is(":visible")){
+                        var item_num = $(row_tag5).attr('data-item_num');
+                        var item_quan = $(row_tag5).attr('data-req_quan');
+                        var rec_quan = $(row_tag5).attr('data-rec_quan');
+                        var balance = $(row_tag5).attr('data-balance');
+                        var date_shipped = $(row_tag5).attr('data-date_shipped');
 
-                    var item_num = $(row_tag5).attr('data-item_num');
-                    var item_quan = $(row_tag5).attr('data-req_quan');
-                    var rec_quan = $(row_tag5).attr('data-rec_quan');
-                    var balance = $(row_tag5).attr('data-balance');
-                    var date_shipped = $(row_tag5).attr('data-date_shipped');
+                        window.opener.showreqitem(item_num, item_quan, rec_quan, balance, date_shipped);
+                    }
+                    counter5 += 1;
+                });
 
-                    window.opener.showreqitem(item_num, item_quan, rec_quan, balance, date_shipped);
-                }
-                counter5 += 1;
-            });
+                window.opener.showtoast($('#po_num').val());
 
-            toastr.success('Purchase Order ' + $('#po_num').val() + " is selected.");
-
-            var goBack = window.open('', 'Resolve_PO');
-            goBack.focus();
-            window.close();
+                var goBack = window.open('', 'resolvePO');
+                goBack.focus();
+                window.close();
+            }            
         });
 
         $( "#po_table" ).on("click", ".btn.btn-primary", function () {
@@ -403,7 +408,7 @@
             });
 
             toastr.info('Purchase Order ' + po_num + " is selected. Please Confirm");
-
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         });
     
     });

@@ -202,8 +202,30 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
     $(document).ready(function(){
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
         window.name = "Validate_VDR";
 
         $('#part_table tr.tablerow:last').find('.btn.edit-form-row')
@@ -925,6 +947,11 @@
         sumrow_id = "#formsetsum-" + sumrow_rowid;
 
         return [tot_recquan, sumrow_id];
+    }
+
+    function showtoast( po_num, ship_num){
+        toastr.success('Purchase Order ' + po_num + ' is selected from Shipment '+ ship_num);
+        toastr.info('Please validate the items.');
     }
 
 </script>
