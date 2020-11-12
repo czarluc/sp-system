@@ -6408,3 +6408,86 @@ def ExportPutAway(request):
     return render(request, template_name, 
         {'pasum_set':pa_sum_list})
 
+@login_required
+@warehouse_required
+def ExportWhseItem(request):
+    template_name = 'invsys/warehouse/WhseLoc/ExportWhseItem.html'
+
+    whse_item_query = Warehouse_Items.objects.filter().values(
+        'bin_location__bin_location',
+        'bin_location__item_cat__item_cat',
+        'bin_location__prod_class__prod_class',
+
+        'item_number__item_number',
+        'quantity',
+        'status',
+        'reference_number')
+
+    item_cat_query = ItemCat.objects.all().exclude(item_cat="Product").values(
+        'id',
+        'item_cat')
+
+    prod_class_query = ProdClass.objects.all().values(
+        'id',
+        'prod_class')
+
+    return render(request, template_name, 
+        {'whse_item_set':whse_item_query,
+        'item_cat_set':item_cat_query,
+        'prod_class_set':prod_class_query})
+
+@login_required
+@warehouse_required
+def ExportWhseProduct(request):
+    template_name = 'invsys/warehouse/WhseLoc/ExportWhseProduct.html'
+    
+    whse_product_query = Warehouse_Products.objects.filter().values(
+        'bin_location__bin_location',
+        'bin_location__item_cat__item_cat',
+        'bin_location__prod_class__prod_class',
+
+        'prod_number__prod_number',
+        'quantity',
+        'status',
+        'reference_number')
+
+    item_cat_query = ItemCat.objects.filter(item_cat="Product").values(
+        'id',
+        'item_cat')
+
+    prod_class_query = ProdClass.objects.all().values(
+        'id',
+        'prod_class')
+
+    return render(request, template_name, 
+        {'whse_product_set':whse_product_query,
+        'item_cat_set':item_cat_query,
+        'prod_class_set':prod_class_query})
+
+@login_required
+@warehouse_required
+def ExportPacking(request):
+    template_name = 'invsys/warehouse/Packing/ExportPacking.html'
+    
+    packing_sum_list = Packing_Summary.objects.filter(schedule_num__cleared=True).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+        'schedule_num__cleared',
+        'schedule_num__issues',
+        'schedule_num__notes',
+
+        'wo_num__work_order_number',
+        'reference_number',
+        'prod_num__prod_number',
+        'required_quantity',
+        'picked_quantity',
+
+        'discrepancy',
+        'discrepancy_quantity',
+        'status',
+        'date_scheduled',
+        'date_picked',
+        'bin_location__bin_location',)
+
+    return render(request, template_name, 
+        {'packing_sum_set':packing_sum_list,})

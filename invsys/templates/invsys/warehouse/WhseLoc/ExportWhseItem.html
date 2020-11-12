@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %} Export Warehouse Items {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2> Export Warehouse Items </h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Warehouse Items<span id="span_from"></span><span id="span_to"></span> </h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="whse_bin_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Bin Location</th>
+                        <th scope="col">Item Category</th>
+                        <th scope="col">Product Class</th>
+
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Reference Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in whse_item_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}">
+                        <td>{{ instance.bin_location__bin_location }}</td>
+                        <td>{{ instance.bin_location__item_cat__item_cat }}</td>
+                        <td>{{ instance.bin_location__prod_class__prod_class }}</td>
+
+                        <td>{{ instance.item_number__item_number }}</td>
+                        <td>{{ instance.quantity }}</td>
+                        <td>{{ instance.status }}</td>
+                        <td>{{ instance.reference_number }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    var table = $('#whse_bin_table').DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-4'B><'col-2'<'customselect item'>><'col-2'<'div_itemcat'>><'col-2'<'div_prodclass'>><'col-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            },{
+                extend: 'csv',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            } ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+
+    $("div.div_itemcat").html("Item Category Filter" + "<select id="+ "'select_item_cat'" + "class='browser-default custom-select'"+"><option value='all'> All </option> {% for instance in item_cat_set %} <option value=' {{ instance.item_cat }} '>{{ instance.item_cat }}</option> {% endfor %}</select>");
+ 
+    $("div.div_prodclass").html("Product Class Filter" + "<select id="+ "'select_prod_class'" + "class='browser-default custom-select'"+"><option value='all'> All </option> {% for instance in prod_class_set %} <option value=' {{ instance.prod_class }} '>{{ instance.prod_class }}</option> {% endfor %}</select>");
+
+    $("div.customselect.item").html("Filter" + "<select id="+ "'select_item'" + "class='browser-default custom-select'"+"><option value ='-1'>All</option><option value='0'>Warehouse Bin</option></select>");
+
+    $('#whse_bin_table_filter label input').unbind().bind('keyup', function() {
+        searchFilter();
+    });
+
+    $('#select_item').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var item_cat = $('#select_item_cat').val();
+        var prod_class = $('#select_prod_class').val();
+        if((prod_class === "all") && (item_cat === "all") ){
+            searchFilter();
+        }else{
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please remove the Product Class or Item Category Filter.");
+        }
+    });
+
+    $('#select_prod_class').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var main_filter = $('#select_item').val()
+        if((main_filter === "-1")){
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please select a Filter first.");            
+        }else{
+            searchFilter();
+        }
+    });
+
+    $('#select_item_cat').focus(function () {
+        // Store the current value on focus, before it changes
+        previousIndex= this.selectedIndex;
+    }).change(function(e) {
+        var main_filter = $('#select_item').val()
+        if((main_filter === "-1")){
+            e.target.selectedIndex = previousIndex;
+            toastr.error("Please select a Filter first.");            
+        }else{
+            searchFilter();
+        }
+    });
+
+    function searchFilter(){
+        //Do the first search based from the og filter
+        var colIndex = document.querySelector('#select_item').value;
+        var search = $('#whse_bin_table_filter label input').val(); 
+        if ( colIndex === "-1" ){
+            table.columns().search( '' ).draw();
+            $('#whse_bin_table_filter label input').val('');
+            return;
+        }else{
+            table.column(colIndex).search( search ).draw();
+        }
+        
+
+        //Do the second search for the item category filter
+        var item_cat = $('#select_item_cat').val();
+        if( item_cat === "all" ){
+            table.column(1).search( '' ).draw();
+            table.column(colIndex).search( search ).draw();
+        } else{
+            table.columns(1).search(item_cat).draw();
+        }
+
+        //Do the third search for the product class filter
+        var prod_class = $('#select_prod_class').val();
+        if( prod_class === "all" ){
+            table.column(2).search( '' ).draw();
+            table.column(colIndex).search( search ).draw();
+        }else{
+            table.columns(2).search(prod_class).draw();
+        }
+
+        $('#whse_bin_table_filter label input').val(search); 
+
+    }
+
+});
+ </script>
+{% endblock javascripts %}

@@ -123,7 +123,8 @@ urlpatterns = [
         path('FinishPacking/SelectPASched', warehouse.FinishPacking_SelectPASched, name='FinishPacking_SelectPASched'),
         path('ViewPackingSummary/', warehouse.ViewPackingSummary, name='ViewPackingSummary'),
         path('ViewOngoingPacking/', warehouse.ViewOngoingPacking, name='ViewOngoingPacking'),
-
+        path('ExportPacking/', warehouse.ExportPacking, name='ExportPacking'),
+        
         #--WHSE UPDATES
         path('ReportDMMR/', warehouse.ReportDMMR, name='ReportDMMR'),
         path('ReportDMMR/SelectItem', warehouse.ReportDMMR_SelectItem, name='ReportDMMR_SelectItem'),
@@ -149,6 +150,10 @@ urlpatterns = [
         path('CheckAssemblyItem/', warehouse.CheckAssemblyItem, name='CheckAssemblyItem'),
         path('CheckAssemblyDiscrepancy/', warehouse.CheckAssemblyDiscrepancy, name='CheckAssemblyDiscrepancy'),
         path('CheckShippingLobby/', warehouse.CheckShippingLobby, name='CheckShippingLobby'),
+
+        path('ExportWhseItem/', warehouse.ExportWhseItem, name='ExportWhseItem'),
+        path('ExportWhseProduct/', warehouse.ExportWhseProduct, name='ExportWhseProduct'),
+        
 
         #--VIEW INVENTORY
         path('CheckItem/', warehouse.CheckItem, name='CheckItem'),
