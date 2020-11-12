@@ -126,10 +126,11 @@ urlpatterns = [
         path('DismantleProduct/SelectProduct', warehouse.DismantleProduct_SelectProduct, name='DismantleProduct_SelectProduct'),
         path('TransferItem/', warehouse.TransferItem, name='TransferItem'),
         path('TransferItem/SelectItem', warehouse.TransferItem_SelectItem, name='TransferItem_SelectItem'),
-
+        
         #--WHSE UPDATES
         path('WarehouseAdjustments/', warehouse.WarehouseAdjustments, name='WarehouseAdjustments'),
-
+        path('ExportWarehouseAdjustments/', warehouse.ExportWarehouseAdjustments, name='ExportWarehouseAdjustments'),
+        
         #--WHSE LOCATIONS
         path('CheckInboundLobby/', warehouse.CheckInboundLobby, name='CheckInboundLobby'),
         path('CheckReceivingLobby/', warehouse.CheckReceivingLobby, name='CheckReceivingLobby'),

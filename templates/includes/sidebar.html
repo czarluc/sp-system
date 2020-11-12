@@ -188,7 +188,7 @@
             <a href="#nope" data-toggle="collapse" data-target="#drop9" class="nav-link"><img src="{% static 'invsys/Navbar/Main/WhseUpdate.png' %}" width="30" height="30" class="d-inline-block align-top">   Warehouse Update<span class="caret"></span></a>
                 <ul id="drop9" class="collapse" data-parent="#sideNavParent">
                     <li>
-                      <a class="nav-link" href="{% url 'warehouse:WarehouseAdjustments' %}">Warehouse Adjustments</a>
+                      <a class="nav-link" href="{% url 'warehouse:WarehouseAdjustments' %}">View Warehouse Adjustments</a>
                     </li>
                     
                     <li>
@@ -209,6 +209,10 @@
                     
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:TransferItem' %}">Transfer Item</a>
+                    </li>
+                    
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ExportWarehouseAdjustments' %}">Export Warehouse Adjustments</a>
                     </li>
                 </ul>
           </li>

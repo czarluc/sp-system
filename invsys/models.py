@@ -1177,7 +1177,7 @@ class IAF_Report(models.Model):
     iaf_whse = models.ForeignKey(IAF_whse, default='1', blank=True, null=True, on_delete=models.CASCADE)
     adjustment_type = models.ForeignKey(IAF_code, default='1', blank=True, null=True, on_delete=models.CASCADE)
     iaf_action = models.CharField(max_length=200, default='', blank=True, null=True)
-    date_requested = models.DateField(auto_now_add=False, blank=True, null=True)
+    date_requested = models.DateField(auto_now_add=True, blank=True, null=True)
     date_approved = models.DateField(auto_now_add=False, blank=True, null=True)
     date_adjusted = models.DateField(auto_now_add=False, blank=True, null=True)
     prepared_by = models.CharField(max_length=200, default='', blank=True, null=True)

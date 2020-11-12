@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %} Export Warehouse Adjustments {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>Export Warehouse Adjustments</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Warehouse Adjustments:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped table-bordered nowrap" id="trans_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Report Number</th>
+                        <th scope="col">IAF WHSE</th>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Bin Location</th>
+                        <th scope="col">Item Quantity</th>
+                        <th scope="col">IAF Operator</th>
+                        <th scope="col">Total Cost</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Adjustment</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Date Requested</th>
+                        <th scope="col">Prepared By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in iaf_set %}
+                    <tr class="tablerow">
+
+                        <td>{{ instance.report_num }}</td>
+                        <td>{{ instance.iaf_whse }}</td>
+                        <td>{{ instance.item_num }}</td>
+                        <td>{{ instance.bin_loc }}</td>
+                        <td>{{ instance.item_quan }}</td>
+                        <td>{{ instance.iaf_operator }}</td>
+                        <td>{{ instance.total_cost }}</td>
+                        <td>{{ instance.reason }}</td>
+                        <td>{{ instance.iaf_code }}</td>
+                        <td>{{ instance.iaf_action }}</td>
+                        <td>{{ instance.date_requested|date:'d/m/Y' }}</td>
+                        <td>{{ instance.prepared_by }}</td>
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+	var minDateFilter = "";// Date range filter
+	var maxDateFilter = "";
+
+$(document).ready(function() {
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+	$.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    var table = $('#trans_table').DataTable({
+    	paging: false, info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            }, {
+                extend: 'csv',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            } ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.date_from").html("<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Report Number</option><option>IAF WHSE</option><option>Item Number</option><option>Bin Location</option><option>Item Quantity</option><option>IAF Operator</option><option>Total Cost</option><option>Reason</option><option>Adjustment</option><option>Action</option><option>Date Requested</option><option>Prepared By</option></select>");
+
+    $('#trans_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_trans').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select_trans').change(function() {
+    	$("#date_from").val('');
+		$("#date_to").val('');
+
+        console.log( document.querySelector('#select_trans').selectedIndex );
+        if( document.querySelector('#select_trans').selectedIndex === 10 ){
+            $("#date_from").show();
+            $("#date_to").show();
+        }else{
+            $("#date_from").hide();
+            $("#date_to").hide();
+        }
+    	table.columns().search('').draw();
+    });
+
+    $("#date_from").hide();
+    $("#date_to").hide();
+
+    $(".date").change(function () {
+    	if ($("#date_from").val()){
+    		minDateFilter = new Date($("#date_from").val());
+    		minDateFilter = moment( minDateFilter , 'DD-MM-YYYY' ).valueOf();
+    	}
+
+    	if ( $("#date_to").val() ){
+    		maxDateFilter = new Date($("#date_to").val());
+    		maxDateFilter = moment( maxDateFilter, 'DD-MM-YYYY' ).valueOf();
+    	}
+
+		$.fn.dataTable.ext.search.push(
+			function(settings, data, dataIndex) {
+				var min = minDateFilter;
+				var max = maxDateFilter;
+				var startDate = moment(data[document.querySelector('#select_trans').selectedIndex], 'DD-MM-YYYY').valueOf();
+
+				if(min && max){
+
+					if( (startDate) >= (min) & (startDate) <= (max) ){
+						return true;
+					}else{
+						console.log( " false ");
+						return false;
+					}
+
+				}else{
+					return true;
+				}
+			}
+		);
+
+		table.draw();
+		$.fn.dataTable.ext.search.pop();
+ 	});
+});
+</script>
+{% endblock javascripts %}

@@ -5523,7 +5523,6 @@ def EditWarehouseBin_getparts(request):
 
 
 #--- EXPORT RECEIVED SHIPMENTS
-#--View Accomplished Shipments--
 @login_required
 @warehouse_required
 def ExportReceivedShipment(request):
@@ -5655,6 +5654,104 @@ def ExportReceivedShipment(request):
     return render(request, template_name, 
         {'export_ship_set':export_ship_list})
 
+#--- EXPORT WHSE ADJUSTMENTS
+@login_required
+@warehouse_required
+def ExportWarehouseAdjustments(request):
+    template_name = 'invsys/warehouse/WhseUpdate/ExportWarehouseAdjustments.html'
+
+    iaf_item_list = IAF_Item.objects.filter().values(
+        'report_num__report_num',
+        'report_num__iaf_whse__whse',
+        'item_number__item_number',
+        'bin_location__bin_location',
+        'item_quantity',
+        'iaf_operator__operator',
+        'total_cost',
+        'reason',
+        'report_num__adjustment_type__iaf_code',
+        'report_num__iaf_action',
+        'report_num__date_requested',
+        'report_num__prepared_by',)
+    iaf_prod_list = IAF_Prod.objects.filter().values(
+        'report_num__report_num',
+        'report_num__iaf_whse__whse',
+        'prod_number__prod_number',
+        'bin_location__bin_location',
+        'prod_quantity',
+        'iaf_operator__operator',
+        'total_cost',
+        'reason',
+        'report_num__adjustment_type__iaf_code',
+        'report_num__iaf_action',
+        'report_num__date_requested',
+        'report_num__prepared_by',)
+
+    iaf_list = []
+    
+    for iaf_item in iaf_item_list:
+        details ={}
+
+        for i in iaf_item:
+            if i == "report_num__report_num":
+                details['report_num'] = iaf_item[i]
+            elif i == "report_num__iaf_whse__whse":
+                details['iaf_whse'] = iaf_item[i]
+            elif i == "item_number__item_number":
+                details['item_num'] = iaf_item[i]
+            elif i == "bin_location__bin_location":
+                details['bin_loc'] = iaf_item[i]
+            elif i == "item_quantity":
+                details['item_quan'] = iaf_item[i]
+            elif i == "iaf_operator__operator":
+                details['iaf_operator'] = iaf_item[i]
+            elif i == "total_cost":
+                details['total_cost'] = iaf_item[i]
+            elif i == "reason":
+                details['reason'] = iaf_item[i]
+            elif i == "report_num__adjustment_type__iaf_code":
+                details['iaf_code'] = iaf_item[i]
+            elif i == "report_num__iaf_action":
+                details['iaf_action'] = iaf_item[i]
+            elif i == "report_num__date_requested":
+                details['date_requested'] = iaf_item[i]
+            elif i == "report_num__prepared_by":
+                details['prepared_by'] = iaf_item[i]
+
+        iaf_list.append( details )
+
+    for iaf_prod in iaf_prod_list:
+        details ={}
+        for i in iaf_prod:
+            if i == "report_num__report_num":
+                details['report_num'] = iaf_prod[i]
+            elif i == "report_num__iaf_whse__whse":
+                details['iaf_whse'] = iaf_prod[i]
+            elif i == "prod_number__prod_number":
+                details['item_num'] = iaf_prod[i]
+            elif i == "bin_location__bin_location":
+                details['bin_loc'] = iaf_prod[i]
+            elif i == "prod_quantity":
+                details['item_quan'] = iaf_prod[i]
+            elif i == "iaf_operator__operator":
+                details['iaf_operator'] = iaf_prod[i]
+            elif i == "total_cost":
+                details['total_cost'] = iaf_prod[i]
+            elif i == "reason":
+                details['reason'] = iaf_prod[i]
+            elif i == "report_num__adjustment_type__iaf_code":
+                details['iaf_code'] = iaf_prod[i]
+            elif i == "report_num__iaf_action":
+                details['iaf_action'] = iaf_prod[i]
+            elif i == "report_num__date_requested":
+                details['date_requested'] = iaf_prod[i]
+            elif i == "report_num__prepared_by":
+                details['prepared_by'] = iaf_prod[i]
+
+        iaf_list.append( details )
+
+    return render(request, template_name, 
+        {'iaf_set':iaf_list})
 
 
 #--View Ongoing Comp Issuance--
