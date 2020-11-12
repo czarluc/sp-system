@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %} Export Shrinkages {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2> Export Shrinkages </h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Reported Shrinkages <span id="span_from"></span><span id="span_to"></span> </h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="inbound_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Report Number</th>
+                        <th scope="col">WO Num</th>
+                        <th scope="col">Prod Sched</th>
+                        <th scope="col">Shrinkage Item</th>
+                        <th scope="col">Shrinkage Description</th>
+                        <th scope="col">Shrinkage Quantity</th>
+                        <th scope="col">Shrinkage Type</th>
+                        <th scope="col">Replacement Item</th>
+                        <th scope="col">Replacement Description</th>
+                        <th scope="col">Replacement Quantity</th>
+                        <th scope="col">Scheduled</th>
+                        <th scope="col">Assembly Line</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Date Reported</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in shrnkge_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}" data-report_date="{{ instance.report_num__date_reported|date:'m/d/Y' }}">
+
+                        <td>{{ instance.report_num__report_num }}</td>
+                        <td>{{ instance.report_num__prod_sched__work_order_number }}</td>
+                        <td>{{ instance.report_num__prod_sched__id }}</td>
+                        <td>{{ instance.report_num__item_number__item_number }}</td>
+                        <td>{{ instance.report_num__item_number__item_desc }}</td>
+                        <td>{{ instance.report_num__quantity }}</td>
+                        <td>{{ instance.report_num__shrinkage_type__shrinkage_type }}</td>
+                        <td>{{ instance.item_number__item_number }}</td>
+                        <td>{{ instance.item_number__item_desc }}</td>
+                        <td>{{ instance.quantity }}</td>
+                        <td>{{ instance.scheduled }}</td>
+                        <td>{{ instance.ass_location__name }}</td>
+                        <td>{{ instance.report_num__reason }}</td>
+                        <td>{{ instance.report_num__date_reported|date:'d/m/Y' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script>
+$(document).ready(function() {
+
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    var table = $('#inbound_table').DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            }, 'csv' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+
+    $("div.date_from").html("From"+"<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("To"+"<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("Filter"+"<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Report Number</option><option>WO Num</option><option>Prod Sched</option><option>Shrinkage Item</option><option>Shrinkage Description</option><option>Shrinkage Quantity</option><option>Shrinkage Type</option><option>Replacement Item</option><option>Replacement Description</option><option>Replacement Quantity</option><option>Scheduled</option><option>Assembly Line</option><option>Reason</option></select>");
+
+    $('#inbound_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_trans').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select_trans').change(function() {
+        $("#date_from").val('');
+        $("#date_to").val('');
+        table.columns().search('').draw();
+    });
+
+    $(".date").change(function () {
+        var minDateFilter = ''
+        var maxDateFilter = ''
+
+        if ($("#date_from").val()){
+            minDateFilter = new Date($("#date_from").val());
+            minDateFilter = moment( minDateFilter);
+            $("#span_from").text(" from "+minDateFilter.format('DD/MM/YYYY'));
+        }
+
+        if ( $("#date_to").val() ){
+            maxDateFilter = new Date($("#date_to").val());
+            maxDateFilter = moment( maxDateFilter);
+            $("#span_to").text(" to "+maxDateFilter.format('DD/MM/YYYY'));
+        }
+
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag =  table.rows(counter).nodes().to$();
+            var startDate = moment($(row_tag).attr('data-report_date'));
+
+            if(!(minDateFilter === "") && !(maxDateFilter === "") ){
+
+                if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
+                    $(row_tag).show();
+                }else{
+                    $(row_tag).hide();
+                }
+            }
+            
+            counter += 1;
+        });
+    });
+
+});
+ </script>
+{% endblock javascripts %}

@@ -240,16 +240,15 @@
                 var row_tag =  table.rows(counter).nodes().to$();
                 var startDate = moment($(row_tag).attr('data-rec_date'));
 
-                if(minDateFilter && maxDateFilter){
+                if(!(minDateFilter === "") && !(maxDateFilter === "") ){
 
                     if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
                         $(row_tag).show();
                     }else{
                         $(row_tag).hide();
                     }
-                }else{
-                    $(row_tag).show();
                 }
+                
                 counter += 1;
             });
         });

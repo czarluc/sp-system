@@ -79,17 +79,9 @@
    
     <div class="card" id="wo_card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Work Order for Issuance:</h4>
+            <h4 class="card-title">Work Orders required for Issuance <span id="span_from"></span><span id="span_to"></span></h4>
         </div>
         <div class="card-body">
-            <div class="form-row align-items-center">
-                <div class="col-5">
-                    <div class="form-group">
-                        <label>Select a Required Date:</label>
-                        <input type="date" class="form-control" id="datepicker">
-                    </div>
-                </div>
-            </div>
             <div class="table-responsive"> <!--Work Orders-->
                 <table class="table table-hover table-striped w-auto" id="wo_table">
                     <thead class="thead-light">
@@ -161,9 +153,18 @@
 <script>
     let table1, table2
 
-    table1 = $("#wo_table").DataTable({info: false,
-            "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-        });
+    table1 = $("#wo_table").DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+
+    $("div.date_from").html("From"+"<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("To"+"<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Product Schedule ID</option><option>Work Order Number</option><option>Product Number</option><option>Quantity</option><option>Product Class</option></select>");
 
     table2 = $("#item_table").DataTable({
             searching: false, paging: false, info: false,
@@ -207,35 +208,56 @@
             };
         };
        
+        checkSession();
+        function checkSession(){
+            if (sessionStorage.getItem('reloaded') != null) { //detects refresh
+                alert('The page was reloaded! The page will close now.');
+                window.close();
+            }
+            sessionStorage.setItem('reloaded', 'yes');
+        }
 
-        $( "#datepicker" ).change(function () {
-            var dateText = $(this).val();
-            $('#label_reqdate').innerHTML = dateText;
-            getWO();
+         $('#select_trans').change(function() {
+            $("#date_from").val('');
+            $("#date_to").val('');
+            table.columns().search('').draw();
         });
 
-        function getWO(){
+        $(".date").change(function () {
+            var minDateFilter = ''
+            var maxDateFilter = ''
+
+            if ($("#date_from").val()){
+                minDateFilter = new Date($("#date_from").val());
+                minDateFilter = moment( minDateFilter);
+                $("#span_from").text(" from "+minDateFilter.format('MM/DD/YYYY'));
+            }
+
+            if ( $("#date_to").val() ){
+                maxDateFilter = new Date($("#date_to").val());
+                maxDateFilter = moment( maxDateFilter);
+                $("#span_to").text(" to "+maxDateFilter.format('MM/DD/YYYY'));
+            }
+
             var counter1 = 0;
             $(table1.rows().nodes()).each(function(i, el){ 
-                var row_tag1 = table1.rows(counter1).nodes().to$();
-                var date_req = $(row_tag1).attr('data-date_req');
-                var date_sel = $("#datepicker").val();
+                var row_tag1 =  table1.rows(counter1).nodes().to$();
+                var startDate = moment($(row_tag1).attr('data-date_req'));
 
-                if(date_sel === date_req){
-                    $(row_tag1).show();
-                }else{
-                    $(row_tag1).hide();
+                if(!(minDateFilter === "") && !(maxDateFilter === "") ){
+
+                    if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
+                        $(row_tag1).show();
+                    }else{
+                        $(row_tag1).hide();
+                    }
                 }
+                
                 counter1 += 1;
-
-                var counter2 = 0;
-                $(table2.rows().nodes()).each(function(i, el){ 
-                    $(table2.rows(counter2).nodes().to$()).hide();
-                    counter2 += 1;
-                });   
-
             });
-        }
+        });
+        
+
 
         var counter1 = 0;
         $(table1.rows().nodes()).each(function(i, el){ 

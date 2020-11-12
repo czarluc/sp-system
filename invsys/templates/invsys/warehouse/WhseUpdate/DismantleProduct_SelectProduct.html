@@ -22,7 +22,7 @@
 {% block content %}
     <h2>Select a Product to be Dismantled</h2>
 
-    <div class="card">
+    <div class="card" id="select_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Work Order Details:</h4>
         </div>
@@ -96,7 +96,7 @@
             </div>
             <div class="form-row align-items-center">
                 <div class="col-lg-1">
-                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Report</button>
+                    <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select to report</button>
                 </div>
             </div>
         </div>
@@ -222,6 +222,11 @@
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+        
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -314,6 +319,8 @@
             });
 
             toastr.info('Product ' + prod_num + ' from Production Schedule ' + prod_sched + " is selected.");
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
         });
         
         $(".btn.btn-success.btn-lg").on("click", function () {

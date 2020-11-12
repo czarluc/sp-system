@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %} View Shipped Products {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>View Shipped Products</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Shipped Work-Orders:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered sm" id="report_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Ship Out Number</th>
+                        <th scope="col">WO Num</th>
+                        <th scope="col">Product Number</th>
+                        <th scope="col">Product Description</th>
+                        <th scope="col">Product Class</th>
+                        <th scope="col">Product Quantity</th>
+                        <th scope="col">Date Out</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in ship_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}">
+                        <td>{{ instance.ship_out_num }}</td>
+
+                        <td><button type="button" class="btn btn-primary report" data-wo_num="{{ instance.wo_num__work_order_number }}" id="sched-{{forloop.counter}}-sched">{{ instance.wo_num__work_order_number }}</button></td>
+                        <td>{{ instance.wo_num__prod_number__prod_number }}</td>
+                        <td>{{ instance.wo_num__prod_number__prod_desc }}</td>
+                        <td>{{ instance.wo_num__prod_number__prod_class__prod_class }}</td>
+                        <td>{{ instance.wo_num__prod_quantity }}</td>
+                        <td>{{ instance.date_out }}</td>
+                        <td>{{ instance.notes }}</td>
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Work-Order Schedules:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered sm" id="item_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Production Schedule</th>
+                        <th scope="col">Product Quantity</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in prodsched_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}" data-wo_num="{{instance.work_order_number__work_order_number}}">
+
+                        <td>{{ instance.id }}</td>
+                        <td>{{ instance.quantity }}</td>
+                        <td>{{ instance.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    var table = $('#report_table').DataTable({
+        pageLength : 5,
+        lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
+        dom: "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>Ship Out Number</option><option>WO Num</option><option>Product Number</option><option>Product Description</option><option>Product Class</option><option>Product Quantity</option></select>");
+
+    $('#report_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+    var table2 = $('#item_table').DataTable( {
+        paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    } );
+
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
+    });
+
+    $("#report_table").on("click", ".btn.btn-primary.report", function(){
+        btn = this;
+        var wo_num = btn.dataset.wo_num;
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
+
+            var row_wo_num = $(row_tag2).attr('data-wo_num');
+
+            if ( wo_num === row_wo_num ){
+                $(row_tag2).show();
+            }else{
+                $(row_tag2).hide();
+            }
+            counter2 += 1;
+        });
+
+        toastr.info('Shipped out Work Order Number '+ wo_num + " is selected.");
+
+    });
+
+});
+ </script>
+{% endblock javascripts %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %} View Received Products {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2>View Received Products</h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Received Work-Orders:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered sm" id="report_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">WO Num</th>
+                        <th scope="col">Product Number</th>
+                        <th scope="col">Product Description</th>
+                        <th scope="col">Product Class</th>
+                        <th scope="col">Product Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in wo_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}">
+                        <td><button type="button" class="btn btn-primary report" data-wo_num="{{ instance.work_order_number }}" id="sched-{{forloop.counter}}-sched">{{ instance.work_order_number }}</button></td>
+                        <td>{{ instance.prod_number__prod_number }}</td>
+                        <td>{{ instance.prod_number__prod_desc }}</td>
+                        <td>{{ instance.prod_number__prod_class__prod_class }}</td>
+                        <td>{{ instance.prod_quantity }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Work-Order Schedules Received:</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered sm" id="item_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Production Schedule</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Date Queued</th>
+                        <th scope="col">Name Plate</th>
+
+                        <th scope="col">Label Sticker</th>
+                        <th scope="col">IOM</th>
+                        <th scope="col">QR Code</th>
+
+                        <th scope="col">Warranty Card</th>
+                        <th scope="col">Packaging</th>
+                        <th scope="col">Date Out</th>
+
+                        <th scope="col">Checked By</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in prodsched_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}" data-wo_num="{{instance.prod_sched__work_order_number__work_order_number}}">
+
+                        <td>{{ instance.prod_sched__id }}</td>
+                        <td>{{ instance.prod_sched__quantity }}</td>
+                        <td>{{ instance.date_received }}</td>
+                        <td>{{ instance.name_plate }}</td>
+
+                        <td>{{ instance.label_sticker }}</td>
+                        <td>{{ instance.iom }}</td>
+                        <td>{{ instance.qr_code }}</td>
+
+                        <td>{{ instance.wrnty_card }}</td>
+                        <td>{{ instance.packaging }}</td>
+                        <td>{{ instance.date_out|date:'d/m/Y' }}</td>
+
+                        <td>{{ instance.checked_by }}</td>
+                        <td>{{ instance.notes }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function() {
+
+    toasterOptions();
+    function toasterOptions() {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "1500",
+            "hideDuration": "1500",
+            "timeOut": "1500",
+            "extendedTimeOut": "1500",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    };
+
+    var table = $('#report_table').DataTable({
+        pageLength : 5,
+        lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
+        dom: "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+    $("div.customselect").html("<select id="+ "'select'" + "class='browser-default custom-select'"+"><option>WO Num</option><option>Product Number</option><option>Product Description</option><option>Product Class</option><option>Product Quantity</option></select>");
+
+    $('#report_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select').change(function() {
+      table.columns().search('').draw();
+    });
+
+    var table2 = $('#item_table').DataTable( {
+        paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    } );
+
+    var counter2 = 0;
+    $(table2.rows().nodes()).each(function(i, el){ 
+        $(table2.rows(counter2).nodes().to$()).hide();
+        counter2 += 1;
+    });
+
+    $("#report_table").on("click", ".btn.btn-primary.report", function(){
+        btn = this;
+        var wo_num = btn.dataset.wo_num;
+
+        var counter2 = 0;
+        $(table2.rows().nodes()).each(function(i, el){ 
+            var row_tag2 = table2.rows(counter2).nodes().to$();
+
+            var row_wo_num = $(row_tag2).attr('data-wo_num');
+
+            if ( wo_num === row_wo_num ){
+                $(row_tag2).show();
+            }else{
+                $(row_tag2).hide();
+            }
+            counter2 += 1;
+        });
+
+        toastr.info('Work Order Number '+ wo_num + " is selected.");
+
+    });
+
+});
+ </script>
+{% endblock javascripts %}

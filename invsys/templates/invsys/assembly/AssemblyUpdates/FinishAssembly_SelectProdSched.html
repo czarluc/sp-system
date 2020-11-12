@@ -102,7 +102,7 @@
                                 <td>{{ instance.prod_sched__work_order_number__prod_number__prod_number }}</td>
                                 <td>{{ instance.prod_sched__work_order_number__prod_number__prod_class__prod_class }}</td>
                                 <td>{{ instance.prod_sched__quantity }}</td>
-                                <td>{{ instance.date_received|date:'d-m-Y' }}</td>
+                                <td>{{ instance.date_received|date:'d/m/Y' }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -240,16 +240,15 @@
                 var row_tag =  table.rows(counter).nodes().to$();
                 var startDate = moment($(row_tag).attr('data-rec_date'));
 
-                if(minDateFilter && maxDateFilter){
+                if(!(minDateFilter === "") && !(maxDateFilter === "") ){
 
                     if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
                         $(row_tag).show();
                     }else{
                         $(row_tag).hide();
                     }
-                }else{
-                    $(row_tag).show();
                 }
+                
                 counter += 1;
             });
         });

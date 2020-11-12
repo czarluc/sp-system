@@ -14,7 +14,7 @@
 {% block content %}
 <h2> View Work Order Summary </h2>
 
-    <div class="card">
+    <div class="card" id="wo_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Work Order:</h4>
         </div>
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="details_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Issuance List:</h4>
         </div>
@@ -142,6 +142,11 @@
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+
+    $(window).on('load', function() {
+        document.getElementById("wo_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
 $(document).ready(function() {
     toasterOptions();
     function toasterOptions() {
@@ -165,8 +170,9 @@ $(document).ready(function() {
     };
 
     var table = $('#wo_table').DataTable({
-        dom: "<'row'<'col-lg-6'B>>" +
-        "<'row'<'col-md-4'l><'col-md-4'<'customselect wo_table'>><'col-md-4'f>>" +
+        pageLength : 5,
+        lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
+        dom: "<'row'<'col-md-4'l><'col-md-4'<'customselect wo_table'>><'col-md-4'f>>" +
         "<'row'<'col-md-12'rtip>>",
         buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
@@ -188,9 +194,6 @@ $(document).ready(function() {
     var table2 = $('#issuance_table').DataTable({
         paging: false,
         info: false,
-        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect issuance_table'>><'col-md-4'f>>" +
-        "<'row'<'col-md-12'rtip>>",
-        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
@@ -209,9 +212,6 @@ $(document).ready(function() {
     var table3 = $('#assembly_table').DataTable({
         paging: false,
         info: false,
-        dom: "<'row'<'col-md-4'B><'col-md-4'<'customselect assembly_table'>><'col-md-4'f>>" +
-        "<'row'<'col-md-12'rtip>>",
-        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
@@ -270,6 +270,8 @@ $(document).ready(function() {
             }
             counter3 += 1;
         });
+
+        document.getElementById("details_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
     });
 

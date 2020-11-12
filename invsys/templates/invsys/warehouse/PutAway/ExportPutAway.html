@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %} Export Accomplished Put Away Schedules {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2> Export Accomplished Put Away Schedules </h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Accomplished Put Away Schedules<span id="span_from"></span><span id="span_to"></span> </h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="inbound_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Schedule#</th>
+                        <th scope="col">Schedule Notes</th>
+                        <th scope="col">Cleared</th>
+                        <th scope="col">Issues</th>
+
+                        <th scope="col">Reference Number</th>
+                        <th scope="col">Item Number</th>
+                        <th scope="col">Required Quantity</th>
+                        <th scope="col">Stored Quantity</th>
+                        <th scope="col">Discrepancy</th>
+                        <th scope="col">Discrepancy Quantity</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Bin Location</th>
+
+                        <th scope="col">Date Scheduled</th>
+                        <th scope="col">Date Stored</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in pasum_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}" data-date_sched="{{ instance.schedule_num__date_scheduled|date:'m/d/Y' }}" data-date_stored="{{ instance.date_stored|date:'m/d/Y' }}">
+                        <td>{{ instance.schedule_num__schedule_num }}</td>
+                        <td>{{ instance.schedule_num__notes }}</td>
+                        <td>{{ instance.schedule_num__cleared }}</td>
+                        <td>{{ instance.schedule_num__issues }}</td>
+
+                        <td>{{ instance.reference_number }}</td>
+                        <td>{{ instance.item_num__item_number }}</td>
+                        <td>{{ instance.required_quantity }}</td>
+                        <td>{{ instance.stored_quantity }}</td>
+                        <td>{{ instance.discrepancy }}</td>
+                        <td>{{ instance.discrepancy_quantity }}</td>
+                        <td>{{ instance.status }}</td>
+                        <td>{{ instance.bin_location__bin_location }}</td>
+
+                        <td>{{ instance.schedule_num__date_scheduled|date:'d/m/Y' }}</td>
+
+                        <td>{{ instance.date_stored|date:'d/m/Y' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script>
+$(document).ready(function() {
+
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    var table = $('#inbound_table').DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            },{
+                extend: 'csv',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            } ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+
+    $("div.date_from").html("From"+"<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("To"+"<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("Filter"+"<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Schedule#</option><option>Schedule Notes</option><option>Cleared</option><option>Issues</option><option>Reference Number</option><option>Item Number</option><option>Required Quantity</option><option>Received Quantity</option><option>Discrepancy</option><option>Discrepancy Quantity</option><option>Status</option><option>Bin Location</option><option>Date Scheduled</option><option>Date Stored</option></select>");
+
+    $('#inbound_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_trans').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $("div.date_from").hide();
+    $("div.date_to").hide();
+
+    $('#select_trans').change(function() {
+        var filter_val = $('#select_trans').val();
+
+        if( ( filter_val === "Date Scheduled" ) || ( filter_val === "Date Stored" ) ){
+            $("div.date_from").show();
+            $("div.date_to").show();
+        }else{
+            $("div.date_from").hide();
+            $("div.date_to").hide();
+        }
+
+        $("#date_from").val('');
+        $("#date_to").val('');
+        $("#span_from").text("");
+        $("#span_to").text("");
+
+        table.columns().search('').draw();
+        
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag =  table.rows(counter).nodes().to$();
+            $(row_tag).show();
+            counter += 1;
+        });
+    });
+
+    $(".date").change(function () {
+        var minDateFilter = ''
+        var maxDateFilter = ''
+
+        if ($("#date_from").val()){
+            minDateFilter = new Date($("#date_from").val());
+            minDateFilter = moment( minDateFilter);
+            $("#span_from").text(" from "+minDateFilter.format('DD/MM/YYYY'));
+        }
+
+        if ( $("#date_to").val() ){
+            maxDateFilter = new Date($("#date_to").val());
+            maxDateFilter = moment( maxDateFilter);
+            $("#span_to").text(" to "+maxDateFilter.format('DD/MM/YYYY'));
+        }
+
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag =  table.rows(counter).nodes().to$();
+
+            if( $('#select_trans').val() === "Date Scheduled" ){
+                var startDate = moment($(row_tag).attr('data-date_sched'));
+            }else if( $('#select_trans').val() === "Date Received" ){
+                var startDate = moment($(row_tag).attr('data-date_stored'));
+            }            
+
+            if(!(minDateFilter === "") && !(maxDateFilter === "") ){
+
+                if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
+                    $(row_tag).show();
+                }else{
+                    $(row_tag).hide();
+                }
+            }
+            
+            counter += 1;
+        });
+    });
+
+});
+ </script>
+{% endblock javascripts %}

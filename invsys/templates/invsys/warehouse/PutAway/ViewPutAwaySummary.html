@@ -47,41 +47,6 @@
 
     <div class="card">
         <div class="card-header card-header-tabs card-header-info">
-            <h4 class="card-title">Put Away Items:</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive"> <!--Shrnk Items-->
-                <table class="table table-hover table-striped table-bordered nowrap" id="req_table">
-                    <thead class="thead-light">
-                        <tr>
-                            <th scope="col">Schedule Number</th>
-                            <th scope="col">Item Number</th>
-                            <th scope="col">Required Quantity</th>
-                            <th scope="col">Bin Location</th>
-                            <th scope="col">Reference Number</th>
-                            <th scope="col">Stored</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for instance in paitem_set %}
-                        <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}">
-
-                            <td>{{ instance.schedule_num__schedule_num }}</td>
-                            <td>{{ instance.item_num__item_number }}</td>
-                            <td>{{ instance.required_quantity }}</td>
-                            <td>{{ instance.bin_location__bin_location }}</td>
-                            <td>{{ instance.reference_number }}</td>
-                            <td>{{ instance.stored }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table> 
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Put Away Summary:</h4>
         </div>
         <div class="card-body">
@@ -89,7 +54,6 @@
                 <table class="table table-hover table-striped table-bordered nowrap" id="sum_table">
                     <thead class="thead-light">
                         <tr>
-                            <th scope="col">Schedule Number</th>
                             <th scope="col">Item Number</th>
                             <th scope="col">Required Quantity</th>
                             <th scope="col">Stored Quantity</th>
@@ -105,7 +69,6 @@
                     <tbody>
                     {% for instance in pasum_set %}
                         <tr class="tablerow" id="sum-{{forloop.counter}}" data-sched_num="{{ instance.schedule_num__schedule_num }}">
-                            <td>{{ instance.schedule_num__schedule_num }}</td>
                             <td>{{ instance.item_num__item_number }}</td>
                             <td>{{ instance.required_quantity }}</td>
                             <td>{{ instance.stored_quantity }}</td>
@@ -167,37 +130,15 @@ $(document).ready(function() {
     };
 
     var table = $('#sched_table').DataTable( {
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
-        dom: 'Blfrtip',
-        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+        pageLength : 5,
+        lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     } );
- 
-    table.buttons().container()
-        .appendTo( '#sched_table_wrapper .col-md-6:eq(0)' );
-
-    var table2 = $('#req_table').DataTable( {
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
-        dom: 'Blfrtip',
-        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
-    } );
- 
-    table2.buttons().container()
-        .appendTo( '#req_table_wrapper .col-md-6:eq(0)' );
 
     var table3 = $('#sum_table').DataTable( {
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ],
-        dom: 'Blfrtip',
-        buttons: [ 'copy', 'excel', 'csv', 'pdf', 'colvis' ]
+        searching: false, paging: false, info: false,
+        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     } );
- 
-    table3.buttons().container()
-        .appendTo( '#sum_table_wrapper .col-md-6:eq(0)' );
-
-    var counter2 = 0;
-    $(table2.rows().nodes()).each(function(i, el){ 
-        $(table2.rows(counter2).nodes().to$()).hide();
-        counter2 += 1;
-    });
 
     var counter3 = 0;
     $(table3.rows().nodes()).each(function(i, el){ 
@@ -208,20 +149,6 @@ $(document).ready(function() {
     $("#sched_table").on("click", ".btn.btn-primary.sched", function(){
         btn = this;
         var sched_num = btn.dataset.sched_num;
-
-        var counter2 = 0;
-        $(table2.rows().nodes()).each(function(i, el){ 
-            var row_tag2 = table2.rows(counter2).nodes().to$();
-
-            var row_sched_num = $(row_tag2).attr('data-sched_num');
-
-            if ( sched_num === row_sched_num ){
-                $(row_tag2).show();
-            }else{
-                $(row_tag2).hide();
-            }
-            counter2 += 1;
-        });
 
         var counter3 = 0;
         $(table3.rows().nodes()).each(function(i, el){ 

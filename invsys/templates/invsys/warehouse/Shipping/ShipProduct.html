@@ -35,7 +35,7 @@
                 <div class="col-4">
                     <div class="form-group">
                         <label for="id_ship_out_num">Ship out num:</label>
-                        <input type="text" name="ship_out_num" maxlength="200" id="id_ship_out_num" class="form-control">
+                        <input type="text" name="ship_out_num" maxlength="200" id="id_ship_out_num" class="form-control" required>
                     </div>
                 </div>
             </div>
@@ -87,13 +87,43 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let shipprod_selWO;
     $(document).ready(function(){
-        window.name = "Ship_Prod";
+
+        toasterOptions();
+        function toasterOptions() {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "1500",
+                "hideDuration": "1500",
+                "timeOut": "1500",
+                "extendedTimeOut": "1500",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        };
+
+        window.name = "shipprod";
         
         $(document).on('click', '.add-wonum', function(e){
-            var newwin = window.open("{% url 'warehouse:ShipProduct_SelectWONum' %}");
-            return false;
+            if ( shipprod_selWO && !shipprod_selWO.closed ){
+                shipprod_selWO.focus();
+                return false;                
+            }else{
+                shipprod_selWO = window.open("{% url 'warehouse:ShipProduct_SelectWONum' %}");
+                return false;
+            }
+            
         });
 
     });
@@ -107,22 +137,37 @@
     $('#form_shipprod').submit(function() {
         event.preventDefault();
 
-        Swal.fire({
-            title: 'Do you want to save the shipped Products from <br> Work-Order ' + $("#id_wo_num").val() + '?',
-            icon:'success',
-            showDenyButton: true,
-            confirmButtonText: `Yes`,
-            denyButtonText: `No`,
-        }).then((result) => {
-        if (result.isConfirmed) {
-            $(this).unbind('submit').submit();
+        if( $("#id_wo_num").val() === "" ){
+            toastr.error("Please select a Work-Order first.");
+        }else{
 
-        } else if (result.isDenied) {
-            Swal.fire('Changes are not saved', '', 'info');
+            if( $("#id_ship_out_num").val() === "" ){
+                toastr.error("Please input a Shipping Number.");
+            }else{
+                Swal.fire({
+                    title: 'Do you want to save the shipped Products from <br> Work-Order ' + $("#id_wo_num").val() + '?',
+                    icon:'success',
+                    showDenyButton: true,
+                    confirmButtonText: `Yes`,
+                    denyButtonText: `No`,
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $(this).unbind('submit').submit();
+
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info');
+                }
+                });
+
+            }            
         }
-        });
-
     });
+
+    function showtoast(wo_num){
+        toastr.success("Work Order Number " + wo_num + "is selected for Shipping.");
+        toastr.info("Please confirm.");
+
+    }
 
 </script>
 {% endblock javascripts %}

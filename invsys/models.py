@@ -575,7 +575,7 @@ class WO_Issuance_Summary(models.Model):
     discrepancy = models.BooleanField(default=False)
     discrepancy_quantity = models.IntegerField(blank=True, null=True)
     status = models.CharField(max_length=200, default='test', blank=True, null=True)
-    date_received = models.DateField(auto_now_add=False, blank=True, null=True)
+    date_received = models.DateField(auto_now_add=True, blank=True, null=True)
     class Meta: 
         verbose_name = "WO Issuance Summary"
         verbose_name_plural = "WO Issuance Summaries"

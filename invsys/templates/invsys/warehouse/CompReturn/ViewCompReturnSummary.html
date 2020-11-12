@@ -13,7 +13,7 @@
 {% block content %}
 <h2> View Component Return Summary </h2>
 
-	<div class="card">
+    <div class="card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Component Return Schedule</h4>
         </div>
@@ -32,7 +32,7 @@
                     <tbody>
                     {% for instance in return_sched_set %}
                         <tr class="tablerow" id="sched-{{forloop.counter}}">
-                            <td><button type="button" class="btn btn-primary wo" data-schednum="{{instance.schedule_num}}" id="wo-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
+                            <td><button type="button" class="btn btn-primary wo" data-sched_num="{{instance.schedule_num}}" id="wo-{{forloop.counter}}-sched">{{ instance.schedule_num }}</button></td>
                             <td>{{ instance.date_scheduled }}</td>
                             <td>{{ instance.cleared }}</td>
                             <td>{{ instance.issues }}</td>
@@ -54,7 +54,6 @@
                 <table class="table table-hover table-striped table-bordered nowrap" id="issuance_table">
                     <thead class="thead-light">
                         <tr>
-                            <th scope="col">Schedule Num</th>
                             <th scope="col">Work Order Number</th>
                             <th scope="col">Prod Sched</th>
                             <th scope="col">Item Number</th>
@@ -69,8 +68,7 @@
                     </thead>
                     <tbody>
                     {% for instance in return_sum_set %}
-                        <tr class="tablerow" id="req-{{forloop.counter}}" data-schednum="{{instance.schedule_num__schedule_num}}"id="issuance-{{forloop.counter}}-sched">
-                            <td>{{ instance.schedule_num__schedule_num }}</td>
+                        <tr class="tablerow" id="req-{{forloop.counter}}" data-sched_num="{{instance.schedule_num__schedule_num}}"id="issuance-{{forloop.counter}}-sched">
                             <td>{{ instance.prod_sched__work_order_number__work_order_number }}</td>
                             <td>{{ instance.prod_sched__id }}</td>
                             <td>{{ instance.item_number__item_number }}</td>
@@ -131,56 +129,40 @@ $(document).ready(function() {
         };
     };
 
-    $(".btn.btn-primary.wo").on("click", function () {
-        toastr.info('Component Return Schedule ' + 4 + " is selected.");
-
-    });
-
-	var table = $('#wo_table').DataTable({
+    var table = $('#wo_table').DataTable({
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table.buttons().container()
-        .appendTo( '#wo_table_wrapper .col-md-6:eq(0)' );
-
-    var table2 = $('#prodsched_table').DataTable({
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-    });
- 
-    table2.buttons().container()
-        .appendTo( '#prodsched_tablee_wrapper .col-md-6:eq(0)' );
 
     var table3 = $('#issuance_table').DataTable({
         searching: false, paging: false, info: false,
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
     });
- 
-    table3.buttons().container()
-        .appendTo( '#issuance_table_wrapper .col-md-6:eq(0)' );
 
-    var table4 = $('#assembly_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+    var counter3 = 0;
+    $(table3.rows().nodes()).each(function(i, el){ 
+        $(table3.rows(counter3).nodes().to$()).hide();
+        counter3 += 1;
     });
- 
-    table4.buttons().container()
-        .appendTo( '#assembly_table_wrapper .col-md-6:eq(0)' );
 
-    var table5 = $('#coupling_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
-    });
- 
-    table5.buttons().container()
-        .appendTo( '#coupling_table_wrapper .col-md-6:eq(0)' );
+    $( "#wo_table" ).on("click", ".btn.btn-primary.wo",function () {
+        var btn = this;
+        var schednum = btn.dataset.sched_num;
 
-    var table6 = $('#testing_table').DataTable({
-        searching: false, paging: false, info: false,
-        "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
+        toastr.info('Part Request Schedule ' + schednum + " is selected.");
+
+        var counter3 = 0;
+        $(table3.rows().nodes()).each(function(i, el){ 
+            var row_tag = table3.rows(counter3).nodes().to$();
+            var issuancesched_schednum = $(row_tag).attr('data-sched_num');
+            
+            if (schednum === issuancesched_schednum){
+                $(row_tag).show();
+            }else {
+                $(row_tag).hide();
+            }
+            counter3 += 1;
+        });
     });
- 
-    table6.buttons().container()
-        .appendTo( '#testing_table_wrapper .col-md-6:eq(0)' );
 
 } );
  </script>

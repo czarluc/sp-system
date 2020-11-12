@@ -9,12 +9,15 @@
     input { 
     text-align: center; 
     }
+    #bom_table tr td:nth-child(4), #bom_table th:nth-child(4) {
+        display: none;
+    }
 </style>
 {% endblock stylesheets %}
 
 {% block content %}
 
-    <div class="card">
+    <div class="card" id="select_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Select an Item to Report for Shrinkage:</h4>
         </div>
@@ -48,11 +51,17 @@
                         <input type ="number" class="form-control" id="name5"/>
                    </div>
                </div>
+               <div class="col-4">
+                    <div class="form-group">
+                        <label>Quantity in Assembly</label>
+                        <input type ="text" class="form-control" id="ass_quan"readonly/>
+                   </div>
+               </div>
 
                 <div class="col-4">
                     <div class="form-group">
-                        <label>Available Quantity</label>
-                        <input type ="text" class="form-control" value="67" id="name6" readonly/>
+                        <label>Stock Quantity</label>
+                        <input type ="text" class="form-control" id="name6" readonly/>
                         <input type ="hidden" class="form-control" id="name7" readonly/> <!--ASS LINE ID-->
                    </div>
                 </div>
@@ -65,7 +74,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="bom_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Select a from the Bill of Materials</h4>
         </div>
@@ -82,13 +91,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for instance in ass_item %}
+                    {% for instance in assitem_set %}
                         <tr class="tablerow bom_table">
-                            <td><button type="button" class="btn btn-primary item_number" data-item_num="{{instance.item_number__item_number}}" data-item_cat="{{instance.item_number__item_cat__item_cat}}" data-curr_quan="{{instance.quantity}}" data-assline_id="{{ instance.assemblyline__id }}" data-assline="{{ instance.assemblyline__name }}">{{ instance.item_number__item_number }}</button></td>
-                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-item_cat" value="{{ instance.item_number__item_cat__item_cat }}" readonly></td>
-                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-curr_quan" value="{{ instance.quantity }}" readonly></td>
-                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-assline_id" value="{{ instance.assemblyline__id }}" readonly></td>
-                            <td><input type="text" class="form-control" id="bom-{{forloop.counter}}-assline" value="{{ instance.assemblyline__name }}" readonly></td>
+                            <td><button type="button" class="btn btn-primary item_number" data-item_num="{{instance.item_num}}" data-item_cat="{{instance.item_cat}}" data-curr_quan="{{instance.item_quan}}" data-assline_id="{{ instance.ass_id }}" data-assline="{{ instance.ass_name }}" data-avail_quan="{{ instance.avail_quan }}">{{ instance.item_num }}</button></td>
+                            <td>{{ instance.item_cat }}</td>
+                            <td>{{ instance.item_quan }}</td>
+                            <td>{{ instance.ass_id }}</td>
+                            <td>{{ instance.ass_name }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -102,6 +111,11 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>          
+
+    $(window).on('load', function() {
+        document.getElementById("bom_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });        
+    });
+
     $(document).ready(function(){
 
         $("#div_sidebar").remove();
@@ -144,13 +158,19 @@
             var item_cat = btn.dataset.item_cat;
             var assline = btn.dataset.assline;
             var assline_id = btn.dataset.assline_id;
+            var avail_quan = btn.dataset.avail_quan;
+            var ass_quan = btn.dataset.curr_quan;
 
             $('#name2').val(item_num);
             $('#name3').val(item_cat);
             $('#name4').val(assline);
+            $("#name6").val(avail_quan);
             $('#name7').val(assline_id);
+            $("#ass_quan").val(ass_quan);
 
             toastr.info('Item '+ item_num + " is selected. <br> Please enter shrinkage quantity");
+
+            document.getElementById("select_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });  
         });
         
         $(".btn.btn-success.btn-lg").on("click", function () {
@@ -161,24 +181,30 @@
             var req_quan = $('#name5').val();
             var avail_quan = $('#name6').val();
             var assline_id = $('#name7').val();
+            var ass_quan = $("#ass_quan").val();
 
-            $(window.opener.document).find('#id_report-item_number').val(item_num);
-            $(window.opener.document).find('#shrnk_itemcat').val(item_cat);
-            $(window.opener.document).find('#id_report-quantity').val(req_quan);
+            if( parseInt(req_quan) <= parseInt(ass_quan) ){
 
-            $(window.opener.document).find('#id_item-item_number').val(item_num);
-            $(window.opener.document).find('#rpl_itemcat').val(item_cat);
-            $(window.opener.document).find('#id_item-quantity').val(req_quan);
-            $(window.opener.document).find('#id_item-ass_location').val(assline_id);
-            $(window.opener.document).find('#id_item-ass_locationTEXT').val(assline);
-            $(window.opener.document).find('#avail_quan').val(avail_quan);
+                console.log( parseInt(req_quan) +"-"+parseInt(avail_quan) )
+                $(window.opener.document).find('#id_report-item_number').val(item_num);
+                $(window.opener.document).find('#shrnk_itemcat').val(item_cat);
+                $(window.opener.document).find('#id_report-quantity').val(req_quan);
 
-            alert(item_num + " has reported from shrinkage with a quantity of "+ req_quan);
+                $(window.opener.document).find('#id_item-item_number').val(item_num);
+                $(window.opener.document).find('#rpl_itemcat').val(item_cat);
+                $(window.opener.document).find('#id_item-quantity').val(req_quan);
+                $(window.opener.document).find('#id_item-ass_location').val(assline_id);
+                $(window.opener.document).find('#id_item-ass_locationTEXT').val(assline);
+                $(window.opener.document).find('#avail_quan').val(avail_quan);
+                $(window.opener.document).find('#ass_quan').val(ass_quan);
 
-            window.opener.showtoast("item");
-            var goBack = window.open('', 'Report_Shrnk');
-            goBack.focus();
-            window.close();                 
+                window.opener.showtoast("item", "", "", item_num, req_quan);
+                var goBack = window.open('', 'reportShrnk');
+                goBack.focus();
+                window.close();  
+            }else{
+                toastr.error('Please enter a shrinkage quantity lower than the current quantity in assembly.');
+            }                           
         });
 
         $("#bom_table").DataTable({

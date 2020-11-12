@@ -910,14 +910,40 @@ def ReportShrinkage_SelectProdSched(request):
     return render(request, template_name, {'prodsched_list':prodsched_list,'wo_itemlist':wo_itemlist})
 def ReportShrinkage_SelectItem(request, pk=None):
     template_name = 'invsys/assembly/AssemblyShrinkage/ReportShrinkage_SelectItem.html'
-    ass_item = Assembly_Items.objects.filter(reference_number=pk).values(
+    ass_item_query = Assembly_Items.objects.filter(reference_number=pk).values(
         'item_number__item_number',
         'item_number__item_cat__item_cat',
         'quantity',
         'assemblyline__id',
         'assemblyline__name',)
 
-    return render(request, template_name,{'ass_item':ass_item})
+    assitem_list = []
+    for ass_item in ass_item_query:
+        details = {}
+        avail_quan = 0;
+        for i in ass_item:
+            if i == "item_number__item_number":
+                details['item_num'] = ass_item[i]
+                whseitem_query = Warehouse_Items.objects.filter(item_number__item_number=ass_item[i], status="In Stock").values(
+                    'quantity')
+
+                for whseitem in whseitem_query:
+                    avail_quan += whseitem.get('quantity')
+                details['avail_quan'] = avail_quan
+
+            elif i == "item_number__item_cat__item_cat":
+                details['item_cat'] = ass_item[i]
+            elif i == "quantity":
+                details['item_quan'] = ass_item[i]
+            elif i == "assemblyline__id":
+                details['ass_id'] = ass_item[i]
+            elif i == "assemblyline__name":
+                details['ass_name'] = ass_item[i]
+
+        assitem_list.append( details )
+
+
+    return render(request, template_name,{'assitem_set':assitem_list})
 def DeleteAssemblyItem():
     assitem_set = Assembly_Items.objects.order_by('quantity')
     for assitem in assitem_set:
@@ -928,6 +954,34 @@ def DeleteAssemblyItem():
 @assembly_required
 def ViewShrinkageSummary(request):
     template_name = 'invsys/assembly/AssemblyShrinkage/ViewShrinkageSummary.html'
+
+    report_shrnkge_query = Shrinkage_Ass_Report.objects.all().values(
+        'report_num',
+        'prod_sched__work_order_number',
+        'prod_sched__id',        
+        'item_number__item_number',
+        'item_number__item_desc',
+        'quantity',
+        'shrinkage_type__shrinkage_type',)
+
+    item_shrnkge_query = Shrinkage_Ass_Item.objects.all().values(
+        'report_num__report_num',
+        'item_number__item_number',
+        'item_number__item_desc',
+        'quantity',
+        'scheduled',
+        'ass_location__name',
+        'report_num__reason',
+        'report_num__date_reported',)
+
+    return render(request, template_name, {
+        'report_shrnkge_set':report_shrnkge_query,
+        'item_shrnkge_set':item_shrnkge_query })
+
+@login_required
+@assembly_required
+def ExportShrinkage(request):
+    template_name = 'invsys/assembly/AssemblyShrinkage/ExportShrinkage.html'
 
     shrnkge_query = Shrinkage_Ass_Item.objects.all().values(
         'report_num__report_num',

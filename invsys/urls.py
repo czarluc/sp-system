@@ -66,13 +66,15 @@ urlpatterns = [
         re_path(r'^FinishPutAway/SelectItem/(?P<pk>[0-9]+)/', warehouse.FinishPutAway_SelectPAItem, name='FinishPutAway_SelectPAItem'),
         path('ViewPutAwaySummary/', warehouse.ViewPutAwaySummary, name='ViewPutAwaySummary'),
         path('ViewOngoingPutAway/', warehouse.ViewOngoingPutAway, name='ViewOngoingPutAway'),
-
+        path('ExportPutAway/', warehouse.ExportPutAway, name='ExportPutAway'),
+        
         #--Component Issuance
         path('ViewPendingWO/', warehouse.ViewPendingWO, name='ViewPendingWO'),
         path('GenerateCompIssuanceSchedule/', warehouse.GenerateCompIssuanceSchedule, name='GenerateCompIssuanceSchedule'),
         path('GenerateCompIssuanceSchedule/SelectWO', warehouse.GenerateCompIssuanceSchedule_SelectWO, name='GenerateCompIssuanceSchedule_SelectWO'),
         path('ViewCompIssuanceSummary/', warehouse.ViewCompIssuanceSummary, name='ViewCompIssuanceSummary'),
         path('ViewOngoingCompIssuance/', warehouse.ViewOngoingCompIssuance, name='ViewOngoingCompIssuance'),
+        path('ExportCompIssuanceSummary/', warehouse.ExportCompIssuanceSummary, name='ExportCompIssuanceSummary'),
         
         #--Shipping
         path('ReceiveProduct/', warehouse.ReceiveProduct, name='ReceiveProduct'),
@@ -82,7 +84,12 @@ urlpatterns = [
         path('ShipProduct/', warehouse.ShipProduct, name='ShipProduct'),
         path('ShipProduct/SelectWONum', warehouse.ShipProduct_SelectWONum, name='ShipProduct_SelectWONum'),
         path('ShipProduct/add_event', warehouse.add_event, name='add_event'),
-
+        path('ViewShippedProducts/', warehouse.ViewShippedProducts, name='ViewShippedProducts'),
+        path('ExportShippedProducts/', warehouse.ExportShippedProducts, name='ExportShippedProducts'),
+        
+        path('ViewReceivedProducts/', warehouse.ViewReceivedProducts, name='ViewReceivedProducts'),
+        path('ExportReceivedProducts/', warehouse.ExportReceivedProducts, name='ExportReceivedProducts'),
+        
 
         #--Check Inventory
         path('GenerateCCSchedule/', warehouse.GenerateCCSchedule, name='GenerateCCSchedule'),
@@ -97,6 +104,7 @@ urlpatterns = [
         re_path(r'^FinishPartReqIssuance/(?P<pk>[0-9]+)/SelectPartReqItem/', warehouse.FinishPartReqIssuance_SelectItem, name='FinishPartReqIssuance_SelectItem'),
         path('ViewPartReqSummary/', warehouse.ViewPartReqSummary, name='ViewPartReqSummary'),
         path('ViewOngoingPartReqIssuance/', warehouse.ViewOngoingPartReqIssuance, name='ViewOngoingPartReqIssuance'),
+        path('ExportPartReqIssuance/', warehouse.ExportPartReqIssuance, name='ExportPartReqIssuance'),
         
         #--Component Return
         path('GenerateCompReturnSchedule/', warehouse.GenerateCompReturnSchedule, name='GenerateCompReturnSchedule'),
@@ -106,6 +114,7 @@ urlpatterns = [
         re_path(r'^FinishCompReturn/(?P<pk>[0-9]+)/SelectCompReturnItem/', warehouse.FinishCompReturn_SelectItem, name='FinishCompReturn_SelectItem'),
         path('ViewCompReturnSummary/', warehouse.ViewCompReturnSummary, name='ViewCompReturnSummary'),
         path('ViewOngoingCompReturn/', warehouse.ViewOngoingCompReturn, name='ViewOngoingCompReturn'),
+        path('ExportCompReturn/', warehouse.ExportCompReturn, name='ExportCompReturn'),
         
         #--Packing
         path('GeneratePackingSchedule/', warehouse.GeneratePackingSchedule, name='GeneratePackingSchedule'),
@@ -219,6 +228,8 @@ urlpatterns = [
         path('ReportShrinkage/SelectProdSched/', assembly.ReportShrinkage_SelectProdSched, name='ReportShrinkage_SelectProdSched'),
         re_path(r'^ReportShrinkage/(?P<pk>[0-9]+)/SelectItem/', assembly.ReportShrinkage_SelectItem, name='ReportShrinkage_SelectItem'),
         path('ViewShrinkageSummary/', assembly.ViewShrinkageSummary, name='ViewShrinkageSummary'),
+        path('ExportShrinkage/', assembly.ExportShrinkage, name='ExportShrinkage'),
+        
 
         #--PartRequestIssuance
         path('FinishPartReqIssuance/', warehouse.FinishPartReqIssuance, name='FinishPartReqIssuance'),

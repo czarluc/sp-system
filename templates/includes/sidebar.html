@@ -74,6 +74,10 @@
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewPutAwaySummary' %}">Put Away Summary</a>
                     </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ExportPutAway' %}">Export Put Away</a>
+                    </li>
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
@@ -93,6 +97,10 @@
                     
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewCompIssuanceSummary' %}">Component Issuance Summary</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ExportCompIssuanceSummary' %}">Export Accomplished Issuance Schedules</a>
                     </li>
                 </ul>
           </li>
@@ -124,7 +132,22 @@
                     </li>
 
                     <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewReceivedProducts' %}">View Received Products</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ExportReceivedProducts' %}">Export Received Products</a>
+                    </li>
+
+                    <li>
                       <a class="nav-link" href="{% url 'warehouse:ShipProduct' %}">Ship Product</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ViewShippedProducts' %}">View Shipped Products</a>
+                    </li>
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ExportShippedProducts' %}">Export Shipped Products</a>
                     </li>
                 </ul>
           </li>
@@ -162,6 +185,10 @@
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewPartReqSummary' %}">Part Request Issuance Summary</a>
                     </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ExportPartReqIssuance' %}">Export Part Request Issuance</a>
+                    </li>
                 </ul>
           </li>
           <li class="nav-item {% if 'index' == segment %} active {% endif %}"> 
@@ -181,6 +208,10 @@
                     
                     <li>
                       <a class="nav-link" href="{% url 'warehouse:ViewCompReturnSummary' %}">Component Return Summary</a>
+                    </li>
+
+                    <li>
+                      <a class="nav-link" href="{% url 'warehouse:ExportCompReturn' %}">Export Component Return</a>
                     </li>
                 </ul>
           </li>
@@ -397,6 +428,9 @@
                     </li>
                     <li>
                       <a class="nav-link" href="{% url 'assembly:ViewShrinkageSummary' %}">View Shrinkage Summary</a>
+                    </li>
+                    <li>
+                      <a class="nav-link" href="{% url 'assembly:ExportShrinkage' %}">Export Shrinkage</a>
                     </li>
                 </ul>
           </li>

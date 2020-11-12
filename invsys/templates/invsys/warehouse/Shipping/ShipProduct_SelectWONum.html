@@ -47,7 +47,7 @@
 
         <div class="form-row align-items-center">
             <div class="col-lg-1">
-                <button type="button" id="selectbtn" class="btn btn-warehouse btn-lg">Select</button>
+                <button type="button" id="selectbtn" class="btn btn-success btn-lg">Select</button>
             </div>
         </div>
 
@@ -142,6 +142,11 @@
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -217,39 +222,37 @@
 
         });
         
-        $(".btn.btn-warehouse.btn-lg").on("click", function () {
+        $(".btn.btn-success.btn-lg").on("click", function () {
 
             var wo_num = $('#wo_num').val();
             var prod_num = $('#prod_num').val();
             var prod_quan = $('#prod_quan').val();
 
-            $(window.opener.document).find('#id_wo_num').val(wo_num);
+            if( wo_num === "" ){
+                toastr.error('Please select a Work-Order first.');
+            }else{
+                $(window.opener.document).find('#id_wo_num').val(wo_num);
 
-            var counter2 = 0;
-            $(table2.rows().nodes()).each(function(i, el){ 
-                var row_tag2 = table2.rows(counter2).nodes().to$();
+                var counter2 = 0;
+                $(table2.rows().nodes()).each(function(i, el){ 
+                    var row_tag2 = table2.rows(counter2).nodes().to$();
 
-                var prod_sched = $(row_tag2).attr('data-prod_sched');
-                var prod_quan = $(row_tag2).attr('data-prod_quan');
-                var status = $(row_tag2).attr('data-status');
+                    var prod_sched = $(row_tag2).attr('data-prod_sched');
+                    var prod_quan = $(row_tag2).attr('data-prod_quan');
+                    var status = $(row_tag2).attr('data-status');
 
-                if ($(row_tag2).is(":visible")){
-                    window.opener.showprod_sched(prod_sched,prod_quan,status);
-                }
-                counter2 += 1;
-            });
-            
-            window.opener.showreqitem(prodsched);
-
-            toastr.success("Work Order Number " + wo_num + "is selected for Shipping.");
-
-            var goBack = window.open('', 'Ship_Prod');
-            goBack.focus();
-            window.close();
+                    if ($(row_tag2).is(":visible")){
+                        window.opener.showprod_sched(prod_sched,prod_quan,status);
+                    }
+                    counter2 += 1;
+                });
+                
+                window.opener.showtoast(wo_num);
+                var goBack = window.open('', 'shipprod');
+                goBack.focus();
+                window.close();
+            }            
         });
-
-        
-
     });
 </script>
 {% endblock javascripts %}

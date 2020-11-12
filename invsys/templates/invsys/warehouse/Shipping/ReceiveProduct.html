@@ -225,8 +225,9 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let recprod_selWO;
     $(document).ready(function(){
-        window.name = "Rec_Prod";
+        window.name = "recprod";
 
         toasterOptions();
         function toasterOptions() {
@@ -339,8 +340,16 @@
         });
 
     $(document).on('click', '.add-prodsched', function(e){
-        var newwin = window.open("{% url 'warehouse:ReceiveProduct_SelectProdSched' %}");
-        return false;
+
+        if ( recprod_selWO && !recprod_selWO.closed ){
+            recprod_selWO.focus();
+            return false;                
+        }else{
+            recprod_selWO = window.open("{% url 'warehouse:ReceiveProduct_SelectProdSched' %}");
+            return false;
+        }
+
+        
     });
 
     function showtoast ( window, prodsched, wonum ) {

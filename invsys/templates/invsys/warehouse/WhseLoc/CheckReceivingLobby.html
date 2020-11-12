@@ -61,7 +61,7 @@ $(document).ready(function() {
         dom: "<'row'<'col-lg-6'B>>" +
         "<'row'<'col-md-4'l><'col-md-4'<'customselect'>><'col-md-4'f>>" +
         "<'row'<'col-md-12'rtip>>",
-        buttons: [ 'copy', 'excel', 'csv', 'pdf' ],
+        buttons: [ 'copy', 'excel', 'csv' ],
         "columnDefs": [ {"className": "text-center", "targets": "_all"}]
     });
 
@@ -70,9 +70,9 @@ $(document).ready(function() {
     $('#rec_lobby_filter label input').unbind().bind('keyup', function() {
       var colIndex = document.querySelector('#select').selectedIndex;
       if(colIndex === 3){
-      	colIndex = 6;
+        colIndex = 6;
       }else if (colIndex === 4){
-      	colIndex = 8;
+        colIndex = 8;
       }
       table.column(colIndex).search( this.value ).draw();
     });

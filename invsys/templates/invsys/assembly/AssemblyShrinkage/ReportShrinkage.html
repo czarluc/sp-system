@@ -174,16 +174,22 @@
                     <div class="form-row align-items-center">
                         <div class="col-4">
                             <div class="form-group">
-                                <label for="id_work_order_number">Available Quantity:</label>
+                                <label for="id_work_order_number">Stock Quantity:</label>
                                 <input type="text" name="verified_by" maxlength="200" class="form-control" required="" id="avail_quan" readonly>
+                           </div>
+                       </div>
+                       <div class="col-4">
+                            <div class="form-group">
+                                <label for="id_work_order_number">Quantity in Assembly:</label>
+                                <input type="text" name="verified_by" maxlength="200" class="form-control" required="" id="ass_quan" readonly>
                            </div>
                        </div>
 
                         <div class="col-4">
                             <div class="form-group">
                                 <label for="id_work_order_number">Assembly Location:</label>
-                                <input type="text" name="ass_location" maxlength="200" class="form-control" required="" id="id_item-ass_location" readonly>
-                                <input type="hidden" name="ass_locationTEXT" maxlength="200" class="form-control" required="" id="id_item-ass_locationTEXT" readonly>
+                                <input type="hidden" name="ass_location" maxlength="200" class="form-control" required="" id="id_item-ass_location" readonly>
+                                <input type="text" name="ass_locationTEXT" maxlength="200" class="form-control" required="" id="id_item-ass_locationTEXT" readonly>
                            </div>
                         </div>
                     </div>
@@ -212,8 +218,10 @@
 {% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script type="text/javascript">
+    let reportShrnk_selProdsched, reportShrnk_selItem;
+
     $(document).ready(function(){
-        window.name = "Report_Shrnk";
+        window.name = "reportShrnk";
 
         toasterOptions();
         function toasterOptions() {
@@ -243,22 +251,42 @@
         });
 
     $(document).on('click', '.add-prod_sched', function(e){
-        var newwin = window.open("{% url 'assembly:ReportShrinkage_SelectProdSched' %}");
-        return false;
+        if ( reportShrnk_selProdsched && !reportShrnk_selProdsched.closed ){
+            reportShrnk_selProdsched.focus();
+            return false;                
+        }else{
+            reportShrnk_selProdsched = window.open("{% url 'assembly:ReportShrinkage_SelectProdSched' %}");
+            return false;
+        }
+
+        
     });
 
     $(document).on('click', '.add-shrnk_part', function(e){
-        var prodsched = $("#id_report-prod_sched").val();
-        var itemurl = "/SelectItem/";
-        var windowurl = prodsched+itemurl;
-        var wewewe = window.open(windowurl);
-        return false;
+        if( $("#id_report-prod_sched").val() === "" ){
+            toastr.error('Please select a Production Schedule first.')
+        }else{
+            if ( reportShrnk_selItem && !reportShrnk_selItem.closed ){
+                reportShrnk_selItem.focus();
+                return false;                
+            }else{
+                var prodsched = $("#id_report-prod_sched").val();
+                var itemurl = "/SelectItem/";
+                var windowurl = prodsched+itemurl;
+                reportShrnk_selItem = window.open(windowurl);
+                return false;
+            }  
+        }
+
+              
     });
 
-    function showtoast ( window ) {
+    function showtoast ( window , prod_sched, wo_num, item_num, req_quan) {
         if (window === "prodsched"){
+            toastr.success('Production Schedule '+ prod_sched + " from Work Order Number " + wo_num + " has reported with shrinkage");
             toastr.info("Please select an item with shrinkage.");
         }else{
+            toastr.success(item_num + " has reported from shrinkage with a quantity of "+ req_quan);
             toastr.info("Please enter a reason for shrinkage.");
         }
     }
@@ -266,20 +294,28 @@
     $('#form_shrnk').submit(function() {
         event.preventDefault();
 
-        Swal.fire({
-            title: 'Do you want to save the Shrinkage Report?',
-            icon:'success',
-            showDenyButton: true,
-            confirmButtonText: `Yes`,
-            denyButtonText: `No`,
-        }).then((result) => {
-        if (result.isConfirmed) {
-            $(this).unbind('submit').submit();
+        if( $("#id_report-prod_sched").val() === "" ){
+            toastr.error('Please select an Production Schedule first.');
+        }else{
+            if( $("#id_report-item_number").val() === "" ){
+                toastr.error('Please select an item to report for shrinkage.');
+            }else{
+                Swal.fire({
+                    title: 'Do you want to save the Shrinkage Report?',
+                    icon:'success',
+                    showDenyButton: true,
+                    confirmButtonText: `Yes`,
+                    denyButtonText: `No`,
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $(this).unbind('submit').submit();
 
-        } else if (result.isDenied) {
-            Swal.fire('Changes are not saved', '', 'info');
-        }
-        });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info');
+                }
+                });
+            }
+        }        
     });
 </script>
 {% endblock javascripts %}

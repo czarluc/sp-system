@@ -12,7 +12,7 @@
 
 {% block content %}
 <h2> View Available Products </h2>
-    <div class="card">
+    <div class="card" id="prod_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Product Master:</h4>
         </div>
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="status_card">
         <div class="card-header card-header-tabs card-header-info">
             <h4 class="card-title">Product Availability:</h4>
         </div>
@@ -182,6 +182,11 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous"></script>
 <script>
+
+    $(window).on('load', function() {
+        document.getElementById("prod_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    });
+
 $(document).ready(function() {
 
     toasterOptions();
@@ -206,6 +211,8 @@ $(document).ready(function() {
     };
 
     var table = $('#prod_table').DataTable ({
+        pageLength : 5,
+        lengthMenu: [[5, 10, 20, 50], [5, 10, 20, 50]],
         dom: "<'row'<'col-md-6'l><'col-md-2'<'customselect prod'>><'col-md-2'<'div_prodclass'>><'col-md-2'f>>" +
         "<'row'<'col-md-12'rtip>>",
         "columnDefs": [ {"className": "text-center", "targets": "_all"} ]
@@ -366,6 +373,8 @@ $(document).ready(function() {
         });
 
         $("#avail_quan").html(avail_quan);
+
+        document.getElementById("status_card").scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
     });
 

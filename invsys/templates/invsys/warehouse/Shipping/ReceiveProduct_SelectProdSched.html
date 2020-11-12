@@ -167,6 +167,11 @@
     });
 
     $(document).ready(function(){
+
+        $("#div_sidebar").remove();
+        $("#div_nav").remove();
+        $('#div_main').css({'min-width': 'calc(100%)'});
+
         toasterOptions();
         function toasterOptions() {
             toastr.options = {
@@ -201,6 +206,15 @@
             $("#date_from").val('');
             $("#date_to").val('');
             table1.columns().search('').draw();
+
+            $("#span_from").text("");
+            $("#span_to").text("");
+            var counter1 = 0;
+            $(table1.rows().nodes()).each(function(i, el){ 
+                var row_tag1 =  table1.rows(counter1).nodes().to$();
+                $(row_tag1).hide();
+                counter1 += 1;
+            });
         });
 
         $(".date").change(function () {
@@ -224,16 +238,15 @@
                 var row_tag1 =  table1.rows(counter1).nodes().to$();
                 var startDate = moment($(row_tag1).attr('data-rec_date'));
 
-                if(minDateFilter && maxDateFilter){
+                if(!(minDateFilter === "") && !(maxDateFilter === "") ){
 
                     if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
                         $(row_tag1).show();
                     }else{
                         $(row_tag1).hide();
                     }
-                }else{
-                    $(row_tag1).show();
                 }
+
                 counter1 += 1;
             });
         });
@@ -295,18 +308,21 @@
             var schedquan = $('#name5').val();
             var sched_date = $('#name6').val();
 
-            $(window.opener.document).find('#id_prod_sched').val(prodsched);
-            $(window.opener.document).find('#wonum').val(wonum);
-            $(window.opener.document).find('#prod_num').val(prodnum);
-            $(window.opener.document).find('#prod_class').val(prodclass);
-            $(window.opener.document).find('#sched_quan').val(schedquan);
-            $(window.opener.document).find('#id_date_received').val(sched_date);
-            
-            window.opener.showtoast("prodsched", prodsched, wonum);
-            var goBack = window.open('', 'Rec_Prod');
-            goBack.focus();
-            window.close();
-
+            if( prodsched === "" ){
+                toastr.error('Please select a Production Schedule first.');
+            }else{
+                $(window.opener.document).find('#id_prod_sched').val(prodsched);
+                $(window.opener.document).find('#wonum').val(wonum);
+                $(window.opener.document).find('#prod_num').val(prodnum);
+                $(window.opener.document).find('#prod_class').val(prodclass);
+                $(window.opener.document).find('#sched_quan').val(schedquan);
+                $(window.opener.document).find('#id_date_received').val(sched_date);
+                
+                window.opener.showtoast("prodsched", prodsched, wonum);
+                var goBack = window.open('', 'recprod');
+                goBack.focus();
+                window.close();
+            }
         });
     });
 </script>

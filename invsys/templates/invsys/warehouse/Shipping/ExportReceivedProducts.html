@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %} Export Shipped Products {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+
+<h2> Export Shipped Products </h2>
+
+<div class="card">
+    <div class="card-header card-header-tabs card-header-info">
+        <h4 class="card-title">Shipped Products <span id="span_from"></span><span id="span_to"></span> </h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive"> <!--Shrnk Items-->
+            <table class="table table-hover table-striped table-bordered nowrap" id="inbound_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">WO Num</th>
+                        <th scope="col">Product Number</th>
+                        <th scope="col">Product Description</th>
+                        <th scope="col">Product Class</th>
+
+                        <th scope="col">Production Schedule</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Date Queued</th>
+                        <th scope="col">Name Plate</th>
+
+                        <th scope="col">Label Sticker</th>
+                        <th scope="col">IOM</th>
+                        <th scope="col">QR Code</th>
+
+                        <th scope="col">Warranty Card</th>
+                        <th scope="col">Packaging</th>
+                        <th scope="col">Date Out</th>
+
+                        <th scope="col">Checked By</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for instance in prodsched_set %}
+                    <tr class="tablerow" id="ponum-{{forloop.counter}}" data-date_out="{{ instance.date_out|date:'m/d/Y' }}">
+                        <td>{{ instance.prod_sched__work_order_number__work_order_number }}</td>
+                        <td>{{ instance.prod_sched__work_order_number__prod_number__prod_number }}</td>
+                        <td>{{ instance.prod_sched__work_order_number__prod_number__prod_desc }}</td>
+                        <td>{{ instance.prod_sched__work_order_number__prod_number__prod_class__prod_class }}</td>
+
+                        <td>{{ instance.prod_sched__id }}</td>
+                        <td>{{ instance.prod_sched__quantity }}</td>
+                        <td>{{ instance.date_received }}</td>
+                        <td>{{ instance.name_plate }}</td>
+
+                        <td>{{ instance.label_sticker }}</td>
+                        <td>{{ instance.iom }}</td>
+                        <td>{{ instance.qr_code }}</td>
+
+                        <td>{{ instance.wrnty_card }}</td>
+                        <td>{{ instance.packaging }}</td>
+                        <td>{{ instance.date_out|date:'d/m/Y' }}</td>
+
+                        <td>{{ instance.checked_by }}</td>
+                        <td>{{ instance.notes }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+<script>
+$(document).ready(function() {
+
+    $.fn.dataTable.moment( 'DD-MM-YYY' );
+
+    var table = $('#inbound_table').DataTable({
+        paging: false, info: false,
+        dom: "<'row'<'col-md-4'B><'col-md-2'<'customselect trans'>><'col-md-2'<'date_from'>><'col-md-2'<'date_to'>><'col-md-2'f>>" +
+        "<'row'<'col-md-12'rtip>>",
+        buttons: [ 'copy', {
+                extend: 'excelHtml5',
+                exportOptions: {
+                    rows: ':visible' 
+                }
+            }, 'csv' ],
+        "columnDefs": [ {"className": "text-center", "targets": "_all"}]
+    });
+
+
+    $("div.date_from").html("From"+"<input type='date' class='date form-control' id='date_from'>");
+    $("div.date_to").html("To"+"<input type='date' class='date form-control' id='date_to'>");
+
+    $("div.customselect.trans").html("Filter"+"<select id="+ "'select_trans'" + "class='browser-default custom-select'"+"><option>Ship Out Number</option><option>WO Num</option><option>Product Number</option><option>Product Description</option><option>Product Class</option><option>Product Quantity</option></select>");
+
+    $('#inbound_table_filter label input').unbind().bind('keyup', function() {
+      var colIndex = document.querySelector('#select_trans').selectedIndex;
+      table.column(colIndex).search( this.value ).draw();
+    });
+
+    $('#select_trans').change(function() {
+        $("#date_from").val('');
+        $("#date_to").val('');
+        table.columns().search('').draw();
+    });
+
+    $(".date").change(function () {
+        var minDateFilter = ''
+        var maxDateFilter = ''
+
+        if ($("#date_from").val()){
+            minDateFilter = new Date($("#date_from").val());
+            minDateFilter = moment( minDateFilter);
+            $("#span_from").text(" from "+minDateFilter.format('DD/MM/YYYY'));
+        }
+
+        if ( $("#date_to").val() ){
+            maxDateFilter = new Date($("#date_to").val());
+            maxDateFilter = moment( maxDateFilter);
+            $("#span_to").text(" to "+maxDateFilter.format('DD/MM/YYYY'));
+        }
+
+        var counter = 0;
+        $(table.rows().nodes()).each(function(i, el){ 
+            var row_tag =  table.rows(counter).nodes().to$();
+            var startDate = moment($(row_tag).attr('data-date_out'));
+
+            if(!(minDateFilter === "") && !(maxDateFilter === "") ){
+
+                if( (startDate) >= (minDateFilter) & (startDate) <= (maxDateFilter) ){
+                    $(row_tag).show();
+                }else{
+                    $(row_tag).hide();
+                }
+            }
+            
+            counter += 1;
+        });
+    });
+
+});
+ </script>
+{% endblock javascripts %}

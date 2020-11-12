@@ -1347,13 +1347,6 @@ def ViewPutAwaySummary(request):
         'notes',
         'cleared',
         'issues',)
-    pa_item_list = Put_Away_Items.objects.filter().values(
-        'schedule_num__schedule_num',
-        'item_num__item_number',
-        'required_quantity',
-        'bin_location__bin_location',
-        'reference_number',
-        'stored',)
     pa_sum_list = Put_Away_Summary.objects.filter().values(
         'schedule_num__schedule_num',
         'item_num__item_number',
@@ -1367,8 +1360,7 @@ def ViewPutAwaySummary(request):
         'date_stored',
         'reference_number',)
     return render(request, 'invsys/warehouse/PutAway/ViewPutAwaySummary.html', 
-        {'pasched_set':pa_sched_list, 
-        'paitem_set':pa_item_list, 
+        {'pasched_set':pa_sched_list,
         'pasum_set':pa_sum_list})
 
 #Component Issuance
@@ -1556,22 +1548,6 @@ def ViewCompIssuanceSummary(request):
         'notes',
         'cleared',
         'issues',)
-    issuance_reqitem_list = WO_Issuance_Item.objects.filter().values(
-        'schedule_num__schedule_num',
-        'prod_sched__id',
-        'prod_sched__work_order_number',
-        'item_num__item_number',
-        'item_quantity',
-        'bin_location__bin_location',)
-    issuance_recitem_list = WO_Issuance_RecItem.objects.filter().values(
-        'schedule_num__schedule_num',
-        'prod_sched__id',
-        'prod_sched__work_order_number',
-        'item_num__item_number',
-        'item_quantity',
-        'date_received',
-        'notes',
-        'bin_location__bin_location',)
     issuance_sum_list = WO_Issuance_Summary.objects.filter().values(
         'schedule_num__schedule_num',
         'prod_sched__id',
@@ -1584,10 +1560,33 @@ def ViewCompIssuanceSummary(request):
         'status',
         'date_received',)
     return render(request, 'invsys/warehouse/CompIssuance/ViewCompIssuanceSummary.html', 
-        {'issuance_sched_set':issuance_sched_list, 
-        'issuance_reqitem_set':issuance_reqitem_list,
-        'issuance_recitem_set':issuance_recitem_list, 
+        {'issuance_sched_set':issuance_sched_list,
         'issuance_sum_set':issuance_sum_list})
+
+#--Export Comp Issuance Summary--
+@login_required
+@warehouse_required
+def ExportCompIssuanceSummary(request):
+
+    issuance_sum_list = WO_Issuance_Summary.objects.filter(schedule_num__cleared=True).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+        'schedule_num__notes',
+        'schedule_num__cleared',
+        'schedule_num__issues',
+
+        'prod_sched__id',
+        'prod_sched__work_order_number',
+        'item_num__item_number',
+        'totalreq_quan',
+        'totalrec_quan',
+        'discrepancy',
+        'discrepancy_quantity',
+        'status',
+        'date_received',)
+
+    return render(request, 'invsys/warehouse/CompIssuance/ExportCompIssuanceSummary.html', 
+        {'issuance_sum_set':issuance_sum_list})
 
 #Shipping
 #--Receive Product--
@@ -2994,7 +2993,9 @@ def ReportSysAdj_SelectItem(request):
         'item_number__uom__uom',
         'item_number__price',
         'quantity',)
-    return render(request, template_name, {'whse_items': whse_items})
+
+    iafoperator_set = IAF_operator.objects.all().values('id', 'operator')
+    return render(request, template_name, {'whse_items': whse_items, 'iafoperator_set':iafoperator_set})
 
 #--DISMANTLE PROD--
 @login_required
@@ -6219,3 +6220,191 @@ def ViewOngoingPacking(request):
     return render(request, template_name, 
         {'packing_sched_set':packing_sched_query, 
         'packing_prod_set':packing_prod_query})
+
+
+@login_required
+@warehouse_required
+def ViewShippedProducts(request):
+    template_name = 'invsys/warehouse/Shipping/ViewShippedProducts.html'
+
+    ship_query = Shipping_Outbound.objects.all().values(
+        'ship_out_num',
+        'wo_num__work_order_number',
+        'wo_num__prod_number__prod_number',
+        'wo_num__prod_number__prod_desc',
+        'wo_num__prod_number__prod_class__prod_class',
+        'wo_num__prod_quantity',
+        'date_out',        
+        'notes',)
+
+    prodsched_query = WO_Production_Schedule.objects.all().values(
+        'work_order_number__work_order_number',
+        'id',
+        'quantity',
+        'status',)
+
+    return render(request, template_name, {
+        'ship_set':ship_query,
+        'prodsched_set':prodsched_query })
+
+@login_required
+@warehouse_required
+def ExportShippedProducts(request):
+    template_name = 'invsys/warehouse/Shipping/ExportShippedProducts.html'
+
+    ship_query = Shipping_Outbound.objects.all().values(
+        'ship_out_num',
+        'wo_num__work_order_number',
+        'wo_num__prod_number__prod_number',
+        'wo_num__prod_number__prod_desc',
+        'wo_num__prod_number__prod_class__prod_class',
+        'wo_num__prod_quantity',
+        'date_out',        
+        'notes',)
+
+    return render(request, template_name, {
+        'ship_set':ship_query})
+
+
+@login_required
+@warehouse_required
+def ViewReceivedProducts(request):
+    template_name = 'invsys/warehouse/Shipping/ViewReceivedProducts.html'
+
+    prodsched_query = WO_Finished.objects.filter(cleared=True).values(
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'prod_sched__quantity',
+        'date_received',
+        'name_plate',
+        'label_sticker',
+        'iom',
+        'qr_code',
+        'wrnty_card',
+        'packaging',
+        'date_out',
+        'checked_by',
+        'notes',)
+
+    wo_list = []
+    for prodsched in prodsched_query:
+        wo_list.append( prodsched.get('prod_sched__work_order_number__work_order_number') )
+
+    wo_query = Work_Order.objects.filter(work_order_number__in=wo_list).values(
+        'work_order_number',
+        'prod_number__prod_number',
+        'prod_number__prod_desc',
+        'prod_number__prod_class__prod_class',
+        'prod_quantity',)
+
+    return render(request, template_name, {
+        'wo_set':wo_query,
+        'prodsched_set':prodsched_query })
+
+@login_required
+@warehouse_required
+def ExportReceivedProducts(request):
+    template_name = 'invsys/warehouse/Shipping/ExportReceivedProducts.html'
+
+    prodsched_query = WO_Finished.objects.filter(cleared=True).values(
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__work_order_number__prod_number__prod_number',
+        'prod_sched__work_order_number__prod_number__prod_desc',
+        'prod_sched__work_order_number__prod_number__prod_class__prod_class',
+
+        'prod_sched__id',
+        'prod_sched__quantity',
+
+        'date_received',
+        'name_plate',
+        'label_sticker',
+        'iom',
+        'qr_code',
+        'wrnty_card',
+        'packaging',
+        'date_out',
+        'checked_by',
+        'notes',)
+
+    return render(request, template_name, {
+        'prodsched_set':prodsched_query})
+
+@login_required
+@warehouse_required
+def ExportPartReqIssuance(request):
+    template_name = 'invsys/warehouse/PartRequest/ExportPartReqIssuance.html'
+    
+    req_sum_list = Request_Summary.objects.filter(schedule_num__cleared=True).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+        'schedule_num__cleared',
+        'schedule_num__issues',
+        'schedule_num__notes',
+
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'item_number__item_number',
+        'totalreq_quan',
+        'totalrec_quan',
+        'discrepancy',
+        'discrepancy_quantity',
+        'status',
+        'date_received',
+        'bin_location__bin_location',
+        'ass_location__name',)
+
+    return render(request, template_name, 
+        {'req_sum_set':req_sum_list,})
+
+@login_required
+@warehouse_required
+def ExportCompReturn(request):
+    template_name = 'invsys/warehouse/CompReturn/ExportCompReturn.html'
+    
+    return_sum_list = ComponentReturn_Summary.objects.filter(schedule_num__cleared=True).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+        'schedule_num__cleared',
+        'schedule_num__issues',
+        'schedule_num__notes',
+
+        'prod_sched__work_order_number__work_order_number',
+        'prod_sched__id',
+        'item_number__item_number',
+        'totalreq_quan',
+        'totalrec_quan',
+        'discrepancy',
+        'discrepancy_quantity',
+        'status',
+        'date_received',
+        'ass_location__name',)
+
+    return render(request, template_name, 
+        {'return_sum_set':return_sum_list,})
+
+@login_required
+@warehouse_required
+def ExportPutAway(request):
+    template_name = 'invsys/warehouse/PutAway/ExportPutAway.html'
+    
+    pa_sum_list = Put_Away_Summary.objects.filter(schedule_num__cleared=True).values(
+        'schedule_num__schedule_num',
+        'schedule_num__date_scheduled',
+        'schedule_num__notes',
+        'schedule_num__cleared',
+        'schedule_num__issues',
+
+        'item_num__item_number',
+        'required_quantity',
+        'stored_quantity',
+        'bin_location__bin_location',
+        'discrepancy',
+        'discrepancy_quantity',
+        'status',
+        'date_scheduled',
+        'date_stored',
+        'reference_number',)
+
+    return render(request, template_name, 
+        {'pasum_set':pa_sum_list})
+
