@@ -247,7 +247,15 @@ def InboundShipment(request):
 @login_required
 @warehouse_required
 def InboundShipment_SelectPONum(request):
-    ponumset = Purchase_Order.objects.filter(cleared=False).values(
+
+    ship_po_query = Shipment_PO.objects.filter( validated=False ).values(
+        'po_num__po_number')
+
+    ship_po_list = []
+    for ship_po in ship_po_query:
+        ship_po_list.append( ship_po.get('po_num__po_number') )
+
+    ponumset = Purchase_Order.objects.filter(cleared=False).exclude(po_number__in=ship_po_list).values(
     'po_number',
     'purchase_date',
     )
