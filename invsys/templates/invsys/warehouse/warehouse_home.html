@@ -242,24 +242,33 @@
                 total_whsebin = data.total_whsebin;
                 loaded_whsebin = data.loaded_whsebin;
 
-                var label = [ "Non-Utilized Bins", "Utilized Bins" ]
-                var data = [ total_whsebin, loaded_whsebin ]
+                if ( (total_whsebin === 0 ) && ( loaded_whsebin === 0) ){
+                  var canvas = document.getElementById("whseutil_chart");
+                  var ctx = canvas.getContext("2d");
+                  ctx.font = "30px Helvetica";
+                  ctx.fillText("No Data Available", 10, 50);
+                }else{
+                  var label = [ "Non-Utilized Bins", "Utilized Bins" ]
+                  var data = [ total_whsebin, loaded_whsebin ]
 
-                var ctx_whseutil = $("#whseutil_chart");
+                  var ctx_whseutil = $("#whseutil_chart");
 
-                var chart_whseutil = new Chart(ctx_whseutil, {
-                  type: 'pie',
-                  data: {
-                    labels: label,
-                    datasets: [{
-                      backgroundColor: [
-                        "#f0ad4e",
-                        "#2ecc71",
-                      ],
-                      data: data
-                    }]
-                  }
-                });
+                  var chart_whseutil = new Chart(ctx_whseutil, {
+                    type: 'pie',
+                    data: {
+                      labels: label,
+                      datasets: [{
+                        backgroundColor: [
+                          "#f0ad4e",
+                          "#2ecc71",
+                        ],
+                        data: data
+                      }]
+                    }
+                  });
+                }
+
+                
 
             },
             error: function(error_data){
@@ -279,24 +288,33 @@
               for_receiving = data.for_receiving;
               validated = data.validated;
 
-              var label = [ "For Receiving", "Validated" ]
-              var data = [ for_receiving, validated ]
+              if( (for_receiving===0) && (validated===0) ){
+                var canvas = document.getElementById("purchinbound_chart");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Helvetica";
+                ctx.fillText("No Data Available", 10, 50);
+              }else{
+                var label = [ "For Receiving", "Validated" ]
+                var data = [ for_receiving, validated ]
 
-              var ctx_purchinbound = $("#purchinbound_chart");
+                var ctx_purchinbound = $("#purchinbound_chart");
 
-              var chart_purchinbound = new Chart(ctx_purchinbound, {
-                type: 'pie',
-                data: {
-                  labels: label,
-                  datasets: [{
-                    backgroundColor: [
-                      "#f0ad4e",
-                      "#2ecc71",
-                    ],
-                    data: data
-                  }]
-                }
-              });
+                var chart_purchinbound = new Chart(ctx_purchinbound, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#f0ad4e",
+                        "#2ecc71",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+              }
+
+              
 
           },
           error: function(error_data){
@@ -317,25 +335,34 @@
               closed_po = data.closed_po;
               vdr_po = data.vdr_po;
 
-              var label = ['Open','Closed','VDR'];
-              var data = [open_po, closed_po, vdr_po];
+              if( ( open_po===0 ) && ( closed_po===0 ) && ( vdr_po ===0 ) ){
+                var canvas = document.getElementById("purchstatus_chart");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Helvetica";
+                ctx.fillText("No Data Available", 10, 50);
+              }else{
+                var label = ['Open','Closed','VDR'];
+                var data = [open_po, closed_po, vdr_po];
 
-              var ctx_purchstatus = $("#purchstatus_chart");
+                var ctx_purchstatus = $("#purchstatus_chart");
 
-              var chart_purchstatus = new Chart(ctx_purchstatus, {
-                type: 'pie',
-                data: {
-                  labels: label,
-                  datasets: [{
-                    backgroundColor: [
-                      "#e74c3c",
-                      "#2ecc71",
-                      "#f0ad4e",
-                    ],
-                    data: data
-                  }]
-                }
-              });
+                var chart_purchstatus = new Chart(ctx_purchstatus, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#e74c3c",
+                        "#2ecc71",
+                        "#f0ad4e",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+              }
+
+              
 
           },
           error: function(error_data){
@@ -355,24 +382,33 @@
               pa_pending = data.pa_pending;
               pa_scheduled = data.pa_scheduled;
 
-              var label = ['Pending','Scheduled'];
-              var data = [pa_pending, pa_scheduled];
+              if( (pa_pending===0) && (pa_scheduled===0) ){
+                var canvas = document.getElementById("putaway_chart");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Helvetica";
+                ctx.fillText("No Data Available", 10, 50);
+              }else{
+                var label = ['Pending','Scheduled'];
+                var data = [pa_pending, pa_scheduled];
 
-              var ctx_putaway = $("#putaway_chart");
+                var ctx_putaway = $("#putaway_chart");
 
-              var chart_putaway = new Chart(ctx_putaway, {
-                type: 'pie',
-                data: {
-                  labels: label,
-                  datasets: [{
-                    backgroundColor: [
-                      "#e74c3c",
-                      "#2ecc71",
-                    ],
-                    data: data
-                  }]
-                }
-              });
+                var chart_putaway = new Chart(ctx_putaway, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#e74c3c",
+                        "#2ecc71",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+              }
+
+              
 
           },
           error: function(error_data){
@@ -393,25 +429,34 @@
               comp_sched = data.comp_sched;
               comp_issued = data.comp_issued;
 
-              var label = ['Pending', 'Scheduled','Issued'];
-              var data = [comp_pending, comp_sched, comp_issued];
+              if( (comp_pending===0) && ( comp_sched===0 ) && ( comp_issued===0 ) ){
+                var canvas = document.getElementById("compissue_chart");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Helvetica";
+                ctx.fillText("No Data Available", 10, 50);
+              }else{
+                var label = ['Pending', 'Scheduled','Issued'];
+                var data = [comp_pending, comp_sched, comp_issued];
 
-              var ctx_compissue = $("#compissue_chart");
+                var ctx_compissue = $("#compissue_chart");
 
-              var chart_putaway = new Chart(ctx_compissue, {
-                type: 'pie',
-                data: {
-                  labels: label,
-                  datasets: [{
-                    backgroundColor: [
-                      "#e74c3c",
-                      "#2ecc71",
-                      "#f0ad4e",
-                    ],
-                    data: data
-                  }]
-                }
-              });
+                var chart_putaway = new Chart(ctx_compissue, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#e74c3c",
+                        "#2ecc71",
+                        "#f0ad4e",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+              }
+
+              
 
           },
           error: function(error_data){
@@ -433,25 +478,34 @@
               partreq_sched = data.partreq_sched;
               partreq_issued = data.partreq_issued;
 
-              var label = ['Pending', 'Scheduled','Issued'];
-              var data = [partreq_pending, partreq_sched, partreq_issued];
+              if ( (partreq_pending===0) && (partreq_sched===0) && (partreq_issued===0) ){
+                var canvas = document.getElementById("partreq_chart");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Helvetica";
+                ctx.fillText("No Data Available", 10, 50);
+              }else{
+                var label = ['Pending', 'Scheduled','Issued'];
+                var data = [partreq_pending, partreq_sched, partreq_issued];
 
-              var ctx_partreq = $("#partreq_chart");
+                var ctx_partreq = $("#partreq_chart");
 
-              var chart_partreq = new Chart(ctx_partreq, {
-                type: 'pie',
-                data: {
-                  labels: label,
-                  datasets: [{
-                    backgroundColor: [
-                      "#e74c3c",
-                      "#2ecc71",
-                      "#f0ad4e",
-                    ],
-                    data: data
-                  }]
-                }
-              });
+                var chart_partreq = new Chart(ctx_partreq, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#e74c3c",
+                        "#2ecc71",
+                        "#f0ad4e",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+              }
+
+              
 
           },
           error: function(error_data){
@@ -473,26 +527,32 @@
               partret_sched = data.partret_sched;
               partret_issued = data.partret_issued;
 
-              var label = ['Pending', 'Scheduled','Issued'];
-              var data = [partret_pending, partret_sched, partret_issued];
+              if( (partret_pending===0) && (partret_sched===0) && (partret_issued===0) ){
+                var canvas = document.getElementById("partret_chart");
+                var ctx = canvas.getContext("2d");
+                ctx.font = "30px Helvetica";
+                ctx.fillText("No Data Available", 10, 50);
+              }else{
+                var label = ['Pending', 'Scheduled','Issued'];
+                var data = [partret_pending, partret_sched, partret_issued];
 
-              var ctx_partret = $("#partret_chart");
+                var ctx_partret = $("#partret_chart");
 
-              var chart_partret = new Chart(ctx_partret, {
-                type: 'pie',
-                data: {
-                  labels: label,
-                  datasets: [{
-                    backgroundColor: [
-                      "#e74c3c",
-                      "#2ecc71",
-                      "#f0ad4e",
-                    ],
-                    data: data
-                  }]
-                }
-              });
-
+                var chart_partret = new Chart(ctx_partret, {
+                  type: 'pie',
+                  data: {
+                    labels: label,
+                    datasets: [{
+                      backgroundColor: [
+                        "#e74c3c",
+                        "#2ecc71",
+                        "#f0ad4e",
+                      ],
+                      data: data
+                    }]
+                  }
+                });
+              }             
           },
           error: function(error_data){
               console.log("error")
@@ -557,24 +617,33 @@
                 prodship_pending = data.prodship_pending;
                 prodship_shipped = data.prodship_shipped;
 
-                var label = [ "Pending", "Shipped" ]
-                var data = [ prodship_pending, prodship_shipped ]
+                if( (prodship_shipped===0) && (prodship_pending===0) ){
+                  var canvas = document.getElementById("prodship_chart");
+                  var ctx = canvas.getContext("2d");
+                  ctx.font = "30px Helvetica";
+                  ctx.fillText("No Data Available", 10, 50);
+                }else{
+                  var label = [ "Pending", "Shipped" ]
+                  var data = [ prodship_pending, prodship_shipped ]
 
-                var ctx_prodship = $("#prodship_chart");
+                  var ctx_prodship = $("#prodship_chart");
 
-                var chart_prodship = new Chart(ctx_prodship, {
-                  type: 'pie',
-                  data: {
-                    labels: label,
-                    datasets: [{
-                      backgroundColor: [
-                        "#f0ad4e",
-                        "#2ecc71",
-                      ],
-                      data: data
-                    }]
-                  }
-                });
+                  var chart_prodship = new Chart(ctx_prodship, {
+                    type: 'pie',
+                    data: {
+                      labels: label,
+                      datasets: [{
+                        backgroundColor: [
+                          "#f0ad4e",
+                          "#2ecc71",
+                        ],
+                        data: data
+                      }]
+                    }
+                  });
+                }
+
+                
 
             },
             error: function(error_data){

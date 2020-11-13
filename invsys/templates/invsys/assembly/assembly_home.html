@@ -70,28 +70,37 @@
 		      wo_coupled = data.wo_coupled;
 		      wo_tested = data.wo_tested;
 
-		      var label = ['In Schedule','In Assembly','In Coupling','In Testing'];
-		      var data = [wo_sched, wo_assembled, wo_coupled, wo_tested];
+		      if( (wo_sched===0) && (wo_assembled===0) && (wo_coupled===0) && (wo_tested===0) ){
+		      	var canvas = document.getElementById("wostatus_chart");
+	              var ctx = canvas.getContext("2d");
+	              ctx.font = "30px Helvetica";
+	              ctx.fillText("No Data Available", 10, 50);
+		      }else{
+		      	var label = ['In Schedule','In Assembly','In Coupling','In Testing'];
+			      var data = [wo_sched, wo_assembled, wo_coupled, wo_tested];
 
-		      var ctx_wostatus = $("#wostatus_chart");
+			      var ctx_wostatus = $("#wostatus_chart");
 
-		      var chart_wostatus = new Chart(ctx_wostatus, {
-		        type: 'pie',
-		        data: {
-		          labels: label,
-		          datasets: [{
-		            backgroundColor: [
-				      "#f7f7f7",
-				      "#2ecc71",
-				      "#f0ad4e",
-				      "#5bc0de",
-				      "#292b2c",
-				      "#e74c3c",
-				    ],
-		            data: data
-		          }]
-		        }
-		      });
+			      var chart_wostatus = new Chart(ctx_wostatus, {
+			        type: 'pie',
+			        data: {
+			          labels: label,
+			          datasets: [{
+			            backgroundColor: [
+					      "#f7f7f7",
+					      "#2ecc71",
+					      "#f0ad4e",
+					      "#5bc0de",
+					      "#292b2c",
+					      "#e74c3c",
+					    ],
+			            data: data
+			          }]
+			        }
+			      });
+		      }
+
+		      
 
 		  },
 		  error: function(error_data){
